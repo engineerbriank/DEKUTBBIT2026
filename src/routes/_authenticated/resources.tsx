@@ -45,9 +45,9 @@ function Resources() {
     queryFn: () =>
       fetchResources({
         data: {
-          search: search.q || undefined,
-          unitCode: search.unit || undefined,
-          categorySlug: search.category || undefined,
+          ...(search.q ? { search: search.q } : {}),
+          ...(search.unit ? { unitCode: search.unit } : {}),
+          ...(search.category ? { categorySlug: search.category } : {}),
         },
       }),
   });

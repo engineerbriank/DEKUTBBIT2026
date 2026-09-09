@@ -125,7 +125,7 @@ export const askAI = createServerFn({ method: "POST" })
     const { data: history } = await context.supabase
       .from("ai_messages")
       .select("role,content")
-      .eq("document_id", data.documentId ?? null)
+      .eq("document_id", data.documentId ?? "")
       .order("created_at", { ascending: false })
       .limit(8);
 
@@ -277,7 +277,7 @@ export const generateExam = createServerFn({ method: "POST" })
         owner_id: context.userId,
         unit_id: data.unitId ?? null,
         title: parsed.title,
-        content: parsed as unknown as Record<string, unknown>,
+        content: parsed as never,
       })
       .select("id,created_at")
       .single();

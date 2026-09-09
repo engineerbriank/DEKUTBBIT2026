@@ -119,7 +119,7 @@ export const updateResource = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    const patch: Record<string, string> = { updated_at: new Date().toISOString() };
     if (data.title !== undefined) patch["title"] = data.title;
     if (data.description !== undefined) patch["description"] = data.description;
     if (data.topic !== undefined) patch["topic"] = data.topic;
@@ -128,7 +128,7 @@ export const updateResource = createServerFn({ method: "POST" })
     if (data.categoryId !== undefined) patch["category_id"] = data.categoryId;
     if (data.status !== undefined) patch["status"] = data.status;
 
-    const { error } = await context.supabase.from("resources").update(patch).eq("id", data.id);
+    const { error } = await context.supabase.from("resources").update(patch as never).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
