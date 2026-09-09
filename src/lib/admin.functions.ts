@@ -2,15 +2,17 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 async function assertAdmin(context: { supabase: any; userId: string }) {
-  const { data, error } = await context.supabase.rpc("has_role", {
-    _user_id: context.userId,
-    _role: "admin",
-  });
+  const { data, error } = await context.supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", context.userId)
+    .eq("role", "admin")
+    .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Forbidden: administrator access is required.");
 }
 
-/** Bootstrap: the first signed-in user may claim administrator when none exists yet. */
+/** Bootstrap: an approved email may claim administrator while no administrator exists yet. */
 export const claimFirstAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -21,6 +23,20 @@ export const claimFirstAdmin = createServerFn({ method: "POST" })
       .eq("role", "admin");
     if (error) throw new Error(error.message);
     if ((count ?? 0) > 0) throw new Error("An administrator already exists for this platform.");
+
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("email")
+      .eq("id", context.userId)
+      .maybeSingle();
+    const email = (profile?.email ?? "").trim().toLowerCase();
+    const { data: approved } = await supabaseAdmin
+      .from("admin_allowlist")
+      .select("email")
+      .eq("email", email)
+      .maybeSingle();
+    if (!approved) throw new Error("This account is not approved for administrator access.");
+
     const { error: insertError } = await supabaseAdmin
       .from("user_roles")
       .insert({ user_id: context.userId, role: "admin" });
