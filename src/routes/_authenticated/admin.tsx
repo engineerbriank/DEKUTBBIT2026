@@ -441,14 +441,43 @@ function UnitsSection() {
   );
 }
 
+type AdminSlot = {
+  id: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  venue: string;
+  lecturer: string;
+  status: string;
+  source_file: string | null;
+  group_label: string | null;
+  unit_id: string | null;
+  unit: { id: string; code: string; name: string } | null;
+};
+
 function TimetableSection() {
   const queryClient = useQueryClient();
+  const fileInput = useRef<HTMLInputElement>(null);
   const fetchUnits = useServerFn(listUnits);
-  const fetchTimetable = useServerFn(listTimetable);
+  const fetchSlots = useServerFn(adminListTimetable);
   const create = useServerFn(createClassSlot);
+  const update = useServerFn(updateClassSlot);
   const remove = useServerFn(deleteClassSlot);
+  const importFile = useServerFn(importTimetableFromFile);
+  const publishDrafts = useServerFn(publishTimetableDrafts);
+  const discardDrafts = useServerFn(discardTimetableDrafts);
+
   const { data: units } = useQuery({ queryKey: ["units"], queryFn: () => fetchUnits() });
-  const { data: slots } = useQuery({ queryKey: ["timetable"], queryFn: () => fetchTimetable() });
+  const { data } = useQuery({ queryKey: ["admin-timetable"], queryFn: () => fetchSlots() });
+  const slots = (data ?? []) as unknown as AdminSlot[];
+  const drafts = slots.filter((slot) => slot.status === "draft");
+  const live = slots.filter((slot) => slot.status === "published");
+
+  const [instruction, setInstruction] = useState(
+    "Extract the BBIT year 2 semester 1 classes only, keeping venues and lecturers as printed.",
+  );
+  const [file, setFile] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({
     unitId: "",
     dayOfWeek: 1,
@@ -457,11 +486,215 @@ function TimetableSection() {
     venue: "",
   });
 
+  const runImport = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!file) {
+      toast.error("Choose the original timetable file");
+      return;
+    }
+    setBusy(true);
+    try {
+      const { data: session } = await supabase.auth.getUser();
+      const userId = session.user?.id;
+      if (!userId) throw new Error("Please sign in again.");
+      const path = `${userId}/timetable/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_")}`;
+      const { error } = await supabase.storage.from("ai-uploads").upload(path, file, {
+        contentType: file.type || "application/octet-stream",
+      });
+      if (error) throw error;
+      const result = await importFile({
+        data: {
+          filePath: path,
+          fileName: file.name,
+          mimeType: file.type || "application/octet-stream",
+          instruction,
+        },
+      });
+      toast.success(`${result.drafted} class slots drafted — check and correct them below, then publish.`);
+      setFile(null);
+      if (fileInput.current) fileInput.current.value = "";
+      queryClient.invalidateQueries();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not read that timetable");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const patch = async (id: string, values: Parameters<typeof update>[0]["data"]) => {
+    try {
+      await update({ data: { ...values, id } });
+      queryClient.invalidateQueries();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not save the change");
+    }
+  };
+
+  const SlotRow = ({ slot, editable }: { slot: AdminSlot; editable: boolean }) => (
+    <li className="flex flex-wrap items-center gap-2 rounded-lg border border-border p-3 text-sm">
+      {editable ? (
+        <>
+          <select
+            className="h-8 rounded-md border border-input bg-card px-2 text-xs"
+            value={slot.unit_id ?? ""}
+            onChange={(event) => patch(slot.id, { unitId: event.target.value })}
+          >
+            <option value="">Unit</option>
+            {(units ?? []).map((unit) => (
+              <option key={unit.id} value={unit.id}>
+                {unit.code}
+              </option>
+            ))}
+          </select>
+          <select
+            className="h-8 rounded-md border border-input bg-card px-2 text-xs"
+            value={slot.day_of_week}
+            onChange={(event) => patch(slot.id, { dayOfWeek: Number(event.target.value) })}
+          >
+            {DAYS.map((day, index) => (
+              <option key={day} value={index}>
+                {day}
+              </option>
+            ))}
+          </select>
+          <Input
+            type="time"
+            className="h-8 w-28 text-xs"
+            defaultValue={slot.start_time.slice(0, 5)}
+            onBlur={(event) => patch(slot.id, { startTime: event.target.value })}
+          />
+          <Input
+            type="time"
+            className="h-8 w-28 text-xs"
+            defaultValue={slot.end_time.slice(0, 5)}
+            onBlur={(event) => patch(slot.id, { endTime: event.target.value })}
+          />
+          <Input
+            className="h-8 w-32 text-xs"
+            placeholder="Venue"
+            defaultValue={slot.venue}
+            onBlur={(event) => patch(slot.id, { venue: event.target.value })}
+          />
+          <Input
+            className="h-8 w-36 text-xs"
+            placeholder="Lecturer"
+            defaultValue={slot.lecturer}
+            onBlur={(event) => patch(slot.id, { lecturer: event.target.value })}
+          />
+        </>
+      ) : (
+        <span className="flex-1">
+          {DAYS[slot.day_of_week]} {slot.start_time.slice(0, 5)}–{slot.end_time.slice(0, 5)} ·{" "}
+          {slot.unit?.code ?? "No unit"} {slot.venue ? `· ${slot.venue}` : ""}
+          {slot.lecturer ? ` · ${slot.lecturer}` : ""}
+        </span>
+      )}
+      {editable ? (
+        <Button size="sm" variant="outline" onClick={() => patch(slot.id, { status: "published" })}>
+          Publish
+        </Button>
+      ) : (
+        <Button size="sm" variant="ghost" onClick={() => patch(slot.id, { status: "draft" })}>
+          Unpublish
+        </Button>
+      )}
+      <Button
+        size="icon"
+        variant="ghost"
+        aria-label="Delete class"
+        onClick={async () => {
+          await remove({ data: { id: slot.id } });
+          queryClient.invalidateQueries();
+        }}
+      >
+        <Trash2 className="size-4" />
+      </Button>
+    </li>
+  );
+
   return (
     <section className="surface-card mt-8 p-5">
       <h2 className="text-lg font-semibold">Timetable</h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Upload the original timetable, tell the assistant what to pull out, correct anything it got wrong, then
+        publish it for students.
+      </p>
+
+      <form className="mt-4 grid gap-3" onSubmit={runImport}>
+        <div className="space-y-1.5">
+          <Label htmlFor="timetable-file">Original timetable (PDF, DOCX, TXT or CSV)</Label>
+          <Input
+            id="timetable-file"
+            ref={fileInput}
+            type="file"
+            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="timetable-instruction">What should be extracted?</Label>
+          <Textarea
+            id="timetable-instruction"
+            value={instruction}
+            onChange={(event) => setInstruction(event.target.value)}
+          />
+        </div>
+        <Button type="submit" disabled={busy} className="w-fit">
+          {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+          {busy ? "Reading timetable…" : "Extract with AI"}
+        </Button>
+      </form>
+
+      <div className="mt-6">
+        <div className="flex flex-wrap items-center gap-3">
+          <h3 className="text-sm font-semibold">Draft slots ({drafts.length})</h3>
+          {drafts.length ? (
+            <>
+              <Button
+                size="sm"
+                onClick={async () => {
+                  const result = await publishDrafts();
+                  queryClient.invalidateQueries();
+                  toast.success(`${result.published} slots published to students`);
+                }}
+              >
+                Publish all drafts
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={async () => {
+                  await discardDrafts();
+                  queryClient.invalidateQueries();
+                  toast.success("Drafts discarded");
+                }}
+              >
+                Discard drafts
+              </Button>
+            </>
+          ) : null}
+        </div>
+        {drafts.length ? (
+          <ul className="mt-3 space-y-2">
+            {drafts.map((slot) => (
+              <SlotRow key={slot.id} slot={slot} editable />
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-2 text-sm text-muted-foreground">No drafts waiting. Extract a timetable above.</p>
+        )}
+      </div>
+
+      <div className="mt-8">
+        <h3 className="text-sm font-semibold">Live for students ({live.length})</h3>
+        <ul className="mt-3 space-y-2">
+          {live.map((slot) => (
+            <SlotRow key={slot.id} slot={slot} editable={false} />
+          ))}
+        </ul>
+      </div>
+
       <form
-        className="mt-4 grid gap-3 sm:grid-cols-6"
+        className="mt-8 grid gap-3 sm:grid-cols-6"
         onSubmit={async (event) => {
           event.preventDefault();
           try {
@@ -512,38 +745,10 @@ function TimetableSection() {
           value={form.venue}
           onChange={(event) => setForm({ ...form, venue: event.target.value })}
         />
-        <Button type="submit" className="sm:col-span-6 sm:w-fit">
-          Add class
+        <Button type="submit" variant="outline" className="sm:col-span-6 sm:w-fit">
+          Add one class manually
         </Button>
       </form>
-      <ul className="mt-4 space-y-2">
-        {((slots ?? []) as unknown as Array<{
-          id: string;
-          day_of_week: number;
-          start_time: string;
-          end_time: string;
-          venue: string;
-          unit: { code: string } | null;
-        }>).map((slot) => (
-          <li key={slot.id} className="flex items-center justify-between rounded-lg border border-border p-3 text-sm">
-            <span>
-              {DAYS[slot.day_of_week]} {slot.start_time.slice(0, 5)}–{slot.end_time.slice(0, 5)} ·{" "}
-              {slot.unit?.code} {slot.venue ? `· ${slot.venue}` : ""}
-            </span>
-            <Button
-              size="icon"
-              variant="ghost"
-              aria-label="Delete class"
-              onClick={async () => {
-                await remove({ data: { id: slot.id } });
-                queryClient.invalidateQueries();
-              }}
-            >
-              <Trash2 className="size-4" />
-            </Button>
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }
