@@ -521,7 +521,19 @@ function TimetableSection() {
     }
   };
 
-  const patch = async (id: string, values: Parameters<typeof update>[0]["data"]) => {
+  const patch = async (
+    id: string,
+    values: Partial<{
+      unitId: string;
+      dayOfWeek: number;
+      startTime: string;
+      endTime: string;
+      venue: string;
+      lecturer: string;
+      groupLabel: string;
+      status: "draft" | "published";
+    }>,
+  ) => {
     try {
       await update({ data: { ...values, id } });
       queryClient.invalidateQueries();
