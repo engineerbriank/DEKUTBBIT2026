@@ -122,12 +122,15 @@ export const askAI = createServerFn({ method: "POST" })
       contextText = retrieveContext(doc.extracted_text, data.question);
     }
 
-    const { data: history } = await context.supabase
+    let historyQuery = context.supabase
       .from("ai_messages")
       .select("role,content")
-      .eq("document_id", data.documentId ?? "")
       .order("created_at", { ascending: false })
       .limit(8);
+    historyQuery = data.documentId
+      ? historyQuery.eq("document_id", data.documentId)
+      : historyQuery.is("document_id", null);
+    const { data: history } = await historyQuery;
 
     const priorItems = (history ?? [])
       .reverse()
