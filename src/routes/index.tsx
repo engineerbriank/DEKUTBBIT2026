@@ -129,7 +129,7 @@ function Landing() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-primary-foreground/10 p-4">
+    <div className="glass-tint rounded-2xl p-4">
       <dd className="font-display text-2xl font-bold">{value}</dd>
       <dt className="mt-1 text-xs text-primary-foreground/75">{label}</dt>
     </div>
@@ -138,8 +138,8 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 function Feature({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
-    <div className="surface-card p-5">
-      <div className="flex size-10 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
+    <div className="surface-card p-5 transition-transform hover:-translate-y-1">
+      <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
         {icon}
       </div>
       <h3 className="mt-4 text-base font-semibold">{title}</h3>
