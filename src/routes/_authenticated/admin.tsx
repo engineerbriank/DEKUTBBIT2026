@@ -3,7 +3,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, ShieldCheck, Trash2, Upload } from "lucide-react";
+import {
+  BookOpen,
+  CalendarDays,
+  FileStack,
+  Loader2,
+  Megaphone,
+  ShieldCheck,
+  Trash2,
+  Upload,
+  Users,
+} from "lucide-react";
 
 import { AppShell, useMe } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
