@@ -303,3 +303,207 @@ export const deleteClassSlot = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/** Every class slot, drafts included — administrators only. */
+export const adminListTimetable = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase
+      .from("timetable")
+      .select(
+        "id,day_of_week,start_time,end_time,venue,lecturer,status,source_file,group_label,unit_id,unit:units(id,code,name)",
+      )
+      .order("day_of_week")
+      .order("start_time");
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const updateClassSlot = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: {
+      id: string;
+      unitId?: string;
+      dayOfWeek?: number;
+      startTime?: string;
+      endTime?: string;
+      venue?: string;
+      lecturer?: string;
+      groupLabel?: string;
+      status?: "draft" | "published";
+    }) => {
+      if (!input?.id) throw new Error("Class id is required");
+      return input;
+    },
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const patch: Record<string, unknown> = {};
+    if (data.unitId !== undefined) patch["unit_id"] = data.unitId || null;
+    if (data.dayOfWeek !== undefined) patch["day_of_week"] = data.dayOfWeek;
+    if (data.startTime !== undefined) patch["start_time"] = data.startTime;
+    if (data.endTime !== undefined) patch["end_time"] = data.endTime;
+    if (data.venue !== undefined) patch["venue"] = data.venue;
+    if (data.lecturer !== undefined) patch["lecturer"] = data.lecturer;
+    if (data.groupLabel !== undefined) patch["group_label"] = data.groupLabel;
+    if (data.status !== undefined) patch["status"] = data.status;
+    const { error } = await context.supabase.from("timetable").update(patch as never).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Publishes every draft class slot so students can see them. */
+export const publishTimetableDrafts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase
+      .from("timetable")
+      .update({ status: "published" } as never)
+      .eq("status", "draft")
+      .select("id");
+    if (error) throw new Error(error.message);
+    return { published: data?.length ?? 0 };
+  });
+
+export const discardTimetableDrafts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("timetable").delete().eq("status", "draft");
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+const TIMETABLE_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["entries"],
+  properties: {
+    entries: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["unitCode", "unitName", "dayOfWeek", "startTime", "endTime", "venue", "lecturer", "groupLabel"],
+        properties: {
+          unitCode: { type: "string" },
+          unitName: { type: "string" },
+          dayOfWeek: { type: "integer" },
+          startTime: { type: "string" },
+          endTime: { type: "string" },
+          venue: { type: "string" },
+          lecturer: { type: "string" },
+          groupLabel: { type: "string" },
+        },
+      },
+    },
+  },
+} as const;
+
+function normaliseTime(value: string) {
+  const match = /^(\d{1,2})[:.]?(\d{2})?/.exec(value.trim());
+  if (!match) return null;
+  const hour = Number(match[1]);
+  const minute = Number(match[2] ?? "0");
+  if (Number.isNaN(hour) || hour > 23 || minute > 59) return null;
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:00`;
+}
+
+/**
+ * Reads an uploaded timetable document, asks AI to turn it into class slots
+ * following the administrator's instruction, and stores them as drafts.
+ */
+export const importTimetableFromFile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { filePath: string; fileName: string; mimeType: string; instruction?: string }) => {
+    if (!input?.filePath) throw new Error("Upload the timetable file first");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: blob, error: downloadError } = await supabaseAdmin.storage
+      .from("ai-uploads")
+      .download(data.filePath);
+    if (downloadError || !blob) throw new Error(downloadError?.message ?? "Could not read the uploaded file.");
+
+    const { extractText } = await import("./doc-extract.server");
+    const text = await extractText(new Uint8Array(await blob.arrayBuffer()), data.fileName, data.mimeType);
+    if (!text || text.length < 30) {
+      throw new Error("No readable text was found in that timetable. Scanned images are not supported.");
+    }
+
+    const { callGateway, userItem } = await import("./ai-gateway.server");
+    const raw = await callGateway(
+      [
+        userItem(
+          `Timetable document "${data.fileName}":\n\n${text.slice(0, 40000)}\n\n` +
+            `Administrator instruction: ${data.instruction?.trim() || "Extract every class slot exactly as printed."}`,
+        ),
+      ],
+      {
+        instructions:
+          "You convert university timetable documents into structured class slots. " +
+          "Return one entry per class session. dayOfWeek: 0=Sunday … 6=Saturday. " +
+          "startTime and endTime use 24-hour HH:MM. unitCode is the course code as printed (uppercase, no spaces); " +
+          "unitName is the unit title if printed, otherwise repeat the code. " +
+          "venue, lecturer and groupLabel are empty strings when not stated. Never invent classes that are not in the document.",
+        jsonSchema: { name: "timetable_entries", schema: TIMETABLE_SCHEMA as unknown as Record<string, unknown> },
+      },
+    );
+
+    let parsed: { entries?: Array<Record<string, unknown>> };
+    try {
+      parsed = JSON.parse(raw) as { entries?: Array<Record<string, unknown>> };
+    } catch {
+      throw new Error("AI could not read that timetable. Try a clearer file or a more specific instruction.");
+    }
+    const entries = parsed.entries ?? [];
+    if (!entries.length) throw new Error("No class slots were found in that document.");
+
+    const { data: existingUnits } = await supabaseAdmin.from("units").select("id,code");
+    const unitByCode = new Map<string, string>(
+      (existingUnits ?? []).map((unit) => [unit.code.toUpperCase(), unit.id]),
+    );
+
+    const rows: Array<Record<string, unknown>> = [];
+    for (const entry of entries) {
+      const code = String(entry["unitCode"] ?? "").toUpperCase().replace(/\s+/g, "");
+      const start = normaliseTime(String(entry["startTime"] ?? ""));
+      const end = normaliseTime(String(entry["endTime"] ?? ""));
+      const day = Number(entry["dayOfWeek"]);
+      if (!code || !start || !end || Number.isNaN(day) || day < 0 || day > 6) continue;
+
+      let unitId = unitByCode.get(code);
+      if (!unitId) {
+        const { data: created, error: unitError } = await supabaseAdmin
+          .from("units")
+          .insert({ code, name: String(entry["unitName"] ?? code) || code })
+          .select("id")
+          .single();
+        if (unitError) continue;
+        unitId = created.id;
+        unitByCode.set(code, unitId);
+      }
+
+      rows.push({
+        unit_id: unitId,
+        day_of_week: day,
+        start_time: start,
+        end_time: end,
+        venue: String(entry["venue"] ?? ""),
+        lecturer: String(entry["lecturer"] ?? ""),
+        group_label: String(entry["groupLabel"] ?? ""),
+        status: "draft",
+        source_file: data.fileName,
+      });
+    }
+    if (!rows.length) throw new Error("The extracted rows were incomplete. Try a more specific instruction.");
+
+    const { error: insertError } = await supabaseAdmin.from("timetable").insert(rows as never);
+    if (insertError) throw new Error(insertError.message);
+    return { drafted: rows.length };
+  });
