@@ -31,21 +31,32 @@ function Landing() {
 
   return (
     <div className="min-h-screen">
-      <header className="hero-gradient text-primary-foreground">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
+      <header className="hero-gradient relative overflow-hidden text-primary-foreground">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-32 -top-32 size-[28rem] rounded-full bg-white/15 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-40 right-0 size-[26rem] rounded-full bg-accent/30 blur-3xl"
+        />
+        <div className="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
           <div className="flex items-center gap-2">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+            <div className="glass-tint flex size-10 items-center justify-center rounded-xl">
               <GraduationCap className="size-5" />
             </div>
             <span className="font-display text-lg font-semibold">BBITClassPoint</span>
           </div>
-          <Button asChild variant="secondary" size="sm">
+          <Button asChild variant="secondary" size="sm" className="rounded-full">
             <Link to="/auth">Sign in</Link>
           </Button>
         </div>
 
-        <div className="mx-auto max-w-6xl px-4 pb-20 pt-10 sm:px-6 sm:pb-28">
-          <h1 className="max-w-3xl text-4xl font-bold leading-tight sm:text-5xl">
+        <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-10 sm:px-6 sm:pb-28">
+          <span className="glass-tint inline-flex rounded-full px-3 py-1 text-xs font-medium">
+            Real files · Real timetable · Real AI
+          </span>
+          <h1 className="mt-5 max-w-3xl text-4xl font-bold leading-tight sm:text-5xl">
             Every BBIT note, past paper and timetable in one place.
           </h1>
           <p className="mt-5 max-w-2xl text-base text-primary-foreground/85 sm:text-lg">
@@ -53,10 +64,15 @@ function Landing() {
             it with an AI assistant that reads their own notes and writes practice exams.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
+            <Button asChild size="lg" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
               <Link to="/auth">Create your account</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-primary-foreground/40 bg-transparent">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="glass-tint rounded-full border-primary-foreground/40 bg-transparent hover:bg-white/20"
+            >
               <Link to="/auth">I already have an account</Link>
             </Button>
           </div>
