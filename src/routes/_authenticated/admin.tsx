@@ -35,6 +35,7 @@ import {
   discardTimetableDrafts,
   importTimetableFromFile,
   publishTimetableDrafts,
+  setMemberAdmin,
   updateClassSlot,
   updateResource,
   upsertAnnouncement,
