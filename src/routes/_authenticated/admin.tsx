@@ -22,6 +22,7 @@ import { listCategories, listUnits } from "@/lib/catalog.functions";
 import {
   adminHasOwner,
   adminListAnnouncements,
+  adminListMembers,
   adminListResources,
   adminListTimetable,
   claimFirstAdmin,
