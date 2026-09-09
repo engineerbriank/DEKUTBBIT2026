@@ -8,17 +8,23 @@ import { Loader2, ShieldCheck, Trash2, Upload } from "lucide-react";
 import { AppShell, useMe } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBytes } from "@/components/ResourceCard";
-import { listCategories, listUnits, listTimetable } from "@/lib/catalog.functions";
+import { listCategories, listUnits } from "@/lib/catalog.functions";
 import {
   adminHasOwner,
   adminListAnnouncements,
   adminListResources,
+  adminListTimetable,
   claimFirstAdmin,
   createClassSlot,
   createResource,
   deleteAnnouncement,
   deleteClassSlot,
   deleteResource,
+  deleteUnit,
+  discardTimetableDrafts,
+  importTimetableFromFile,
+  publishTimetableDrafts,
+  updateClassSlot,
   updateResource,
   upsertAnnouncement,
   upsertUnit,

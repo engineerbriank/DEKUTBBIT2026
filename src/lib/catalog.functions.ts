@@ -46,7 +46,7 @@ export const getDashboard = createServerFn({ method: "GET" })
       supabase.from("units").select("id", { count: "exact", head: true }),
       supabase.from("announcements").select("id", { count: "exact", head: true }).eq("status", "published"),
       supabase.from("categories").select("id,slug,name").order("name"),
-      supabase.from("timetable").select("id", { count: "exact", head: true }),
+      supabase.from("timetable").select("id", { count: "exact", head: true }).eq("status", "published"),
       supabase
         .from("resources")
         .select(RESOURCE_SELECT)
