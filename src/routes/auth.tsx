@@ -75,16 +75,16 @@ function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
         <Link to="/" className="mb-6 flex items-center justify-center gap-2">
-          <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg">
             <GraduationCap className="size-5" />
           </div>
           <span className="font-display text-lg font-semibold">BBITClassPoint</span>
         </Link>
 
-        <div className="surface-card p-6">
+        <div className="glass-panel p-6">
           <h1 className="text-xl font-semibold">
             {mode === "signin" ? "Sign in to your account" : "Create your student account"}
           </h1>
