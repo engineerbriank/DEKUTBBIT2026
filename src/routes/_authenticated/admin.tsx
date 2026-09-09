@@ -473,9 +473,7 @@ function TimetableSection() {
   const drafts = slots.filter((slot) => slot.status === "draft");
   const live = slots.filter((slot) => slot.status === "published");
 
-  const [instruction, setInstruction] = useState(
-    "Extract the BBIT year 2 semester 1 classes only, keeping venues and lecturers as printed.",
-  );
+  const [instruction, setInstruction] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({
