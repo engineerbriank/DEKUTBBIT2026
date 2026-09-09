@@ -3,7 +3,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, ShieldCheck, Trash2, Upload } from "lucide-react";
+import {
+  BookOpen,
+  CalendarDays,
+  FileStack,
+  Loader2,
+  Megaphone,
+  ShieldCheck,
+  Trash2,
+  Upload,
+  Users,
+} from "lucide-react";
 
 import { AppShell, useMe } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +22,7 @@ import { listCategories, listUnits } from "@/lib/catalog.functions";
 import {
   adminHasOwner,
   adminListAnnouncements,
+  adminListMembers,
   adminListResources,
   adminListTimetable,
   claimFirstAdmin,
@@ -24,6 +35,7 @@ import {
   discardTimetableDrafts,
   importTimetableFromFile,
   publishTimetableDrafts,
+  setMemberAdmin,
   updateClassSlot,
   updateResource,
   upsertAnnouncement,
@@ -34,6 +46,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -107,16 +120,140 @@ function AdminPage() {
 
   return (
     <AppShell>
-      <h1 className="text-2xl font-semibold">Admin panel</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Anything you publish here appears for students immediately.
-      </p>
-      <UploadSection />
-      <ResourceTable />
-      <UnitsSection />
-      <TimetableSection />
-      <AnnouncementsSection />
+      <div className="surface-card overflow-hidden p-0">
+        <div className="bg-gradient-to-r from-primary/15 via-primary/5 to-transparent px-5 py-6">
+          <div className="flex items-center gap-3">
+            <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/25">
+              <ShieldCheck className="size-5" />
+            </div>
+            <div>
+              <h1 className="font-display text-2xl font-semibold tracking-tight">Admin panel</h1>
+              <p className="text-sm text-muted-foreground">
+                Anything you publish here appears for students immediately.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Tabs defaultValue="resources" className="mt-6">
+        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl bg-card/60 p-1 backdrop-blur">
+          <TabsTrigger value="resources" className="gap-2 rounded-xl">
+            <FileStack className="size-4" /> Resources
+          </TabsTrigger>
+          <TabsTrigger value="units" className="gap-2 rounded-xl">
+            <BookOpen className="size-4" /> Units
+          </TabsTrigger>
+          <TabsTrigger value="timetable" className="gap-2 rounded-xl">
+            <CalendarDays className="size-4" /> Timetable
+          </TabsTrigger>
+          <TabsTrigger value="announcements" className="gap-2 rounded-xl">
+            <Megaphone className="size-4" /> Announcements
+          </TabsTrigger>
+          <TabsTrigger value="members" className="gap-2 rounded-xl">
+            <Users className="size-4" /> Members
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="resources">
+          <UploadSection />
+          <ResourceTable />
+        </TabsContent>
+        <TabsContent value="units">
+          <UnitsSection />
+        </TabsContent>
+        <TabsContent value="timetable">
+          <TimetableSection />
+        </TabsContent>
+        <TabsContent value="announcements">
+          <AnnouncementsSection />
+        </TabsContent>
+        <TabsContent value="members">
+          <MembersSection />
+        </TabsContent>
+      </Tabs>
     </AppShell>
+  );
+}
+
+function MembersSection() {
+  const queryClient = useQueryClient();
+  const { data: me } = useMe();
+  const fetchMembers = useServerFn(adminListMembers);
+  const setAdmin = useServerFn(setMemberAdmin);
+  const [search, setSearch] = useState("");
+  const { data, isLoading } = useQuery({ queryKey: ["admin-members"], queryFn: () => fetchMembers() });
+
+  const term = search.trim().toLowerCase();
+  const members = (data ?? []).filter(
+    (member) =>
+      !term ||
+      member.email.toLowerCase().includes(term) ||
+      (member.fullName ?? "").toLowerCase().includes(term),
+  );
+  const adminCount = (data ?? []).filter((member) => member.isAdmin).length;
+
+  const toggle = useMutation({
+    mutationFn: (input: { userId: string; isAdmin: boolean }) => setAdmin({ data: input }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-members"] });
+      toast.success("Member access updated");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  return (
+    <section className="surface-card mt-6 p-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold">Members ({data?.length ?? 0})</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Everyone signed up for BBITClassPoint · {adminCount} administrator{adminCount === 1 ? "" : "s"}
+          </p>
+        </div>
+        <Input
+          className="w-full sm:w-64"
+          placeholder="Search name or email"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {isLoading ? <p className="text-sm text-muted-foreground">Loading members…</p> : null}
+        {members.map((member) => (
+          <div
+            key={member.id}
+            className="flex flex-wrap items-center gap-3 rounded-xl border border-border/70 bg-card/50 p-3"
+          >
+            <div className="flex size-9 items-center justify-center rounded-full bg-primary/15 text-sm font-semibold text-primary">
+              {(member.fullName || member.email || "?").charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">{member.fullName || "Unnamed student"}</p>
+              <p className="truncate text-xs text-muted-foreground">{member.email}</p>
+            </div>
+            <span className="text-xs text-muted-foreground">
+              Joined {new Date(member.createdAt).toLocaleDateString()}
+            </span>
+            <Badge variant={member.isAdmin ? "default" : "secondary"}>
+              {member.isAdmin ? "Administrator" : "Student"}
+            </Badge>
+            <Button
+              size="sm"
+              variant={member.isAdmin ? "ghost" : "outline"}
+              disabled={toggle.isPending || member.id === me?.userId}
+              onClick={() => toggle.mutate({ userId: member.id, isAdmin: !member.isAdmin })}
+            >
+              {member.isAdmin ? "Revoke admin" : "Make admin"}
+            </Button>
+          </div>
+        ))}
+        {!isLoading && !members.length ? (
+          <p className="text-sm text-muted-foreground">No members match that search.</p>
+        ) : null}
+      </div>
+    </section>
   );
 }
 
