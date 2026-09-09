@@ -361,6 +361,7 @@ function UnitsSection() {
   const queryClient = useQueryClient();
   const fetchUnits = useServerFn(listUnits);
   const save = useServerFn(upsertUnit);
+  const removeUnit = useServerFn(deleteUnit);
   const { data } = useQuery({ queryKey: ["units"], queryFn: () => fetchUnits() });
   const [form, setForm] = useState({ code: "", name: "", lecturer: "", year: 1, semester: 1 });
 
