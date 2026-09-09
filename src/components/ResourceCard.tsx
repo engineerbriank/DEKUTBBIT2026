@@ -22,6 +22,8 @@ export function ResourceCard({ resource }: { resource: ResourceRow }) {
 
   const open = async (download: boolean) => {
     setBusy(download ? "download" : "view");
+    // Opened synchronously so browsers do not treat the later navigation as a popup.
+    const tab = download ? null : window.open("", "_blank");
     try {
       const { url, fileName } = await getLink({ data: { id: resource.id, download } });
       if (download) {
@@ -34,9 +36,11 @@ export function ResourceCard({ resource }: { resource: ResourceRow }) {
         toast.success(`Downloading ${fileName}`);
         queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       } else {
-        window.open(url, "_blank", "noopener");
+        if (tab) tab.location.href = url;
+        else window.open(url, "_blank", "noopener");
       }
     } catch (error) {
+      tab?.close();
       toast.error(error instanceof Error ? error.message : "Could not open this file");
     } finally {
       setBusy(null);
