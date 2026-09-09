@@ -644,6 +644,7 @@ function TimetableSection() {
           <Label htmlFor="timetable-instruction">What should be extracted?</Label>
           <Textarea
             id="timetable-instruction"
+            placeholder="e.g. Extract only the year 2 semester 1 classes, keeping venues and lecturers as printed."
             value={instruction}
             onChange={(event) => setInstruction(event.target.value)}
           />
