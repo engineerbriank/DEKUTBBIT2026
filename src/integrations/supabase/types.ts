@@ -274,28 +274,37 @@ export type Database = {
         Row: {
           day_of_week: number
           end_time: string
+          group_label: string | null
           id: string
           lecturer: string
+          source_file: string | null
           start_time: string
-          unit_id: string
+          status: string
+          unit_id: string | null
           venue: string
         }
         Insert: {
           day_of_week: number
           end_time: string
+          group_label?: string | null
           id?: string
           lecturer?: string
+          source_file?: string | null
           start_time: string
-          unit_id: string
+          status?: string
+          unit_id?: string | null
           venue?: string
         }
         Update: {
           day_of_week?: number
           end_time?: string
+          group_label?: string | null
           id?: string
           lecturer?: string
+          source_file?: string | null
           start_time?: string
-          unit_id?: string
+          status?: string
+          unit_id?: string | null
           venue?: string
         }
         Relationships: [
