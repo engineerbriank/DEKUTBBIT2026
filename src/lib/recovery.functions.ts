@@ -2,6 +2,14 @@ import { createServerFn } from "@tanstack/react-start";
 
 export const SUPPORT_WHATSAPP = "0142324891";
 
+const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+export function makeCode(length = 8) {
+  const bytes = new Uint8Array(length);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => ALPHABET[b % ALPHABET.length]).join("");
+}
+
 /** Public: reset a password using the personal recovery code issued at signup. */
 export const resetPasswordWithCode = createServerFn({ method: "POST" })
   .inputValidator((input: { email: string; code: string; newPassword: string }) => {
@@ -38,10 +46,9 @@ export const resetPasswordWithCode = createServerFn({ method: "POST" })
     if (updateError) throw new Error(updateError.message);
 
     // Rotate the code so it cannot be reused.
-    const { data: fresh } = await supabaseAdmin.rpc("generate_recovery_code");
     await supabaseAdmin
       .from("recovery_codes")
-      .update({ code: (fresh as unknown as string) ?? data.code, updated_at: new Date().toISOString() })
+      .update({ code: makeCode(), updated_at: new Date().toISOString() })
       .eq("user_id", profile.id);
 
     return { ok: true };
