@@ -6,7 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { listUnits } from "@/lib/catalog.functions";
 import { Badge } from "@/components/ui/badge";
 
-export const Route = createFileRoute("/_authenticated/units")({
+export const Route = createFileRoute("/_authenticated/units/")({
   head: () => ({
     meta: [
       { title: "Units — BBITClassPoint" },
