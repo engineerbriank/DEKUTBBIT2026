@@ -46,7 +46,7 @@ export const getDashboard = createServerFn({ method: "GET" })
       supabase.from("units").select("id", { count: "exact", head: true }),
       supabase.from("announcements").select("id", { count: "exact", head: true }).eq("status", "published"),
       supabase.from("categories").select("id,slug,name").order("name"),
-      supabase.from("timetable").select("id", { count: "exact", head: true }),
+      supabase.from("timetable").select("id", { count: "exact", head: true }).eq("status", "published"),
       supabase
         .from("resources")
         .select(RESOURCE_SELECT)
@@ -238,7 +238,8 @@ export const listTimetable = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("timetable")
-      .select("id,day_of_week,start_time,end_time,venue,lecturer,unit:units(id,code,name)")
+      .select("id,day_of_week,start_time,end_time,venue,lecturer,group_label,unit:units(id,code,name)")
+      .eq("status", "published")
       .order("day_of_week")
       .order("start_time");
     if (error) throw new Error(error.message);
