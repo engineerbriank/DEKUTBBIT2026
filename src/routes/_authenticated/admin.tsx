@@ -401,11 +401,38 @@ function UnitsSection() {
         />
         <Button type="submit">Add unit</Button>
       </form>
+      {!(data ?? []).length ? (
+        <p className="mt-4 text-sm text-muted-foreground">
+          No units yet. Add each unit's real code and title above, or upload the timetable below and the
+          units found in it are created for you.
+        </p>
+      ) : null}
       <ul className="mt-4 grid gap-2 sm:grid-cols-2">
         {(data ?? []).map((unit) => (
-          <li key={unit.id} className="rounded-lg border border-border p-3 text-sm">
-            <span className="font-medium">{unit.code}</span> — {unit.name}{" "}
-            <span className="text-xs text-muted-foreground">({unit.resourceCount} published)</span>
+          <li
+            key={unit.id}
+            className="flex items-center justify-between gap-2 rounded-lg border border-border p-3 text-sm"
+          >
+            <span>
+              <span className="font-medium">{unit.code}</span> — {unit.name}{" "}
+              <span className="text-xs text-muted-foreground">({unit.resourceCount} published)</span>
+            </span>
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label={`Delete ${unit.code}`}
+              onClick={async () => {
+                try {
+                  await removeUnit({ data: { id: unit.id } });
+                  queryClient.invalidateQueries();
+                  toast.success(`${unit.code} removed`);
+                } catch (error) {
+                  toast.error(error instanceof Error ? error.message : "Could not remove unit");
+                }
+              }}
+            >
+              <Trash2 className="size-4" />
+            </Button>
           </li>
         ))}
       </ul>
