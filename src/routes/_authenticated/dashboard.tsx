@@ -88,11 +88,11 @@ function Dashboard() {
 
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="surface-card p-5">
-      <div className="flex size-10 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
+    <div className="surface-card p-5 transition-transform hover:-translate-y-1">
+      <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
         {icon}
       </div>
-      <p className="mt-4 font-display text-3xl font-bold">{value}</p>
+      <p className="mt-4 font-display text-3xl font-bold text-gradient">{value}</p>
       <p className="text-sm text-muted-foreground">{label}</p>
     </div>
   );
