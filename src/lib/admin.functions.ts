@@ -55,6 +55,61 @@ export const adminHasOwner = createServerFn({ method: "GET" })
     return { hasAdmin: (count ?? 0) > 0 };
   });
 
+/** Every registered member with their role — administrators only. */
+export const adminListMembers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: profiles, error } = await supabaseAdmin
+      .from("profiles")
+      .select("id,full_name,email,created_at")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    const { data: roles } = await supabaseAdmin.from("user_roles").select("user_id,role");
+    const roleMap = new Map<string, string[]>();
+    for (const row of roles ?? []) {
+      roleMap.set(row.user_id, [...(roleMap.get(row.user_id) ?? []), row.role as string]);
+    }
+    return (profiles ?? []).map((profile) => ({
+      id: profile.id,
+      fullName: profile.full_name,
+      email: profile.email,
+      createdAt: profile.created_at,
+      isAdmin: (roleMap.get(profile.id) ?? []).includes("admin"),
+      roles: roleMap.get(profile.id) ?? [],
+    }));
+  });
+
+/** Grant or revoke administrator access for a member. */
+export const setMemberAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string; isAdmin: boolean }) => {
+    if (!input?.userId) throw new Error("Member id is required");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (data.userId === context.userId && !data.isAdmin) {
+      throw new Error("You cannot remove your own administrator access.");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (data.isAdmin) {
+      const { error } = await supabaseAdmin
+        .from("user_roles")
+        .upsert({ user_id: data.userId, role: "admin" }, { onConflict: "user_id,role" });
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await supabaseAdmin
+        .from("user_roles")
+        .delete()
+        .eq("user_id", data.userId)
+        .eq("role", "admin");
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
 export const adminListResources = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
