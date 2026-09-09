@@ -24,17 +24,20 @@ export function ResourceCard({ resource }: { resource: ResourceRow }) {
     setBusy(download ? "download" : "view");
     try {
       const { url, fileName } = await getLink({ data: { id: resource.id, download } });
+      const anchor = document.createElement("a");
+      anchor.href = url;
       if (download) {
-        const anchor = document.createElement("a");
-        anchor.href = url;
         anchor.download = fileName;
-        document.body.appendChild(anchor);
-        anchor.click();
-        anchor.remove();
+      } else {
+        anchor.target = "_blank";
+        anchor.rel = "noopener";
+      }
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      if (download) {
         toast.success(`Downloading ${fileName}`);
         queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-      } else {
-        window.open(url, "_blank", "noopener");
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not open this file");

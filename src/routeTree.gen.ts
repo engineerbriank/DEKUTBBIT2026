@@ -19,7 +19,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedExamRouteImport } from './routes/_authenticated/exam'
 import { Route as AuthenticatedResourcesRouteImport } from './routes/_authenticated/resources'
 import { Route as AuthenticatedTimetableRouteImport } from './routes/_authenticated/timetable'
-import { Route as AuthenticatedUnitsRouteImport } from './routes/_authenticated/units'
+import { Route as AuthenticatedUnitsIndexRouteImport } from './routes/_authenticated/units.index'
 import { Route as AuthenticatedUnitsCodeRouteImport } from './routes/_authenticated/units.$code'
 
 const IndexRoute = IndexRouteImport.update({
@@ -72,15 +72,15 @@ const AuthenticatedTimetableRoute = AuthenticatedTimetableRouteImport.update({
   path: '/timetable',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedUnitsRoute = AuthenticatedUnitsRouteImport.update({
-  id: '/units',
-  path: '/units',
+const AuthenticatedUnitsIndexRoute = AuthenticatedUnitsIndexRouteImport.update({
+  id: '/units/',
+  path: '/units/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedUnitsCodeRoute = AuthenticatedUnitsCodeRouteImport.update({
-  id: '/$code',
-  path: '/$code',
-  getParentRoute: () => AuthenticatedUnitsRoute,
+  id: '/units/$code',
+  path: '/units/$code',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -93,8 +93,8 @@ export interface FileRoutesByFullPath {
   '/exam': typeof AuthenticatedExamRoute
   '/resources': typeof AuthenticatedResourcesRoute
   '/timetable': typeof AuthenticatedTimetableRoute
-  '/units': typeof AuthenticatedUnitsRouteWithChildren
   '/units/$code': typeof AuthenticatedUnitsCodeRoute
+  '/units/': typeof AuthenticatedUnitsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -106,8 +106,8 @@ export interface FileRoutesByTo {
   '/exam': typeof AuthenticatedExamRoute
   '/resources': typeof AuthenticatedResourcesRoute
   '/timetable': typeof AuthenticatedTimetableRoute
-  '/units': typeof AuthenticatedUnitsRouteWithChildren
   '/units/$code': typeof AuthenticatedUnitsCodeRoute
+  '/units': typeof AuthenticatedUnitsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -121,8 +121,8 @@ export interface FileRoutesById {
   '/_authenticated/exam': typeof AuthenticatedExamRoute
   '/_authenticated/resources': typeof AuthenticatedResourcesRoute
   '/_authenticated/timetable': typeof AuthenticatedTimetableRoute
-  '/_authenticated/units': typeof AuthenticatedUnitsRouteWithChildren
   '/_authenticated/units/$code': typeof AuthenticatedUnitsCodeRoute
+  '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -136,8 +136,8 @@ export interface FileRouteTypes {
     | '/exam'
     | '/resources'
     | '/timetable'
-    | '/units'
     | '/units/$code'
+    | '/units/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -149,8 +149,8 @@ export interface FileRouteTypes {
     | '/exam'
     | '/resources'
     | '/timetable'
-    | '/units'
     | '/units/$code'
+    | '/units'
   id:
     | '__root__'
     | '/'
@@ -163,8 +163,8 @@ export interface FileRouteTypes {
     | '/_authenticated/exam'
     | '/_authenticated/resources'
     | '/_authenticated/timetable'
-    | '/_authenticated/units'
     | '/_authenticated/units/$code'
+    | '/_authenticated/units/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -245,33 +245,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTimetableRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/units': {
-      id: '/_authenticated/units'
+    '/_authenticated/units/': {
+      id: '/_authenticated/units/'
       path: '/units'
-      fullPath: '/units'
-      preLoaderRoute: typeof AuthenticatedUnitsRouteImport
+      fullPath: '/units/'
+      preLoaderRoute: typeof AuthenticatedUnitsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/units/$code': {
       id: '/_authenticated/units/$code'
-      path: '/$code'
+      path: '/units/$code'
       fullPath: '/units/$code'
       preLoaderRoute: typeof AuthenticatedUnitsCodeRouteImport
-      parentRoute: typeof AuthenticatedUnitsRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
-
-interface AuthenticatedUnitsRouteChildren {
-  AuthenticatedUnitsCodeRoute: typeof AuthenticatedUnitsCodeRoute
-}
-
-const AuthenticatedUnitsRouteChildren: AuthenticatedUnitsRouteChildren = {
-  AuthenticatedUnitsCodeRoute: AuthenticatedUnitsCodeRoute,
-}
-
-const AuthenticatedUnitsRouteWithChildren =
-  AuthenticatedUnitsRoute._addFileChildren(AuthenticatedUnitsRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
@@ -281,7 +270,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedExamRoute: typeof AuthenticatedExamRoute
   AuthenticatedResourcesRoute: typeof AuthenticatedResourcesRoute
   AuthenticatedTimetableRoute: typeof AuthenticatedTimetableRoute
-  AuthenticatedUnitsRoute: typeof AuthenticatedUnitsRouteWithChildren
+  AuthenticatedUnitsCodeRoute: typeof AuthenticatedUnitsCodeRoute
+  AuthenticatedUnitsIndexRoute: typeof AuthenticatedUnitsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -292,7 +282,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedExamRoute: AuthenticatedExamRoute,
   AuthenticatedResourcesRoute: AuthenticatedResourcesRoute,
   AuthenticatedTimetableRoute: AuthenticatedTimetableRoute,
-  AuthenticatedUnitsRoute: AuthenticatedUnitsRouteWithChildren,
+  AuthenticatedUnitsCodeRoute: AuthenticatedUnitsCodeRoute,
+  AuthenticatedUnitsIndexRoute: AuthenticatedUnitsIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
