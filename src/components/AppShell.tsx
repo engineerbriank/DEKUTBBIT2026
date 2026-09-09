@@ -50,15 +50,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   const links = [...NAV, ...(me?.isAdmin ? [{ to: "/admin", label: "Admin", icon: ShieldCheck } as const] : [])];
 
   return (
-    <div className="min-h-screen bg-background lg:flex">
+    <div className="min-h-screen lg:flex">
       <aside
         className={cn(
-          "bg-sidebar text-sidebar-foreground lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:shrink-0",
+          "border-sidebar-border bg-sidebar text-sidebar-foreground backdrop-blur-2xl lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:shrink-0 lg:border-r",
           open ? "block" : "hidden lg:block",
         )}
       >
         <div className="flex items-center gap-2 px-5 py-5">
-          <div className="flex size-9 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-lg">
             <GraduationCap className="size-5" />
           </div>
           <div>
@@ -72,8 +72,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               key={item.to}
               to={item.to}
               onClick={() => setOpen(false)}
-              activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }}
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/85 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              activeProps={{
+                className: "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm ring-1 ring-white/15",
+              }}
+              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground/85 transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             >
               <item.icon className="size-4" />
               {item.label}
@@ -83,7 +85,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-card/90 px-4 py-3 backdrop-blur">
+        <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-card px-4 py-3 backdrop-blur-xl">
           <Button
             variant="ghost"
             size="icon"
