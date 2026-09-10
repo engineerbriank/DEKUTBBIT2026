@@ -19,7 +19,9 @@ import { AppShell, useMe } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBytes } from "@/components/ResourceCard";
 import { listCategories, listUnits } from "@/lib/catalog.functions";
+import { SUPPORT_WHATSAPP } from "@/lib/recovery.functions";
 import {
+  regenerateMemberCode,
   adminHasOwner,
   adminListAnnouncements,
   adminListMembers,
@@ -181,6 +183,7 @@ function MembersSection() {
   const { data: me } = useMe();
   const fetchMembers = useServerFn(adminListMembers);
   const setAdmin = useServerFn(setMemberAdmin);
+  const newCode = useServerFn(regenerateMemberCode);
   const [search, setSearch] = useState("");
   const { data, isLoading } = useQuery({ queryKey: ["admin-members"], queryFn: () => fetchMembers() });
 
@@ -202,6 +205,15 @@ function MembersSection() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const regenerate = useMutation({
+    mutationFn: (userId: string) => newCode({ data: { userId } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-members"] });
+      toast.success("New recovery code issued");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   return (
     <section className="surface-card mt-6 p-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -209,6 +221,10 @@ function MembersSection() {
           <h2 className="text-lg font-semibold">Members ({data?.length ?? 0})</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Everyone signed up for BBITClassPoint · {adminCount} administrator{adminCount === 1 ? "" : "s"}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            When a member asks for a password reset on WhatsApp ({SUPPORT_WHATSAPP}), send them the recovery
+            code shown here. It changes automatically after they use it.
           </p>
         </div>
         <Input
@@ -236,6 +252,25 @@ function MembersSection() {
             <span className="text-xs text-muted-foreground">
               Joined {new Date(member.createdAt).toLocaleDateString()}
             </span>
+            <button
+              type="button"
+              title="Copy recovery code"
+              onClick={() => {
+                navigator.clipboard?.writeText(member.recoveryCode);
+                toast.success("Recovery code copied");
+              }}
+              className="rounded-lg border border-border/70 bg-background/60 px-2.5 py-1 font-mono text-xs tracking-widest"
+            >
+              {member.recoveryCode || "—"}
+            </button>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={regenerate.isPending}
+              onClick={() => regenerate.mutate(member.id)}
+            >
+              New code
+            </Button>
             <Badge variant={member.isAdmin ? "default" : "secondary"}>
               {member.isAdmin ? "Administrator" : "Student"}
             </Badge>
