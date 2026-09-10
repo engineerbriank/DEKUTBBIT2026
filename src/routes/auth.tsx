@@ -22,13 +22,17 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+const WHATSAPP_LINK = `https://wa.me/254${SUPPORT_WHATSAPP.replace(/^0/, "")}`;
+
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "reset">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const resetPassword = useServerFn(resetPasswordWithCode);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -48,6 +52,15 @@ function AuthPage() {
         });
         if (error) throw error;
         toast.success("Account created. Welcome to BBITClassPoint!");
+      } else if (mode === "reset") {
+        await resetPassword({ data: { email, code, newPassword: password } });
+        toast.success("Password changed. Signing you in…");
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+          setMode("signin");
+          setBusy(false);
+          return;
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -61,19 +74,12 @@ function AuthPage() {
     }
   };
 
-  const google = async () => {
-    setBusy(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
-      setBusy(false);
-      toast.error("Google sign-in failed. Try email instead.");
-      return;
-    }
-    if (result.redirected) return;
-    navigate({ to: "/dashboard" });
-  };
+  const heading =
+    mode === "signin"
+      ? "Sign in to your account"
+      : mode === "signup"
+        ? "Create your student account"
+        : "Reset your password";
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-10">
@@ -86,12 +92,23 @@ function AuthPage() {
         </Link>
 
         <div className="glass-panel p-6">
-          <h1 className="text-xl font-semibold">
-            {mode === "signin" ? "Sign in to your account" : "Create your student account"}
-          </h1>
+          <h1 className="text-xl font-semibold">{heading}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Use your student email to reach your class material.
+            {mode === "reset"
+              ? `Message ${SUPPORT_WHATSAPP} on WhatsApp to get your recovery code, then set a new password below.`
+              : "Use your student email to reach your class material."}
           </p>
+
+          {mode === "reset" ? (
+            <a
+              href={WHATSAPP_LINK}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-border/70 bg-card/60 px-4 py-2.5 text-sm font-medium text-primary transition hover:bg-card"
+            >
+              <MessageCircle className="size-4" /> Request my code on WhatsApp · {SUPPORT_WHATSAPP}
+            </a>
+          ) : null}
 
           <form className="mt-6 space-y-4" onSubmit={submit}>
             {mode === "signup" ? (
@@ -117,8 +134,20 @@ function AuthPage() {
                 required
               />
             </div>
+            {mode === "reset" ? (
+              <div className="space-y-1.5">
+                <Label htmlFor="code">Recovery code</Label>
+                <Input
+                  id="code"
+                  value={code}
+                  onChange={(event) => setCode(event.target.value.toUpperCase())}
+                  placeholder="ABCD2345"
+                  required
+                />
+              </div>
+            ) : null}
             <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{mode === "reset" ? "New password" : "Password"}</Label>
               <Input
                 id="password"
                 type="password"
@@ -129,26 +158,28 @@ function AuthPage() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={busy}>
-              {mode === "signin" ? "Sign in" : "Create account"}
+              {mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Set new password"}
             </Button>
           </form>
 
-          <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" /> or <span className="h-px flex-1 bg-border" />
-          </div>
-
-          <Button variant="outline" className="w-full" onClick={google} disabled={busy}>
-            Continue with Google
-          </Button>
+          {mode === "signin" ? (
+            <button
+              type="button"
+              className="mt-4 w-full text-center text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline"
+              onClick={() => setMode("reset")}
+            >
+              Forgot your password?
+            </button>
+          ) : null}
 
           <p className="mt-5 text-center text-sm text-muted-foreground">
-            {mode === "signin" ? "New here?" : "Already registered?"}{" "}
+            {mode === "signup" ? "Already registered?" : mode === "reset" ? "Remembered it?" : "New here?"}{" "}
             <button
               type="button"
               className="font-medium text-primary underline-offset-4 hover:underline"
-              onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+              onClick={() => setMode(mode === "signup" ? "signin" : mode === "reset" ? "signin" : "signup")}
             >
-              {mode === "signin" ? "Create an account" : "Sign in instead"}
+              {mode === "signup" || mode === "reset" ? "Sign in instead" : "Create an account"}
             </button>
           </p>
         </div>
