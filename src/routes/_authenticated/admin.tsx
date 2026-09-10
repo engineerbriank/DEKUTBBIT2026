@@ -19,7 +19,9 @@ import { AppShell, useMe } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBytes } from "@/components/ResourceCard";
 import { listCategories, listUnits } from "@/lib/catalog.functions";
+import { SUPPORT_WHATSAPP } from "@/lib/recovery.functions";
 import {
+  regenerateMemberCode,
   adminHasOwner,
   adminListAnnouncements,
   adminListMembers,
