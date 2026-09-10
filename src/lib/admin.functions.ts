@@ -71,6 +71,9 @@ export const adminListMembers = createServerFn({ method: "GET" })
     for (const row of roles ?? []) {
       roleMap.set(row.user_id, [...(roleMap.get(row.user_id) ?? []), row.role as string]);
     }
+    const { data: codes } = await supabaseAdmin.from("recovery_codes").select("user_id,code");
+    const codeMap = new Map<string, string>();
+    for (const row of codes ?? []) codeMap.set(row.user_id, row.code);
     return (profiles ?? []).map((profile) => ({
       id: profile.id,
       fullName: profile.full_name,
@@ -78,7 +81,27 @@ export const adminListMembers = createServerFn({ method: "GET" })
       createdAt: profile.created_at,
       isAdmin: (roleMap.get(profile.id) ?? []).includes("admin"),
       roles: roleMap.get(profile.id) ?? [],
+      recoveryCode: codeMap.get(profile.id) ?? "",
     }));
+  });
+
+/** Issue a fresh recovery code for a member (to send over WhatsApp). */
+export const regenerateMemberCode = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string }) => {
+    if (!input?.userId) throw new Error("Member id is required");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { makeCode } = await import("./recovery.functions");
+    const code = makeCode();
+    const { error } = await supabaseAdmin
+      .from("recovery_codes")
+      .upsert({ user_id: data.userId, code, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+    if (error) throw new Error(error.message);
+    return { code };
   });
 
 /** Grant or revoke administrator access for a member. */
