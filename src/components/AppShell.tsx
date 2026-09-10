@@ -1,3 +1,4 @@
+import logoAsset from "@/assets/bbit-logo.png.asset.json";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
