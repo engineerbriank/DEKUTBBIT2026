@@ -58,9 +58,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
       >
         <div className="flex items-center gap-2 px-5 py-5">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-lg">
-            <GraduationCap className="size-5" />
-          </div>
+          <img
+            src={logoAsset.url}
+            alt="BBITClassPoint logo"
+            className="size-10 rounded-xl object-cover shadow-lg"
+          />
           <div>
             <p className="font-display text-sm font-semibold leading-tight">BBITClassPoint</p>
             <p className="text-xs text-sidebar-foreground/70">BBIT study hub</p>
