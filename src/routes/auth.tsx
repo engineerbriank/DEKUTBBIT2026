@@ -1,3 +1,4 @@
+import logoAsset from "@/assets/bbit-logo.png.asset.json";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
