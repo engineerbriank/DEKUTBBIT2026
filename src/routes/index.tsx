@@ -42,9 +42,11 @@ function Landing() {
         />
         <div className="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
           <div className="flex items-center gap-2">
-            <div className="glass-tint flex size-10 items-center justify-center rounded-xl">
-              <GraduationCap className="size-5" />
-            </div>
+            <img
+              src={logoAsset.url}
+              alt="BBITClassPoint logo"
+              className="size-10 rounded-xl object-cover"
+            />
             <span className="font-display text-lg font-semibold">BBITClassPoint</span>
           </div>
           <Button asChild variant="secondary" size="sm" className="rounded-full">
