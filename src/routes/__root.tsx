@@ -91,6 +91,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      {
+        property: "og:image",
+        content: "https://project--f06bf871-8c19-4840-bf79-25eef4adfcd6.lovable.app/social-image.png",
+      },
+      {
+        name: "twitter:image",
+        content: "https://project--f06bf871-8c19-4840-bf79-25eef4adfcd6.lovable.app/social-image.png",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
