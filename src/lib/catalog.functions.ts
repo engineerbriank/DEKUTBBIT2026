@@ -82,8 +82,8 @@ export const getMe = createServerFn({ method: "GET" })
     if (roleList.length === 0) roleList.push(...provisioned.roles);
     return {
       userId: context.userId,
-      email: profile?.email ?? "",
-      fullName: profile?.full_name ?? "",
+      email: profile?.email || provisioned.email,
+      fullName: profile?.full_name || provisioned.fullName,
       isAdmin: roleList.includes("admin"),
       roles: roleList,
     };
