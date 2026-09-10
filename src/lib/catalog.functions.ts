@@ -20,18 +20,70 @@ export type ResourceRow = {
 const RESOURCE_SELECT =
   "id,title,description,topic,lecturer,status,file_name,file_size,mime_type,download_count,created_at,unit:units(id,code,name),category:categories(id,slug,name)";
 
+/**
+ * Makes sure the signed-in member has a profile row, a role and a recovery code.
+ * Approved emails (admin_allowlist) are granted administrator access automatically.
+ */
+async function provisionMember(userId: string, claims: Record<string, unknown>) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { makeCode } = await import("./recovery.functions");
+
+  const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(userId);
+  const email = (authUser?.user?.email ?? (claims["email"] as string) ?? "").trim().toLowerCase();
+  const metadata = (authUser?.user?.user_metadata ?? {}) as Record<string, unknown>;
+  const fullName = ((metadata["full_name"] as string) ?? "").trim();
+
+  await supabaseAdmin
+    .from("profiles")
+    .upsert({ id: userId, email, full_name: fullName }, { onConflict: "id" });
+
+  await supabaseAdmin
+    .from("recovery_codes")
+    .upsert({ user_id: userId, code: makeCode() }, { onConflict: "user_id", ignoreDuplicates: true });
+
+  const { data: existingRoles } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  const roles = (existingRoles ?? []).map((row) => row.role as string);
+
+  if (email) {
+    const { data: approved } = await supabaseAdmin
+      .from("admin_allowlist")
+      .select("email")
+      .eq("email", email)
+      .maybeSingle();
+    if (approved && !roles.includes("admin")) {
+      await supabaseAdmin.from("user_roles").insert({ user_id: userId, role: "admin" });
+      roles.push("admin");
+    }
+  }
+
+  if (roles.length === 0) {
+    await supabaseAdmin.from("user_roles").insert({ user_id: userId, role: "student" });
+    roles.push("student");
+  }
+
+  return { email, fullName, roles };
+}
+
 export const getMe = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const provisioned = await provisionMember(
+      context.userId,
+      (context.claims ?? {}) as Record<string, unknown>,
+    );
     const [{ data: profile }, { data: roles }] = await Promise.all([
       context.supabase.from("profiles").select("id,full_name,email").eq("id", context.userId).maybeSingle(),
       context.supabase.from("user_roles").select("role").eq("user_id", context.userId),
     ]);
     const roleList = (roles ?? []).map((row) => row.role as string);
+    if (roleList.length === 0) roleList.push(...provisioned.roles);
     return {
       userId: context.userId,
-      email: profile?.email ?? "",
-      fullName: profile?.full_name ?? "",
+      email: profile?.email || provisioned.email,
+      fullName: profile?.full_name || provisioned.fullName,
       isAdmin: roleList.includes("admin"),
       roles: roleList,
     };
