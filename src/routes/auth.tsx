@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { GraduationCap, MessageCircle } from "lucide-react";
+import { Eye, EyeOff, MessageCircle } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { resetPasswordWithCode, SUPPORT_WHATSAPP } from "@/lib/recovery.functions";
@@ -33,6 +33,7 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const resetPassword = useServerFn(resetPasswordWithCode);
 
   useEffect(() => {
