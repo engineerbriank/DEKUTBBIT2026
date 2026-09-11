@@ -37,21 +37,26 @@ function Dashboard() {
           icon={<FileStack className="size-5" />}
           label="Published resources"
           value={isLoading ? "…" : String(data?.totalResources ?? 0)}
+          to="/resources"
+          search={{ category: "", q: "", unit: "" }}
         />
         <StatCard
           icon={<BookOpen className="size-5" />}
           label="Units"
           value={isLoading ? "…" : String(data?.totalUnits ?? 0)}
+          to="/units"
         />
         <StatCard
           icon={<CalendarDays className="size-5" />}
           label="Scheduled classes"
           value={isLoading ? "…" : String(data?.totalClasses ?? 0)}
+          to="/timetable"
         />
         <StatCard
           icon={<Megaphone className="size-5" />}
           label="Announcements"
           value={isLoading ? "…" : String(data?.totalAnnouncements ?? 0)}
+          to="/announcements"
         />
       </div>
 
