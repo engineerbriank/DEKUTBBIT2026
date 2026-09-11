@@ -91,14 +91,31 @@ function Dashboard() {
   );
 }
 
-function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function StatCard({
+  icon,
+  label,
+  value,
+  to,
+  search,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  to: "/resources" | "/units" | "/timetable" | "/announcements";
+  search?: { category: string; q: string; unit: string };
+}) {
   return (
-    <div className="surface-card p-5 transition-transform hover:-translate-y-1">
-      <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+    <Link
+      to={to}
+      {...(search ? { search } : {})}
+      preload="intent"
+      className="surface-card group p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-raised)]"
+    >
+      <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20 transition-colors group-hover:bg-primary/20">
         {icon}
       </div>
       <p className="mt-4 font-display text-3xl font-bold text-gradient">{value}</p>
       <p className="text-sm text-muted-foreground">{label}</p>
-    </div>
+    </Link>
   );
 }
