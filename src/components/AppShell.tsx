@@ -7,8 +7,13 @@ import {
   Bell,
   BookOpen,
   CalendarDays,
+  ClipboardList,
   FolderClosed,
   Home,
+  Menu,
+  Settings,
+  ShieldCheck,
+  Sparkles,
   User,
   Users,
 } from "lucide-react";
@@ -17,13 +22,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { getMe } from "@/lib/catalog.functions";
 import { listNotifications } from "@/lib/hub.functions";
 import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
-const BOTTOM_NAV = [
+const PRIMARY_NAV = [
   { to: "/dashboard", label: "Home", icon: Home },
   { to: "/timetable", label: "Timetable", icon: CalendarDays },
   { to: "/resources", label: "Resources", icon: FolderClosed },
   { to: "/groups", label: "Groups", icon: Users },
   { to: "/profile", label: "Profile", icon: User },
+] as const;
+
+const MORE_NAV = [
+  { to: "/units", label: "My Units", icon: BookOpen },
+  { to: "/assignments", label: "Assignments", icon: ClipboardList },
+  { to: "/calendar", label: "Calendar", icon: CalendarDays },
+  { to: "/ai", label: "AI Assistant", icon: Sparkles },
+  { to: "/notifications", label: "Notifications", icon: Bell },
 ] as const;
 
 export function useMe() {
@@ -37,6 +51,7 @@ export function useNotifications() {
     queryKey: ["notifications"],
     queryFn: () => fetchNotifications(),
     staleTime: 30_000,
+    refetchInterval: 60_000,
   });
 }
 
@@ -50,10 +65,6 @@ export function useSignOut() {
   };
 }
 
-/**
- * Mobile-app frame: navy header, rounded white sheet for content and a fixed
- * five-item bottom navigation. `header` replaces the default title row.
- */
 export function AppShell({
   children,
   title,
@@ -67,28 +78,91 @@ export function AppShell({
   header?: ReactNode;
   action?: ReactNode;
 }) {
+  const { data: me } = useMe();
   return (
-    <div className="flex min-h-screen justify-center bg-navy">
-      <div className="relative flex w-full max-w-[430px] flex-col bg-navy">
-        <div className="navy-gradient px-5 pb-5 pt-6 text-navy-foreground">
-          {header ?? (
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-              <div className="flex min-w-0 items-center gap-3">
-                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/12 text-navy-foreground ring-1 ring-white/15">
-                  {icon ?? <BookOpen className="size-5" />}
-                </span>
-                <h1 className="truncate font-display text-xl font-semibold">{title ?? "BBITClassPoint"}</h1>
+    <div className="min-h-screen bg-navy lg:p-5">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1240px] overflow-hidden bg-navy lg:min-h-[calc(100vh-2.5rem)] lg:rounded-[2rem] lg:border lg:border-white/10 lg:shadow-2xl">
+        <DesktopSidebar isAdmin={Boolean(me?.isAdmin)} isClassRep={Boolean(me?.roles?.includes("class_rep"))} />
+        <div className="relative flex min-w-0 flex-1 flex-col">
+          <header className="navy-gradient px-5 pb-6 pt-5 text-navy-foreground sm:px-7 lg:px-9 lg:pb-8 lg:pt-7">
+            {header ?? (
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <MobileMenu isAdmin={Boolean(me?.isAdmin)} isClassRep={Boolean(me?.roles?.includes("class_rep"))} />
+                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/12 text-navy-foreground ring-1 ring-white/15 lg:hidden">
+                    {icon ?? <BookOpen className="size-5" />}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="hidden text-xs font-semibold uppercase tracking-[0.18em] text-navy-foreground/55 lg:block">BBITClassPoint</p>
+                    <h1 className="truncate font-display text-xl font-semibold sm:text-2xl">{title ?? "BBITClassPoint"}</h1>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">{action ?? <HeaderBellLink />}</div>
               </div>
-              {action}
-            </div>
-          )}
+            )}
+          </header>
+          <main className="app-sheet min-h-[70vh] flex-1 px-4 pb-28 pt-5 text-foreground sm:px-7 lg:rounded-t-[2rem] lg:px-9 lg:pb-10 lg:pt-7">
+            <div className="mx-auto w-full max-w-5xl">{children}</div>
+          </main>
+          <BottomNav />
         </div>
-
-        <main className="app-sheet min-h-[70vh] flex-1 px-4 pb-28 pt-5 text-foreground">{children}</main>
-
-        <BottomNav />
       </div>
     </div>
+  );
+}
+
+function DesktopSidebar({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep: boolean }) {
+  return (
+    <aside className="hidden w-64 shrink-0 flex-col border-r border-white/10 bg-navy px-4 py-6 text-navy-foreground lg:flex">
+      <Link to="/dashboard" className="flex items-center gap-3 px-3">
+        <AppLogo className="size-11" />
+        <div><p className="font-display font-bold">BBITClassPoint</p><p className="text-[11px] text-white/55">Academic hub</p></div>
+      </Link>
+      <nav className="mt-8 space-y-1">
+        {[...PRIMARY_NAV, ...MORE_NAV].map((item) => <NavLink key={item.to} item={item} />)}
+        {isAdmin ? <NavLink item={{ to: "/admin", label: "Admin Panel", icon: ShieldCheck }} /> : null}
+        {isClassRep && !isAdmin ? <NavLink item={{ to: "/class-rep", label: "Class Rep", icon: Settings }} /> : null}
+      </nav>
+      <div className="mt-auto rounded-2xl bg-white/7 p-4 ring-1 ring-white/10">
+        <p className="text-xs font-semibold">Learn together</p>
+        <p className="mt-1 text-[11px] leading-relaxed text-white/55">Real class material, organized for every BBIT student.</p>
+      </div>
+    </aside>
+  );
+}
+
+function NavLink({ item }: { item: { to: string; label: string; icon: typeof Home } }) {
+  const Icon = item.icon;
+  return (
+    <Link
+      to={item.to as never}
+      {...(item.to === "/resources" ? { search: { q: "", unit: "", category: "" } } : {})}
+      activeProps={{ className: "bg-white/12 text-white" }}
+      inactiveProps={{ className: "text-white/65 hover:bg-white/7 hover:text-white" }}
+      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition"
+    >
+      <Icon className="size-4.5" /> {item.label}
+    </Link>
+  );
+}
+
+function MobileMenu({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep: boolean }) {
+  return (
+    <Sheet>
+      <SheetTrigger asChild>
+        <button type="button" aria-label="Open navigation" className="grid size-10 place-items-center rounded-xl bg-white/12 ring-1 ring-white/15 lg:hidden">
+          <Menu className="size-5" />
+        </button>
+      </SheetTrigger>
+      <SheetContent side="left" className="w-[86%] border-white/10 bg-navy p-5 text-navy-foreground">
+        <SheetHeader className="text-left"><SheetTitle className="flex items-center gap-3 text-white"><AppLogo /> BBITClassPoint</SheetTitle></SheetHeader>
+        <nav className="mt-7 space-y-1">
+          {MORE_NAV.map((item) => <NavLink key={item.to} item={item} />)}
+          {isAdmin ? <NavLink item={{ to: "/admin", label: "Admin Panel", icon: ShieldCheck }} /> : null}
+          {isClassRep && !isAdmin ? <NavLink item={{ to: "/class-rep", label: "Class Rep", icon: Settings }} /> : null}
+        </nav>
+      </SheetContent>
+    </Sheet>
   );
 }
 
@@ -96,47 +170,25 @@ export function HeaderBellLink() {
   const { data } = useNotifications();
   const unread = data?.unread ?? 0;
   return (
-    <Link
-      to="/notifications"
-      aria-label="Notifications"
-      className="relative grid size-10 place-items-center rounded-xl bg-white/12 ring-1 ring-white/15"
-    >
+    <Link to="/notifications" aria-label={`${unread} unread notifications`} className="relative grid size-10 place-items-center rounded-xl bg-white/12 ring-1 ring-white/15 transition hover:bg-white/20">
       <Bell className="size-5" />
-      {unread > 0 ? (
-        <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
-          {unread}
-        </span>
-      ) : null}
+      {unread > 0 ? <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">{unread > 99 ? "99+" : unread}</span> : null}
     </Link>
   );
 }
 
 export function AppLogo({ className }: { className?: string }) {
-  return (
-    <img
-      src={logoAsset.url}
-      alt="BBITClassPoint logo"
-      className={cn("size-10 rounded-xl object-cover", className)}
-    />
-  );
+  return <img src={logoAsset.url} alt="BBITClassPoint logo" className={cn("size-10 rounded-xl object-cover", className)} />;
 }
 
 function BottomNav() {
   return (
-    <nav className="fixed bottom-0 z-30 w-full max-w-[430px] border-t border-border bg-card pb-[env(safe-area-inset-bottom)]">
-      <ul className="grid grid-cols-5">
-        {BOTTOM_NAV.map((item) => (
+    <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto w-full border-t border-border/80 bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgb(13_32_51/0.08)] backdrop-blur-xl lg:hidden">
+      <ul className="mx-auto grid max-w-[560px] grid-cols-5">
+        {PRIMARY_NAV.map((item) => (
           <li key={item.to}>
-            <Link
-              to={item.to}
-              {...(item.to === "/resources" ? { search: { q: "", unit: "", category: "" } } : {})}
-              preload="intent"
-              activeProps={{ className: "text-accent" }}
-              inactiveProps={{ className: "text-muted-foreground" }}
-              className="flex flex-col items-center gap-1 py-2.5 text-[10px] font-semibold"
-            >
-              <item.icon className="size-5" />
-              {item.label}
+            <Link to={item.to} {...(item.to === "/resources" ? { search: { q: "", unit: "", category: "" } } : {})} preload="intent" activeProps={{ className: "text-accent" }} inactiveProps={{ className: "text-muted-foreground" }} className="relative flex min-h-16 flex-col items-center justify-center gap-1 text-[10px] font-semibold">
+              <item.icon className="size-5" />{item.label}
             </Link>
           </li>
         ))}
