@@ -133,10 +133,22 @@ function DesktopSidebar({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep:
 
 function NavLink({ item }: { item: { to: string; label: string; icon: typeof Home } }) {
   const Icon = item.icon;
+  if (item.to === "/resources") {
+    return (
+      <Link
+        to="/resources"
+        search={{ q: "", unit: "", category: "" }}
+        activeProps={{ className: "bg-white/12 text-white" }}
+        inactiveProps={{ className: "text-white/65 hover:bg-white/7 hover:text-white" }}
+        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition"
+      >
+        <Icon className="size-4.5" /> {item.label}
+      </Link>
+    );
+  }
   return (
     <Link
       to={item.to as never}
-      {...(item.to === "/resources" ? { search: { q: "", unit: "", category: "" } } : {})}
       activeProps={{ className: "bg-white/12 text-white" }}
       inactiveProps={{ className: "text-white/65 hover:bg-white/7 hover:text-white" }}
       className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition"
