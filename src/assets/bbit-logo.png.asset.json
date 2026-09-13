@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "910a163b-df22-44f4-9a96-be1e1c7717cd",
-  "project_id": "f06bf871-8c19-4840-bf79-25eef4adfcd6",
-  "url": "/__l5e/assets-v1/910a163b-df22-44f4-9a96-be1e1c7717cd/bbit-logo.png",
-  "r2_key": "a/v1/f06bf871-8c19-4840-bf79-25eef4adfcd6/910a163b-df22-44f4-9a96-be1e1c7717cd/bbit-logo.png",
-  "original_filename": "bbit-logo.png",
-  "size": 1404607,
   "content_type": "image/png",
-  "created_at": "2026-09-10T04:00:45Z"
+  "created_at": "2026-09-10T04:00:45Z",
+  "original_filename": "bbit-logo.png",
+  "project_id": "0295e0d2-7108-4291-9394-c58468273348",
+  "r2_key": "a/v1/0295e0d2-7108-4291-9394-c58468273348/910a163b-df22-44f4-9a96-be1e1c7717cd/bbit-logo.png",
+  "size": 1404607,
+  "url": "/__l5e/assets-v1/910a163b-df22-44f4-9a96-be1e1c7717cd/bbit-logo.png",
+  "version": 1
 }
