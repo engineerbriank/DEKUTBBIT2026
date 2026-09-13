@@ -58,7 +58,7 @@ function Dashboard() {
   const { data, isLoading } = useQuery({ queryKey: ["dashboard"], queryFn: () => fetchDashboard() });
   const { data: timetable } = useQuery({ queryKey: ["timetable"], queryFn: () => fetchTimetable() });
 
-  const firstName = (me?.fullName || me?.email || "there").split(/[\s@]/)[0];
+  const firstName = (me?.fullName || me?.email || "there").split(/[\s@]/)[0] ?? "there";
   const today = new Date();
   const todaySlots = ((timetable ?? []) as unknown as Slot[])
     .filter((slot) => slot.day_of_week === today.getDay())
