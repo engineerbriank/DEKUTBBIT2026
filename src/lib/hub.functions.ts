@@ -249,6 +249,21 @@ export const markNotificationsRead = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const markNotificationRead = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => {
+    if (!input?.id) throw new Error("Notification is required");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("notification_reads").upsert(
+      { notification_id: data.id, user_id: context.userId },
+      { onConflict: "notification_id,user_id", ignoreDuplicates: true },
+    );
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 export const createNotification = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { title: string; body?: string; kind?: string; link?: string }) => {
@@ -344,8 +359,40 @@ export const getProfileOverview = createServerFn({ method: "GET" })
       email: profile?.email ?? "",
       joinedAt: profile?.created_at ?? null,
       isAdmin: roleList.includes("admin"),
+      isClassRep: roleList.includes("class_rep"),
+      roles: roleList,
       groupCount: (groups ?? []).length,
       recoveryCode: code?.code ?? "",
+    };
+  });
+
+/* -------------------------- class representative -------------------------- */
+
+export const getClassRepOverview = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: ownRoles } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId);
+    const allowed = (ownRoles ?? []).some((row) => row.role === "class_rep" || row.role === "admin");
+    if (!allowed) throw new Error("Class representative access is required.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [profiles, roles, groups, assignments, resources] = await Promise.all([
+      supabaseAdmin.from("profiles").select("id,full_name,email,created_at").order("full_name"),
+      supabaseAdmin.from("user_roles").select("user_id,role"),
+      supabaseAdmin.from("study_groups").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("assignments").select("id", { count: "exact", head: true }).eq("status", "published"),
+      supabaseAdmin.from("resources").select("id", { count: "exact", head: true }).eq("status", "published"),
+    ]);
+    const roleMap = new Map<string, string[]>();
+    for (const row of roles.data ?? []) roleMap.set(row.user_id, [...(roleMap.get(row.user_id) ?? []), row.role]);
+    return {
+      members: (profiles.data ?? []).map((profile) => ({ ...profile, roles: roleMap.get(profile.id) ?? [] })),
+      groupCount: groups.count ?? 0,
+      assignmentCount: assignments.count ?? 0,
+      resourceCount: resources.count ?? 0,
     };
   });
 

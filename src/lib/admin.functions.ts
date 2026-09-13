@@ -133,6 +133,32 @@ export const setMemberAdmin = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/** Grant or revoke class-representative access for a member. */
+export const setMemberClassRep = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string; isClassRep: boolean }) => {
+    if (!input?.userId) throw new Error("Member id is required");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (data.isClassRep) {
+      const { error } = await supabaseAdmin
+        .from("user_roles")
+        .upsert({ user_id: data.userId, role: "class_rep" }, { onConflict: "user_id,role" });
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await supabaseAdmin
+        .from("user_roles")
+        .delete()
+        .eq("user_id", data.userId)
+        .eq("role", "class_rep");
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
 export const adminListResources = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

@@ -62,9 +62,9 @@
 
 :root {
   --radius: 0.9rem;
-  --background: #f4f9fc;
+  --background: #f3f8fc;
   --foreground: #0d2033;
-  --card: #ffffff;
+  --card: rgb(255 255 255 / 0.88);
   --card-foreground: #0d2033;
   --popover: #ffffff;
   --popover-foreground: #0d2033;
@@ -101,7 +101,7 @@
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #0a3f63;
   --sidebar-ring: #00a86b;
-  --shadow-card: 0 1px 2px rgb(13 32 51 / 0.04), 0 8px 24px rgb(13 32 51 / 0.07);
+  --shadow-card: 0 1px 2px rgb(13 32 51 / 0.04), 0 10px 30px rgb(13 32 51 / 0.08);
   --shadow-raised: 0 14px 34px rgb(0 43 71 / 0.16);
 }
 
@@ -141,6 +141,7 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    min-width: 320px;
   }
 
   h1,
@@ -158,13 +159,15 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-card);
+  backdrop-filter: blur(18px);
 }
 
 @utility glass-panel {
-  background-color: var(--color-card);
-  border: 1px solid var(--color-border);
+  background-color: rgb(255 255 255 / 0.82);
+  border: 1px solid rgb(255 255 255 / 0.72);
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-raised);
+  backdrop-filter: blur(22px);
 }
 
 @utility glass-tint {
@@ -188,9 +191,30 @@
 
 /* Rounded white sheet that sits over the navy header */
 @utility app-sheet {
-  background-color: var(--color-background);
+  background-image: radial-gradient(circle at 90% 5%, rgb(0 168 107 / 0.07), transparent 22rem), linear-gradient(var(--color-background), var(--color-background));
   border-top-left-radius: 1.75rem;
   border-top-right-radius: 1.75rem;
+}
+
+@utility page-intro {
+  margin-bottom: 1.25rem;
+}
+
+@utility empty-state {
+  background-color: rgb(255 255 255 / 0.58);
+  border: 1px dashed var(--color-input);
+  border-radius: var(--radius-xl);
+  padding: 2rem 1.25rem;
+  text-align: center;
+  color: var(--color-muted-foreground);
+  font-size: 0.875rem;
+}
+
+button, a { -webkit-tap-highlight-color: transparent; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .surface-card { transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
+  a.surface-card:hover, button.surface-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-raised); }
 }
 
 @utility pill {
