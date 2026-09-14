@@ -38,6 +38,7 @@ import {
   importTimetableFromFile,
   publishTimetableDrafts,
   setMemberAdmin,
+  setMemberClassRep,
   updateClassSlot,
   updateResource,
   upsertAnnouncement,
@@ -183,6 +184,7 @@ function MembersSection() {
   const { data: me } = useMe();
   const fetchMembers = useServerFn(adminListMembers);
   const setAdmin = useServerFn(setMemberAdmin);
+  const setClassRep = useServerFn(setMemberClassRep);
   const newCode = useServerFn(regenerateMemberCode);
   const [search, setSearch] = useState("");
   const { data, isLoading } = useQuery({ queryKey: ["admin-members"], queryFn: () => fetchMembers() });
@@ -201,6 +203,15 @@ function MembersSection() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-members"] });
       toast.success("Member access updated");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const toggleClassRep = useMutation({
+    mutationFn: (input: { userId: string; isClassRep: boolean }) => setClassRep({ data: input }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-members"] });
+      toast.success("Class representative access updated");
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -274,6 +285,14 @@ function MembersSection() {
             <Badge variant={member.isAdmin ? "default" : "secondary"}>
               {member.isAdmin ? "Administrator" : "Student"}
             </Badge>
+            <Button
+              size="sm"
+              variant={member.roles.includes("class_rep") ? "default" : "outline"}
+              disabled={toggleClassRep.isPending}
+              onClick={() => toggleClassRep.mutate({ userId: member.id, isClassRep: !member.roles.includes("class_rep") })}
+            >
+              {member.roles.includes("class_rep") ? "Remove class rep" : "Make class rep"}
+            </Button>
             <Button
               size="sm"
               variant={member.isAdmin ? "ghost" : "outline"}
