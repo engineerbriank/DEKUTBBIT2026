@@ -17,6 +17,7 @@ import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 import { Route as AuthenticatedAnnouncementsRouteImport } from './routes/_authenticated/announcements'
 import { Route as AuthenticatedAssignmentsRouteImport } from './routes/_authenticated/assignments'
 import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
+import { Route as AuthenticatedClassRepRouteImport } from './routes/_authenticated/class-rep'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedExamRouteImport } from './routes/_authenticated/exam'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
@@ -66,6 +67,11 @@ const AuthenticatedAssignmentsRoute =
 const AuthenticatedCalendarRoute = AuthenticatedCalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedClassRepRoute = AuthenticatedClassRepRouteImport.update({
+  id: '/class-rep',
+  path: '/class-rep',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/announcements': typeof AuthenticatedAnnouncementsRoute
   '/assignments': typeof AuthenticatedAssignmentsRoute
   '/calendar': typeof AuthenticatedCalendarRoute
+  '/class-rep': typeof AuthenticatedClassRepRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exam': typeof AuthenticatedExamRoute
   '/groups': typeof AuthenticatedGroupsRoute
@@ -141,6 +148,7 @@ export interface FileRoutesByTo {
   '/announcements': typeof AuthenticatedAnnouncementsRoute
   '/assignments': typeof AuthenticatedAssignmentsRoute
   '/calendar': typeof AuthenticatedCalendarRoute
+  '/class-rep': typeof AuthenticatedClassRepRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exam': typeof AuthenticatedExamRoute
   '/groups': typeof AuthenticatedGroupsRoute
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/_authenticated/announcements': typeof AuthenticatedAnnouncementsRoute
   '/_authenticated/assignments': typeof AuthenticatedAssignmentsRoute
   '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
+  '/_authenticated/class-rep': typeof AuthenticatedClassRepRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/exam': typeof AuthenticatedExamRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/announcements'
     | '/assignments'
     | '/calendar'
+    | '/class-rep'
     | '/dashboard'
     | '/exam'
     | '/groups'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/announcements'
     | '/assignments'
     | '/calendar'
+    | '/class-rep'
     | '/dashboard'
     | '/exam'
     | '/groups'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/_authenticated/announcements'
     | '/_authenticated/assignments'
     | '/_authenticated/calendar'
+    | '/_authenticated/class-rep'
     | '/_authenticated/dashboard'
     | '/_authenticated/exam'
     | '/_authenticated/groups'
@@ -293,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCalendarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/class-rep': {
+      id: '/_authenticated/class-rep'
+      path: '/class-rep'
+      fullPath: '/class-rep'
+      preLoaderRoute: typeof AuthenticatedClassRepRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -365,6 +384,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAnnouncementsRoute: typeof AuthenticatedAnnouncementsRoute
   AuthenticatedAssignmentsRoute: typeof AuthenticatedAssignmentsRoute
   AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
+  AuthenticatedClassRepRoute: typeof AuthenticatedClassRepRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExamRoute: typeof AuthenticatedExamRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
@@ -382,6 +402,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAnnouncementsRoute: AuthenticatedAnnouncementsRoute,
   AuthenticatedAssignmentsRoute: AuthenticatedAssignmentsRoute,
   AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
+  AuthenticatedClassRepRoute: AuthenticatedClassRepRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExamRoute: AuthenticatedExamRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
