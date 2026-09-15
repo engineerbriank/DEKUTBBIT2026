@@ -56,6 +56,7 @@ export const listDocuments = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("ai_documents")
       .select("id,file_name,char_count,created_at")
+      .eq("owner_id", context.userId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
@@ -72,8 +73,13 @@ export const deleteDocument = createServerFn({ method: "POST" })
       .from("ai_documents")
       .select("file_path")
       .eq("id", data.id)
+      .eq("owner_id", context.userId)
       .maybeSingle();
-    const { error } = await context.supabase.from("ai_documents").delete().eq("id", data.id);
+    const { error } = await context.supabase
+      .from("ai_documents")
+      .delete()
+      .eq("id", data.id)
+      .eq("owner_id", context.userId);
     if (error) throw new Error(error.message);
     if (doc?.file_path) {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -89,6 +95,7 @@ export const listMessages = createServerFn({ method: "POST" })
     let query = context.supabase
       .from("ai_messages")
       .select("id,role,content,created_at,document_id")
+      .eq("owner_id", context.userId)
       .order("created_at");
     query = data.documentId ? query.eq("document_id", data.documentId) : query.is("document_id", null);
     const { data: rows, error } = await query;
