@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect } from "react";
 import { ArrowLeft, Bell, BookOpen, CalendarClock, FileText, Megaphone, Users } from "lucide-react";
 
 import { AppShell, useNotifications } from "@/components/AppShell";
