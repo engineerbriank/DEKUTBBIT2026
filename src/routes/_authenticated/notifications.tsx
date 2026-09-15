@@ -1,11 +1,10 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect } from "react";
 import { ArrowLeft, Bell, BookOpen, CalendarClock, FileText, Megaphone, Users } from "lucide-react";
 
 import { AppShell, useNotifications } from "@/components/AppShell";
-import { markNotificationsRead } from "@/lib/hub.functions";
+import { markNotificationRead } from "@/lib/hub.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/notifications")({
@@ -31,19 +30,15 @@ const ICONS: Record<string, typeof Bell> = {
 
 function Notifications() {
   const { data, isLoading } = useNotifications();
-  const markRead = useServerFn(markNotificationsRead);
+  const markRead = useServerFn(markNotificationRead);
   const queryClient = useQueryClient();
   const router = useRouter();
+  const navigate = useNavigate();
 
   const mark = useMutation({
-    mutationFn: () => markRead(),
+    mutationFn: (id: string) => markRead({ data: { id } }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
-
-  useEffect(() => {
-    if (data?.unread) mark.mutate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.unread]);
 
   return (
     <AppShell
@@ -63,7 +58,14 @@ function Notifications() {
         {(data?.items ?? []).map((item) => {
           const Icon = ICONS[item.kind] ?? Bell;
           return (
-            <li key={item.id} className={cn("surface-card flex items-start gap-3 p-4", !item.read && "border-accent/40")}>
+            <li
+              key={item.id}
+              className={cn("surface-card flex cursor-pointer items-start gap-3 p-4", !item.read && "border-accent/40")}
+              onClick={() => {
+                if (!item.read) mark.mutate(item.id);
+                if (item.link?.startsWith("/")) navigate({ to: item.link as never });
+              }}
+            >
               <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-secondary text-primary">
                 <Icon className="size-5" />
               </span>
