@@ -131,32 +131,52 @@ export const deleteAssignment = createServerFn({ method: "POST" })
 
 /* ------------------------------ study groups ------------------------------ */
 
+const WHATSAPP_GROUP_PATTERN = /^https:\/\/(chat\.whatsapp\.com\/|wa\.me\/)[A-Za-z0-9?&=_+%./-]+$/;
+
+async function isAdminUser(context: { userId: string; supabase: any }) {
+  const { data } = await context.supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", context.userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  return Boolean(data);
+}
+
 export const listStudyGroups = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const [{ data: groups, error }, { data: members }] = await Promise.all([
+    const [{ data: groups, error }, { data: memberships }] = await Promise.all([
       context.supabase
         .from("study_groups")
-        .select("id,name,description,join_code,created_by,created_at")
+        .select("id,name,description,join_code,created_by,created_at,status,leader_id")
         .order("created_at", { ascending: false }),
-      context.supabase.from("group_members").select("group_id,user_id"),
+      context.supabase.from("group_members").select("group_id,user_id").eq("user_id", context.userId),
     ]);
     if (error) throw new Error(error.message);
-    return (groups ?? []).map((group) => {
-      const rows = (members ?? []).filter((row) => row.group_id === group.id);
-      return {
-        ...group,
-        memberCount: rows.length,
-        joined: rows.some((row) => row.user_id === context.userId),
-        isOwner: group.created_by === context.userId,
-      };
-    });
+    const admin = await isAdminUser(context);
+    const visible = (groups ?? []).filter((group) => group.status === "approved" || group.created_by === context.userId || admin);
+    const groupIds = visible.map((group) => group.id);
+    const { data: allMembers } = groupIds.length
+      ? await context.supabase.from("group_members").select("group_id,user_id").in("group_id", groupIds)
+      : { data: [] };
+    return visible.map((group) => ({
+      ...group,
+      memberCount: (allMembers ?? []).filter((row) => row.group_id === group.id).length,
+      joined: (memberships ?? []).some((row) => row.group_id === group.id),
+      isOwner: group.created_by === context.userId,
+      isAdmin: admin,
+    }));
   });
 
 export const createStudyGroup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { name: string; description?: string }) => {
-    if (!input?.name?.trim()) throw new Error("Enter a group name");
+  .inputValidator((input: { name: string; description?: string; whatsappUrl: string }) => {
+    if (!input?.name?.trim() || input.name.trim().length > 100) throw new Error("Enter a group name under 100 characters");
+    if ((input.description?.trim().length ?? 0) > 500) throw new Error("Keep the description under 500 characters");
+    if (!WHATSAPP_GROUP_PATTERN.test(input.whatsappUrl?.trim() ?? "")) {
+      throw new Error("Enter a valid WhatsApp group or wa.me link");
+    }
     return input;
   })
   .handler(async ({ data, context }) => {
@@ -166,8 +186,10 @@ export const createStudyGroup = createServerFn({ method: "POST" })
       .insert({
         name: data.name.trim(),
         description: data.description?.trim() ?? "",
+        whatsapp_url: data.whatsappUrl.trim(),
         join_code: code,
         created_by: context.userId,
+        status: "pending",
       })
       .select("id,join_code")
       .maybeSingle();
@@ -188,16 +210,173 @@ export const joinStudyGroup = createServerFn({ method: "POST" })
       if (!code) throw new Error("Enter a group code");
       const { data: group } = await context.supabase
         .from("study_groups")
-        .select("id")
+        .select("id,status")
         .eq("join_code", code)
         .maybeSingle();
       if (!group) throw new Error("No group matches that code.");
+      if (group.status !== "approved") throw new Error("This group is still waiting for administrator approval.");
       groupId = group.id;
     }
+    const { data: group } = await context.supabase
+      .from("study_groups")
+      .select("id,status")
+      .eq("id", groupId)
+      .maybeSingle();
+    if (!group || group.status !== "approved") throw new Error("This group is not available to join.");
     const { error } = await context.supabase
       .from("group_members")
       .upsert({ group_id: groupId, user_id: context.userId }, { onConflict: "group_id,user_id" });
     if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const getStudyGroup = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { groupId: string }) => {
+    if (!input?.groupId) throw new Error("Group is required");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const admin = await isAdminUser(context);
+    const { data: group, error } = await context.supabase
+      .from("study_groups")
+      .select("id,name,description,join_code,created_by,created_at,status,leader_id,whatsapp_url")
+      .eq("id", data.groupId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!group) throw new Error("Group not found.");
+    const { data: ownMembership } = await context.supabase
+      .from("group_members")
+      .select("id")
+      .eq("group_id", group.id)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    const joined = Boolean(ownMembership);
+    if (group.status !== "approved" && group.created_by !== context.userId && !admin) throw new Error("Group not found.");
+
+    const privileged = joined || admin;
+    let members: Array<{ userId: string; fullName: string; joinedAt: string; isLeader: boolean }> = [];
+    let announcements: Array<{ id: string; body: string; createdAt: string; createdBy: string; authorName: string; canDelete: boolean }> = [];
+    if (privileged) {
+      const [{ data: memberships }, { data: posts }] = await Promise.all([
+        context.supabase.from("group_members").select("user_id,joined_at").eq("group_id", group.id).order("joined_at"),
+        context.supabase.from("group_announcements").select("id,body,created_at,created_by").eq("group_id", group.id).order("created_at", { ascending: false }),
+      ]);
+      const userIds = [...new Set([...(memberships ?? []).map((row) => row.user_id), ...(posts ?? []).map((row) => row.created_by)])];
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: profiles } = userIds.length
+        ? await supabaseAdmin.from("profiles").select("id,full_name,email").in("id", userIds)
+        : { data: [] };
+      const names = new Map((profiles ?? []).map((profile) => [profile.id, profile.full_name || profile.email || "Member"]));
+      members = (memberships ?? []).map((row) => ({
+        userId: row.user_id,
+        fullName: names.get(row.user_id) ?? "Member",
+        joinedAt: row.joined_at,
+        isLeader: row.user_id === group.leader_id,
+      }));
+      announcements = (posts ?? []).map((post) => ({
+        id: post.id,
+        body: post.body,
+        createdAt: post.created_at,
+        createdBy: post.created_by,
+        authorName: names.get(post.created_by) ?? "Member",
+        canDelete: admin || post.created_by === context.userId,
+      }));
+    }
+    return {
+      ...group,
+      whatsapp_url: privileged ? group.whatsapp_url : "",
+      joined,
+      isAdmin: admin,
+      members,
+      announcements,
+      leaderName: members.find((member) => member.userId === group.leader_id)?.fullName ?? "Not selected",
+    };
+  });
+
+export const postGroupAnnouncement = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { groupId: string; body: string }) => {
+    const body = input?.body?.trim();
+    if (!input?.groupId || !body || body.length > 2000) throw new Error("Enter an announcement under 2,000 characters");
+    return { groupId: input.groupId, body };
+  })
+  .handler(async ({ data, context }) => {
+    const { data: group } = await context.supabase.from("study_groups").select("id,name,status").eq("id", data.groupId).maybeSingle();
+    if (!group || group.status !== "approved") throw new Error("This group is not approved.");
+    const { data: membership } = await context.supabase.from("group_members").select("id").eq("group_id", data.groupId).eq("user_id", context.userId).maybeSingle();
+    if (!membership) throw new Error("Join this group before posting announcements.");
+    const { error } = await context.supabase.from("group_announcements").insert({ group_id: data.groupId, created_by: context.userId, body: data.body });
+    if (error) throw new Error(error.message);
+    const admin = await assertAdminOrService(context);
+    await admin.from("notifications").insert({ kind: "group", title: `New update in ${group.name}`, body: data.body.slice(0, 160), link: `/groups/${group.id}`, group_id: group.id });
+    return { ok: true };
+  });
+
+async function assertAdminOrService(context: { userId: string; supabase: any }) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return supabaseAdmin;
+}
+
+export const deleteGroupAnnouncement = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => {
+    if (!input?.id) throw new Error("Announcement is required");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const admin = await isAdminUser(context);
+    let query = context.supabase.from("group_announcements").delete().eq("id", data.id);
+    if (!admin) query = query.eq("created_by", context.userId);
+    const { error } = await query;
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminListStudyGroups = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const admin = await assertAdmin(context);
+    const { data: groups, error } = await admin.from("study_groups").select("id,name,description,status,whatsapp_url,join_code,leader_id,created_by,created_at").order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    const groupIds = (groups ?? []).map((group) => group.id);
+    const { data: memberships } = groupIds.length ? await admin.from("group_members").select("group_id,user_id,joined_at").in("group_id", groupIds) : { data: [] };
+    const userIds = [...new Set((memberships ?? []).map((row) => row.user_id))];
+    const { data: profiles } = userIds.length ? await admin.from("profiles").select("id,full_name,email").in("id", userIds) : { data: [] };
+    const names = new Map((profiles ?? []).map((profile) => [profile.id, profile.full_name || profile.email || "Member"]));
+    return (groups ?? []).map((group) => ({
+      ...group,
+      members: (memberships ?? []).filter((row) => row.group_id === group.id).map((row) => ({ userId: row.user_id, fullName: names.get(row.user_id) ?? "Member" })),
+    }));
+  });
+
+export const adminReviewStudyGroup = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { groupId: string; decision: "approved" | "rejected"; leaderId?: string }) => {
+    if (!input?.groupId) throw new Error("Group is required");
+    if (input.decision === "approved" && !input.leaderId) throw new Error("Select a registered group leader");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const admin = await assertAdmin(context);
+    if (data.decision === "approved") {
+      const { data: member } = await admin.from("group_members").select("id").eq("group_id", data.groupId).eq("user_id", data.leaderId ?? "").maybeSingle();
+      if (!member) throw new Error("The selected leader must be a registered group member.");
+    }
+    const { data: group, error } = await admin.from("study_groups").update({
+      status: data.decision,
+      leader_id: data.decision === "approved" ? data.leaderId : null,
+      approved_by: context.userId,
+      approved_at: new Date().toISOString(),
+    }).eq("id", data.groupId).select("id,name").single();
+    if (error) throw new Error(error.message);
+    await admin.from("notifications").insert({
+      kind: "group",
+      title: data.decision === "approved" ? `${group.name} was approved` : `${group.name} was not approved`,
+      body: data.decision === "approved" ? "The study group is now open to registered students." : "Review the group details or contact the administrator.",
+      link: `/groups/${group.id}`,
+      group_id: group.id,
+    });
     return { ok: true };
   });
 
