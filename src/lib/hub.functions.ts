@@ -365,7 +365,7 @@ export const adminReviewStudyGroup = createServerFn({ method: "POST" })
     }
     const { data: group, error } = await admin.from("study_groups").update({
       status: data.decision,
-      leader_id: data.decision === "approved" ? data.leaderId : null,
+      leader_id: data.decision === "approved" ? (data.leaderId ?? null) : null,
       approved_by: context.userId,
       approved_at: new Date().toISOString(),
     }).eq("id", data.groupId).select("id,name").single();
