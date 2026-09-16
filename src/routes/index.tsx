@@ -1,8 +1,9 @@
 import logoAsset from "@/assets/bbit-logo.png.asset.json";
+import campusAsset from "@/assets/dekut-campus.png.asset.json";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { BookOpen, FileStack, GraduationCap, Sparkles } from "lucide-react";
+import { BookOpen, FileStack, Users } from "lucide-react";
 
 import { getPublicStats } from "@/lib/catalog.functions";
 import { Button } from "@/components/ui/button";
@@ -10,17 +11,19 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "BBITClassPoint — Notes, Past Papers & AI Study Help" },
+      { title: "BBITClassPoint — Your BBIT Academic Hub" },
       {
         name: "description",
         content:
-          "One place for BBIT unit notes, assignments, past papers, timetables, announcements and an AI assistant that reads your own study material.",
+          "One place for BBIT unit notes, assignments, past papers, timetables, announcements and approved study groups.",
       },
-      { property: "og:title", content: "BBITClassPoint — Notes, Past Papers & AI Study Help" },
+      { property: "og:title", content: "BBITClassPoint — Your BBIT Academic Hub" },
       {
         property: "og:description",
-        content: "Real course material for every BBIT unit, plus an AI assistant and exam generator.",
+        content: "Real BBIT course material, live timetables, assignments and approved study groups.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Landing,
@@ -31,16 +34,10 @@ function Landing() {
   const { data } = useQuery({ queryKey: ["public-stats"], queryFn: () => fetchStats() });
 
   return (
-    <div className="min-h-screen">
-      <header className="hero-gradient relative overflow-hidden text-primary-foreground">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -left-32 -top-32 size-[28rem] rounded-full bg-white/15 blur-3xl"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -bottom-40 right-0 size-[26rem] rounded-full bg-accent/30 blur-3xl"
-        />
+    <div className="min-h-screen bg-background">
+      <header className="relative flex min-h-[78vh] overflow-hidden text-primary-foreground">
+        <img src={campusAsset.url} alt="Aerial view of Dedan Kimathi University campus" className="absolute inset-0 size-full object-cover" />
+        <div aria-hidden className="absolute inset-0 bg-navy/70" />
         <div className="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
           <div className="flex items-center gap-2">
             <img
@@ -50,25 +47,21 @@ function Landing() {
             />
             <span className="font-display text-lg font-semibold">BBITClassPoint</span>
           </div>
-          <Button asChild variant="secondary" size="sm" className="rounded-full">
-            <Link to="/auth">Sign in</Link>
-          </Button>
         </div>
 
-        <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-10 sm:px-6 sm:pb-28">
+        <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-4 pb-16 pt-20 text-center sm:px-6">
           <span className="glass-tint inline-flex rounded-full px-3 py-1 text-xs font-medium">
             Real files · Real timetable · Real AI
           </span>
-          <h1 className="mt-5 max-w-3xl text-4xl font-bold leading-tight sm:text-5xl">
+          <h1 className="mt-5 max-w-3xl text-4xl font-bold leading-tight sm:text-6xl">
             Every BBIT note, past paper and timetable in one place.
           </h1>
           <p className="mt-5 max-w-2xl text-base text-primary-foreground/85 sm:text-lg">
-            Lecturers and class reps publish real course material. Students open it, download it, and study
-            it with an AI assistant that reads their own notes and writes practice exams.
+            Open real class material, follow the live timetable, track assignments and learn with approved study groups.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 flex w-full max-w-md flex-col justify-center gap-3 sm:flex-row">
             <Button asChild size="lg" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
-              <Link to="/auth">Create your account</Link>
+              <Link to="/auth">Create account</Link>
             </Button>
             <Button
               asChild
@@ -76,14 +69,14 @@ function Landing() {
               variant="outline"
               className="glass-tint rounded-full border-primary-foreground/40 bg-transparent hover:bg-white/20"
             >
-              <Link to="/auth">I already have an account</Link>
+              <Link to="/auth">I have an account</Link>
             </Button>
           </div>
 
-          <dl className="mt-12 grid max-w-2xl grid-cols-2 gap-4 sm:grid-cols-3">
+          <dl className="mt-12 grid w-full max-w-2xl grid-cols-2 gap-4 sm:grid-cols-3">
             <Stat label="Units on the platform" value={data ? String(data.unitCount) : "—"} />
             <Stat label="Resource categories" value={data ? String(data.categories.length) : "—"} />
-            <Stat label="Free for classmates" value="100%" />
+            <Stat label="Published units" value={data ? String(data.units.length) : "—"} />
           </dl>
         </div>
       </header>
@@ -102,9 +95,9 @@ function Landing() {
             body="Everything you see is an actual stored document you can open in the browser or download."
           />
           <Feature
-            icon={<Sparkles className="size-5" />}
-            title="AI that reads your notes"
-            body="Upload a PDF, DOCX or PPTX and ask questions answered from that exact document."
+             icon={<Users className="size-5" />}
+             title="Approved study groups"
+             body="Register for reviewed groups, open their WhatsApp communities and follow member announcements."
           />
         </div>
 
