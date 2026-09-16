@@ -253,6 +253,48 @@ export type Database = {
           },
         ]
       }
+      group_announcements: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string
+          group_id: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by: string
+          group_id: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string
+          group_id?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_announcements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_announcements_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "study_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_members: {
         Row: {
           group_id: string
@@ -315,6 +357,7 @@ export type Database = {
         Row: {
           body: string
           created_at: string
+          group_id: string | null
           id: string
           kind: string
           link: string
@@ -323,6 +366,7 @@ export type Database = {
         Insert: {
           body?: string
           created_at?: string
+          group_id?: string | null
           id?: string
           kind?: string
           link?: string
@@ -331,12 +375,21 @@ export type Database = {
         Update: {
           body?: string
           created_at?: string
+          group_id?: string | null
           id?: string
           kind?: string
           link?: string
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notifications_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "study_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -484,30 +537,63 @@ export type Database = {
       }
       study_groups: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           created_at: string
           created_by: string
           description: string
           id: string
           join_code: string
+          leader_id: string | null
           name: string
+          status: string
+          updated_at: string
+          whatsapp_url: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           created_by: string
           description?: string
           id?: string
           join_code: string
+          leader_id?: string | null
           name: string
+          status?: string
+          updated_at?: string
+          whatsapp_url?: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           created_by?: string
           description?: string
           id?: string
           join_code?: string
+          leader_id?: string | null
           name?: string
+          status?: string
+          updated_at?: string
+          whatsapp_url?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "study_groups_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "study_groups_leader_id_fkey"
+            columns: ["leader_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       timetable: {
         Row: {
