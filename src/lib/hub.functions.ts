@@ -157,8 +157,9 @@ export const listStudyGroups = createServerFn({ method: "GET" })
     const admin = await isAdminUser(context);
     const visible = (groups ?? []).filter((group) => group.status === "approved" || group.created_by === context.userId || admin);
     const groupIds = visible.map((group) => group.id);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: allMembers } = groupIds.length
-      ? await context.supabase.from("group_members").select("group_id,user_id").in("group_id", groupIds)
+      ? await supabaseAdmin.from("group_members").select("group_id,user_id").in("group_id", groupIds)
       : { data: [] };
     return visible.map((group) => ({
       ...group,
@@ -258,12 +259,12 @@ export const getStudyGroup = createServerFn({ method: "POST" })
     let members: Array<{ userId: string; fullName: string; joinedAt: string; isLeader: boolean }> = [];
     let announcements: Array<{ id: string; body: string; createdAt: string; createdBy: string; authorName: string; canDelete: boolean }> = [];
     if (privileged) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const [{ data: memberships }, { data: posts }] = await Promise.all([
-        context.supabase.from("group_members").select("user_id,joined_at").eq("group_id", group.id).order("joined_at"),
-        context.supabase.from("group_announcements").select("id,body,created_at,created_by").eq("group_id", group.id).order("created_at", { ascending: false }),
+        supabaseAdmin.from("group_members").select("user_id,joined_at").eq("group_id", group.id).order("joined_at"),
+        supabaseAdmin.from("group_announcements").select("id,body,created_at,created_by").eq("group_id", group.id).order("created_at", { ascending: false }),
       ]);
       const userIds = [...new Set([...(memberships ?? []).map((row) => row.user_id), ...(posts ?? []).map((row) => row.created_by)])];
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const { data: profiles } = userIds.length
         ? await supabaseAdmin.from("profiles").select("id,full_name,email").in("id", userIds)
         : { data: [] };
