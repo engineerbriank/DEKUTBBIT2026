@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
-async function assertAdmin(context: { userId: string; supabase: any }) {
+async function assertAdmin(context: { userId: string; supabase: SupabaseClient<Database> }) {
   const { data } = await context.supabase
     .from("user_roles")
     .select("role")
@@ -145,7 +147,7 @@ export const deleteAssignment = createServerFn({ method: "POST" })
 
 const WHATSAPP_GROUP_PATTERN = /^https:\/\/(chat\.whatsapp\.com\/|wa\.me\/)[A-Za-z0-9?&=_+%./-]+$/;
 
-async function isAdminUser(context: { userId: string; supabase: any }) {
+async function isAdminUser(context: { userId: string; supabase: SupabaseClient<Database> }) {
   const { data } = await context.supabase
     .from("user_roles")
     .select("role")
@@ -375,7 +377,7 @@ export const postGroupAnnouncement = createServerFn({ method: "POST" })
       .from("group_announcements")
       .insert({ group_id: data.groupId, created_by: context.userId, body: data.body });
     if (error) throw new Error(error.message);
-    const admin = await assertAdminOrService(context);
+    const admin = await getServiceClient();
     await admin.from("notifications").insert({
       kind: "group",
       title: `New update in ${group.name}`,
@@ -386,7 +388,7 @@ export const postGroupAnnouncement = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-async function assertAdminOrService(context: { userId: string; supabase: any }) {
+async function getServiceClient() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
