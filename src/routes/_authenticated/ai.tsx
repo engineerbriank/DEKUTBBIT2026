@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Bot, FileText, Loader2, Trash2, Upload } from "lucide-react";
 
-import { AppShell } from "@/components/AppShell";
+import { AppShell, useMe } from "@/components/AppShell";
 import { Conversation, ConversationContent, ConversationEmptyState, ConversationScrollButton } from "@/components/ai-elements/conversation";
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
 import { PromptInput, PromptInputBody, PromptInputFooter, PromptInputSubmit, PromptInputTextarea } from "@/components/ai-elements/prompt-input";
@@ -28,6 +28,7 @@ export const Route = createFileRoute("/_authenticated/ai")({
 });
 
 function AiPage() {
+  const { data: me, isLoading: loadingMe } = useMe();
   const queryClient = useQueryClient();
   const fileInput = useRef<HTMLInputElement>(null);
   const [documentId, setDocumentId] = useState<string | null>(null);
@@ -38,8 +39,8 @@ function AiPage() {
   const process = useServerFn(processDocument);
   const remove = useServerFn(deleteDocument);
   const ask = useServerFn(askAI);
-  const { data: documents } = useQuery({ queryKey: ["ai-documents"], queryFn: () => fetchDocuments() });
-  const { data: messages } = useQuery({ queryKey: ["ai-messages", documentId], queryFn: () => fetchMessages({ data: { documentId } }) });
+  const { data: documents } = useQuery({ queryKey: ["ai-documents"], queryFn: () => fetchDocuments(), enabled: Boolean(me?.isAdmin) });
+  const { data: messages } = useQuery({ queryKey: ["ai-messages", documentId], queryFn: () => fetchMessages({ data: { documentId } }), enabled: Boolean(me?.isAdmin) });
   const selected = (documents ?? []).find((doc) => doc.id === documentId);
 
   const askMutation = useMutation({
@@ -63,6 +64,9 @@ function AiPage() {
     } catch (error) { toast.error(error instanceof Error ? error.message : "Upload failed"); }
     finally { setUploading(false); if (fileInput.current) fileInput.current.value = ""; }
   };
+
+  if (loadingMe) return <AppShell><p className="text-sm text-muted-foreground">Checking access…</p></AppShell>;
+  if (!me?.isAdmin) return <AppShell title="AI Study Assistant" icon={<Bot className="size-5" />}><div className="surface-card mx-auto max-w-md p-6 text-center"><Bot className="mx-auto size-8 text-primary" /><h2 className="mt-3 text-lg font-semibold">Administrator access required</h2><p className="mt-2 text-sm text-muted-foreground">AI tools are managed by the platform administrator.</p></div></AppShell>;
 
   return (
     <AppShell title="AI Study Assistant" icon={<Bot className="size-5" />}>

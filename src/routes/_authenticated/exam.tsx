@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Download, Loader2, Wand2 } from "lucide-react";
 
-import { AppShell } from "@/components/AppShell";
+import { AppShell, useMe } from "@/components/AppShell";
 import { generateExam, listDocuments, listExams } from "@/lib/ai.functions";
 import { listUnits } from "@/lib/catalog.functions";
 import { buildExamPdf, downloadBlob, type ExamPaper } from "@/lib/exam-pdf";
@@ -29,15 +29,16 @@ export const Route = createFileRoute("/_authenticated/exam")({
 });
 
 function ExamPage() {
+  const { data: me, isLoading: loadingMe } = useMe();
   const queryClient = useQueryClient();
   const fetchUnits = useServerFn(listUnits);
   const fetchDocuments = useServerFn(listDocuments);
   const fetchExams = useServerFn(listExams);
   const generate = useServerFn(generateExam);
 
-  const { data: units } = useQuery({ queryKey: ["units"], queryFn: () => fetchUnits() });
-  const { data: documents } = useQuery({ queryKey: ["ai-documents"], queryFn: () => fetchDocuments() });
-  const { data: exams } = useQuery({ queryKey: ["exams"], queryFn: () => fetchExams() });
+  const { data: units } = useQuery({ queryKey: ["units"], queryFn: () => fetchUnits(), enabled: Boolean(me?.isAdmin) });
+  const { data: documents } = useQuery({ queryKey: ["ai-documents"], queryFn: () => fetchDocuments(), enabled: Boolean(me?.isAdmin) });
+  const { data: exams } = useQuery({ queryKey: ["exams"], queryFn: () => fetchExams(), enabled: Boolean(me?.isAdmin) });
 
   const [unitId, setUnitId] = useState("");
   const [documentId, setDocumentId] = useState("");
@@ -70,6 +71,9 @@ function ExamPage() {
   };
 
   const latest = mutation.data;
+
+  if (loadingMe) return <AppShell><p className="text-sm text-muted-foreground">Checking access…</p></AppShell>;
+  if (!me?.isAdmin) return <AppShell title="Exam Generator" icon={<Wand2 className="size-5" />}><div className="surface-card mx-auto max-w-md p-6 text-center"><Wand2 className="mx-auto size-8 text-primary" /><h2 className="mt-3 text-lg font-semibold">Administrator access required</h2><p className="mt-2 text-sm text-muted-foreground">Exam generation is managed by the platform administrator.</p></div></AppShell>;
 
   return (
     <AppShell>

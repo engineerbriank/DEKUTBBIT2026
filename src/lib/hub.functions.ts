@@ -491,8 +491,16 @@ export const adminListQuickLinks = createServerFn({ method: "GET" })
 export const createQuickLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { label: string; subtitle?: string; url: string; sortOrder?: number }) => {
-    if (!input?.label?.trim()) throw new Error("Enter a label");
-    if (!input?.url?.trim()) throw new Error("Enter a link address");
+    if (!input?.label?.trim() || input.label.trim().length > 80) throw new Error("Enter a label under 80 characters");
+    if ((input.subtitle?.trim().length ?? 0) > 160) throw new Error("Keep the description under 160 characters");
+    if (!input?.url?.trim() || input.url.trim().length > 500) throw new Error("Enter a valid link address");
+    const candidate = input.url.trim().startsWith("http") ? input.url.trim() : `https://${input.url.trim()}`;
+    try {
+      const parsed = new URL(candidate);
+      if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error();
+    } catch {
+      throw new Error("Enter a valid http or https link address");
+    }
     return input;
   })
   .handler(async ({ data, context }) => {

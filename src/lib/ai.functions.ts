@@ -1,6 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+async function assertAiAdmin(context: { userId: string; supabase: any }) {
+  const { data, error } = await context.supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", context.userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Administrator access is required for AI features.");
+}
+
 export type ExamQuestion = {
   number: number;
   type: string;
@@ -18,6 +29,7 @@ export const processDocument = createServerFn({ method: "POST" })
     return input;
   })
   .handler(async ({ data, context }) => {
+    await assertAiAdmin(context);
     if (!data.filePath.startsWith(`${context.userId}/`)) {
       throw new Error("Forbidden: you can only process your own uploads.");
     }
@@ -53,6 +65,7 @@ export const processDocument = createServerFn({ method: "POST" })
 export const listDocuments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await assertAiAdmin(context);
     const { data, error } = await context.supabase
       .from("ai_documents")
       .select("id,file_name,char_count,created_at")
@@ -69,6 +82,7 @@ export const deleteDocument = createServerFn({ method: "POST" })
     return input;
   })
   .handler(async ({ data, context }) => {
+    await assertAiAdmin(context);
     const { data: doc } = await context.supabase
       .from("ai_documents")
       .select("file_path")
@@ -92,6 +106,7 @@ export const listMessages = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { documentId?: string | null }) => input ?? {})
   .handler(async ({ data, context }) => {
+    await assertAiAdmin(context);
     let query = context.supabase
       .from("ai_messages")
       .select("id,role,content,created_at,document_id")
@@ -111,6 +126,7 @@ export const askAI = createServerFn({ method: "POST" })
     return input;
   })
   .handler(async ({ data, context }) => {
+    await assertAiAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { callGateway, userItem, assistantItem } = await import("./ai-gateway.server");
     const { retrieveContext } = await import("./doc-extract.server");
@@ -218,6 +234,7 @@ export const generateExam = createServerFn({ method: "POST" })
     },
   )
   .handler(async ({ data, context }) => {
+    await assertAiAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { callGateway, userItem } = await import("./ai-gateway.server");
     const { retrieveContext } = await import("./doc-extract.server");
@@ -299,6 +316,7 @@ export const generateExam = createServerFn({ method: "POST" })
 export const listExams = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await assertAiAdmin(context);
     const { data, error } = await context.supabase
       .from("exams")
       .select("id,title,created_at,content")
