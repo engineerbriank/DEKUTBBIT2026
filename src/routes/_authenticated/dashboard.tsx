@@ -20,12 +20,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Home — BBITClassPoint" },
+      { title: "Home — DEKUT BBIT 2026 Digital Student Platform" },
       {
         name: "description",
         content: "Today's BBIT classes, live counts and the newest published notes.",
       },
-      { property: "og:title", content: "Home — BBITClassPoint" },
+      { property: "og:title", content: "Home — DEKUT BBIT 2026 Digital Student Platform" },
       { property: "og:description", content: "Your BBIT study hub at a glance." },
     ],
   }),
@@ -89,9 +89,11 @@ function Dashboard() {
             <div className="flex min-w-0 items-center gap-3">
               <AppLogo />
               <div className="min-w-0">
-                <p className="truncate font-display text-lg font-semibold">BBITClassPoint</p>
+                <p className="font-display text-base font-semibold leading-tight sm:text-lg">
+                  DEKUT BBIT 2026
+                </p>
                 <p className="truncate text-xs text-navy-foreground/70">
-                  BBIT 1.1 · Dedan Kimathi University
+                  Digital Student Platform
                 </p>
               </div>
             </div>

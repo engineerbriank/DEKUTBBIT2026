@@ -78,13 +78,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "BBITClassPoint — BBIT Study Hub" },
+      { title: "DEKUT BBIT 2026 — Digital Student Platform" },
       {
         name: "description",
         content:
-          "BBITClassPoint is the shared study hub for BBIT students: notes, past papers, timetables and an AI study assistant.",
+          "DEKUT BBIT 2026 is the digital student platform for notes, past papers, timetables and class collaboration.",
       },
-      { property: "og:title", content: "BBITClassPoint — BBIT Study Hub" },
+      { property: "og:title", content: "DEKUT BBIT 2026 — Digital Student Platform" },
       {
         property: "og:description",
         content:

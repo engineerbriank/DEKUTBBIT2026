@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * BBITClassPoint — mobile-first academic hub.
+ * DEKUT BBIT 2026 — light-first digital student platform.
  * Reference blue + green. All colours are semantic tokens; never hardcode colours in components.
  */
 
@@ -137,7 +137,7 @@
   }
 
   body {
-    background-color: var(--color-navy);
+    background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
