@@ -99,7 +99,10 @@ export const regenerateMemberCode = createServerFn({ method: "POST" })
     const code = makeCode();
     const { error } = await supabaseAdmin
       .from("recovery_codes")
-      .upsert({ user_id: data.userId, code, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+      .upsert(
+        { user_id: data.userId, code, updated_at: new Date().toISOString() },
+        { onConflict: "user_id" },
+      );
     if (error) throw new Error(error.message);
     return { code };
   });
@@ -248,7 +251,10 @@ export const updateResource = createServerFn({ method: "POST" })
     if (data.categoryId !== undefined) patch["category_id"] = data.categoryId;
     if (data.status !== undefined) patch["status"] = data.status;
 
-    const { error } = await context.supabase.from("resources").update(patch as never).eq("id", data.id);
+    const { error } = await context.supabase
+      .from("resources")
+      .update(patch as never)
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -325,10 +331,12 @@ export const deleteUnit = createServerFn({ method: "POST" })
 
 export const upsertAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { id?: string; title: string; body: string; status: "published" | "draft" }) => {
-    if (!input?.title?.trim()) throw new Error("Title is required");
-    return input;
-  })
+  .inputValidator(
+    (input: { id?: string; title: string; body: string; status: "published" | "draft" }) => {
+      if (!input?.title?.trim()) throw new Error("Title is required");
+      return input;
+    },
+  )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const payload = { title: data.title.trim(), body: data.body ?? "", status: data.status };
@@ -453,7 +461,10 @@ export const updateClassSlot = createServerFn({ method: "POST" })
     if (data.lecturer !== undefined) patch["lecturer"] = data.lecturer;
     if (data.groupLabel !== undefined) patch["group_label"] = data.groupLabel;
     if (data.status !== undefined) patch["status"] = data.status;
-    const { error } = await context.supabase.from("timetable").update(patch as never).eq("id", data.id);
+    const { error } = await context.supabase
+      .from("timetable")
+      .update(patch as never)
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -491,7 +502,16 @@ const TIMETABLE_SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["unitCode", "unitName", "dayOfWeek", "startTime", "endTime", "venue", "lecturer", "groupLabel"],
+        required: [
+          "unitCode",
+          "unitName",
+          "dayOfWeek",
+          "startTime",
+          "endTime",
+          "venue",
+          "lecturer",
+          "groupLabel",
+        ],
         properties: {
           unitCode: { type: "string" },
           unitName: { type: "string" },
@@ -522,22 +542,31 @@ function normaliseTime(value: string) {
  */
 export const importTimetableFromFile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { filePath: string; fileName: string; mimeType: string; instruction?: string }) => {
-    if (!input?.filePath) throw new Error("Upload the timetable file first");
-    return input;
-  })
+  .inputValidator(
+    (input: { filePath: string; fileName: string; mimeType: string; instruction?: string }) => {
+      if (!input?.filePath) throw new Error("Upload the timetable file first");
+      return input;
+    },
+  )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: blob, error: downloadError } = await supabaseAdmin.storage
       .from("ai-uploads")
       .download(data.filePath);
-    if (downloadError || !blob) throw new Error(downloadError?.message ?? "Could not read the uploaded file.");
+    if (downloadError || !blob)
+      throw new Error(downloadError?.message ?? "Could not read the uploaded file.");
 
     const { extractText } = await import("./doc-extract.server");
-    const text = await extractText(new Uint8Array(await blob.arrayBuffer()), data.fileName, data.mimeType);
+    const text = await extractText(
+      new Uint8Array(await blob.arrayBuffer()),
+      data.fileName,
+      data.mimeType,
+    );
     if (!text || text.length < 30) {
-      throw new Error("No readable text was found in that timetable. Scanned images are not supported.");
+      throw new Error(
+        "No readable text was found in that timetable. Scanned images are not supported.",
+      );
     }
 
     const { callGateway, userItem } = await import("./ai-gateway.server");
@@ -555,7 +584,10 @@ export const importTimetableFromFile = createServerFn({ method: "POST" })
           "startTime and endTime use 24-hour HH:MM. unitCode is the course code as printed (uppercase, no spaces); " +
           "unitName is the unit title if printed, otherwise repeat the code. " +
           "venue, lecturer and groupLabel are empty strings when not stated. Never invent classes that are not in the document.",
-        jsonSchema: { name: "timetable_entries", schema: TIMETABLE_SCHEMA as unknown as Record<string, unknown> },
+        jsonSchema: {
+          name: "timetable_entries",
+          schema: TIMETABLE_SCHEMA as unknown as Record<string, unknown>,
+        },
       },
     );
 
@@ -563,7 +595,9 @@ export const importTimetableFromFile = createServerFn({ method: "POST" })
     try {
       parsed = JSON.parse(raw) as { entries?: Array<Record<string, unknown>> };
     } catch {
-      throw new Error("AI could not read that timetable. Try a clearer file or a more specific instruction.");
+      throw new Error(
+        "AI could not read that timetable. Try a clearer file or a more specific instruction.",
+      );
     }
     const entries = parsed.entries ?? [];
     if (!entries.length) throw new Error("No class slots were found in that document.");
@@ -575,7 +609,9 @@ export const importTimetableFromFile = createServerFn({ method: "POST" })
 
     const rows: Array<Record<string, unknown>> = [];
     for (const entry of entries) {
-      const code = String(entry["unitCode"] ?? "").toUpperCase().replace(/\s+/g, "");
+      const code = String(entry["unitCode"] ?? "")
+        .toUpperCase()
+        .replace(/\s+/g, "");
       const start = normaliseTime(String(entry["startTime"] ?? ""));
       const end = normaliseTime(String(entry["endTime"] ?? ""));
       const day = Number(entry["dayOfWeek"]);
@@ -605,7 +641,8 @@ export const importTimetableFromFile = createServerFn({ method: "POST" })
         source_file: data.fileName,
       });
     }
-    if (!rows.length) throw new Error("The extracted rows were incomplete. Try a more specific instruction.");
+    if (!rows.length)
+      throw new Error("The extracted rows were incomplete. Try a more specific instruction.");
 
     const { error: insertError } = await supabaseAdmin.from("timetable").insert(rows as never);
     if (insertError) throw new Error(insertError.message);

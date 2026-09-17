@@ -13,7 +13,10 @@ export const Route = createFileRoute("/_authenticated/units/$code")({
   head: () => ({
     meta: [
       { title: "Unit material — BBITClassPoint" },
-      { name: "description", content: "All published notes, slides and papers for this BBIT unit." },
+      {
+        name: "description",
+        content: "All published notes, slides and papers for this BBIT unit.",
+      },
       { property: "og:title", content: "Unit material — BBITClassPoint" },
       { property: "og:description", content: "Open and download real course files for this unit." },
     ],
@@ -31,7 +34,10 @@ function UnitPage() {
 
   return (
     <AppShell>
-      <Link to="/units" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+      <Link
+        to="/units"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft className="size-4" /> All units
       </Link>
 
@@ -57,7 +63,8 @@ function UnitPage() {
               <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
                 {data.classes.map((slot) => (
                   <li key={slot.id}>
-                    {DAYS[slot.day_of_week]} · {slot.start_time.slice(0, 5)}–{slot.end_time.slice(0, 5)}
+                    {DAYS[slot.day_of_week]} · {slot.start_time.slice(0, 5)}–
+                    {slot.end_time.slice(0, 5)}
                     {slot.venue ? ` · ${slot.venue}` : ""}
                   </li>
                 ))}
@@ -65,7 +72,9 @@ function UnitPage() {
             </div>
           ) : null}
 
-          <h2 className="mt-8 text-lg font-semibold">Published material ({data.resources.length})</h2>
+          <h2 className="mt-8 text-lg font-semibold">
+            Published material ({data.resources.length})
+          </h2>
           {data.resources.length ? (
             <div className="mt-3 grid gap-4 md:grid-cols-2">
               {data.resources.map((resource) => (
@@ -73,7 +82,9 @@ function UnitPage() {
               ))}
             </div>
           ) : (
-            <p className="mt-3 text-sm text-muted-foreground">No material published for this unit yet.</p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              No material published for this unit yet.
+            </p>
           )}
         </>
       ) : null}

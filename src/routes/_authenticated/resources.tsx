@@ -21,7 +21,10 @@ export const Route = createFileRoute("/_authenticated/resources")({
   head: () => ({
     meta: [
       { title: "Resources — BBITClassPoint" },
-      { name: "description", content: "Search every published BBIT note, past paper, CAT and assignment." },
+      {
+        name: "description",
+        content: "Search every published BBIT note, past paper, CAT and assignment.",
+      },
       { property: "og:title", content: "Resources — BBITClassPoint" },
       { property: "og:description", content: "Search real course files across all BBIT units." },
     ],
@@ -39,7 +42,10 @@ function Resources() {
   const fetchCategories = useServerFn(listCategories);
 
   const { data: units } = useQuery({ queryKey: ["units"], queryFn: () => fetchUnits() });
-  const { data: categories } = useQuery({ queryKey: ["categories"], queryFn: () => fetchCategories() });
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => fetchCategories(),
+  });
   const { data, isFetching } = useQuery({
     queryKey: ["resources", search.q, search.unit, search.category],
     queryFn: () =>

@@ -58,17 +58,15 @@ export const setAssignmentState = createServerFn({ method: "POST" })
     return input;
   })
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("assignment_progress")
-      .upsert(
-        {
-          assignment_id: data.id,
-          user_id: context.userId,
-          state: data.state,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "assignment_id,user_id" },
-      );
+    const { error } = await context.supabase.from("assignment_progress").upsert(
+      {
+        assignment_id: data.id,
+        user_id: context.userId,
+        state: data.state,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "assignment_id,user_id" },
+    );
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -378,15 +376,13 @@ export const postGroupAnnouncement = createServerFn({ method: "POST" })
       .insert({ group_id: data.groupId, created_by: context.userId, body: data.body });
     if (error) throw new Error(error.message);
     const admin = await assertAdminOrService(context);
-    await admin
-      .from("notifications")
-      .insert({
-        kind: "group",
-        title: `New update in ${group.name}`,
-        body: data.body.slice(0, 160),
-        link: `/groups/${group.id}`,
-        group_id: group.id,
-      });
+    await admin.from("notifications").insert({
+      kind: "group",
+      title: `New update in ${group.name}`,
+      body: data.body.slice(0, 160),
+      link: `/groups/${group.id}`,
+      group_id: group.id,
+    });
     return { ok: true };
   });
 

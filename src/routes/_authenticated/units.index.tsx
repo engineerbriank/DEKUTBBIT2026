@@ -15,7 +15,10 @@ export const Route = createFileRoute("/_authenticated/units/")({
       { title: "My Units — BBITClassPoint" },
       { name: "description", content: "Browse every BBIT unit and the material published for it." },
       { property: "og:title", content: "My Units — BBITClassPoint" },
-      { property: "og:description", content: "Every BBIT unit with its published notes and papers." },
+      {
+        property: "og:description",
+        content: "Every BBIT unit with its published notes and papers.",
+      },
     ],
   }),
   component: Units,
@@ -36,7 +39,9 @@ function Units() {
     })
     .filter((unit) =>
       term.trim()
-        ? `${unit.code} ${unit.name} ${unit.lecturer}`.toLowerCase().includes(term.trim().toLowerCase())
+        ? `${unit.code} ${unit.name} ${unit.lecturer}`
+            .toLowerCase()
+            .includes(term.trim().toLowerCase())
         : true,
     );
 
