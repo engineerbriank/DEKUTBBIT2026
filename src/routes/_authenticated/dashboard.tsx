@@ -46,6 +46,9 @@ const TILES = [
   { to: "/groups", label: "Study Groups", icon: Users },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
   { to: "/announcements", label: "Announcements", icon: Megaphone },
+] as const;
+
+const ADMIN_TILES = [
   { to: "/ai", label: "AI Assistant", icon: Sparkles },
   { to: "/exam", label: "Exam Maker", icon: GraduationCap },
 ] as const;
@@ -104,7 +107,7 @@ function Dashboard() {
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-3">
-        {TILES.map((tile) => (
+         {[...TILES, ...(me?.isAdmin ? ADMIN_TILES : [])].map((tile) => (
           <Link
             key={tile.to}
             to={tile.to}

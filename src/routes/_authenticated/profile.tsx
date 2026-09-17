@@ -147,10 +147,10 @@ function Profile() {
       </ul>
 
       <div className="surface-card mt-6 divide-y divide-border">
-        <Link to="/ai" className="flex items-center gap-3 p-3.5 text-sm font-medium">
+        {data?.isAdmin ? <Link to="/ai" className="flex items-center gap-3 p-3.5 text-sm font-medium">
           <Sparkles className="size-4 text-primary" /> AI study assistant
           <ChevronRight className="ml-auto size-4 text-muted-foreground" />
-        </Link>
+        </Link> : null}
         {data?.isAdmin ? (
           <Link to="/admin" className="flex items-center gap-3 p-3.5 text-sm font-medium">
             <ShieldCheck className="size-4 text-primary" /> Admin panel

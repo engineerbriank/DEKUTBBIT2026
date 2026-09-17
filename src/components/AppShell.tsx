@@ -36,8 +36,12 @@ const MORE_NAV = [
   { to: "/units", label: "My Units", icon: BookOpen },
   { to: "/assignments", label: "Assignments", icon: ClipboardList },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
-  { to: "/ai", label: "AI Assistant", icon: Sparkles },
   { to: "/notifications", label: "Notifications", icon: Bell },
+] as const;
+
+const ADMIN_AI_NAV = [
+  { to: "/ai", label: "AI Assistant", icon: Sparkles },
+  { to: "/exam", label: "Exam Maker", icon: BookOpen },
 ] as const;
 
 export function useMe() {
@@ -120,6 +124,7 @@ function DesktopSidebar({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep:
       </Link>
       <nav className="mt-8 space-y-1">
         {[...PRIMARY_NAV, ...MORE_NAV].map((item) => <NavLink key={item.to} item={item} />)}
+        {isAdmin ? ADMIN_AI_NAV.map((item) => <NavLink key={item.to} item={item} />) : null}
         {isAdmin ? <NavLink item={{ to: "/admin", label: "Admin Panel", icon: ShieldCheck }} /> : null}
         {isClassRep && !isAdmin ? <NavLink item={{ to: "/class-rep", label: "Class Rep", icon: Settings }} /> : null}
       </nav>
@@ -170,6 +175,7 @@ function MobileMenu({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep: boo
         <SheetHeader className="text-left"><SheetTitle className="flex items-center gap-3 text-white"><AppLogo /> BBITClassPoint</SheetTitle></SheetHeader>
         <nav className="mt-7 space-y-1">
           {MORE_NAV.map((item) => <NavLink key={item.to} item={item} />)}
+          {isAdmin ? ADMIN_AI_NAV.map((item) => <NavLink key={item.to} item={item} />) : null}
           {isAdmin ? <NavLink item={{ to: "/admin", label: "Admin Panel", icon: ShieldCheck }} /> : null}
           {isClassRep && !isAdmin ? <NavLink item={{ to: "/class-rep", label: "Class Rep", icon: Settings }} /> : null}
         </nav>
