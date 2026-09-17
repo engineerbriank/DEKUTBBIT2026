@@ -14,9 +14,9 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — BBITClassPoint" },
-      { name: "description", content: "Sign in or create your BBITClassPoint student account." },
-      { property: "og:title", content: "Sign in — BBITClassPoint" },
+      { title: "Sign in — DEKUT BBIT 2026 Digital Student Platform" },
+      { name: "description", content: "Sign in or create your DEKUT BBIT 2026 student account." },
+      { property: "og:title", content: "Sign in — DEKUT BBIT 2026 Digital Student Platform" },
       {
         property: "og:description",
         content: "Access BBIT notes, past papers and the AI study assistant.",
@@ -56,7 +56,7 @@ function AuthPage() {
           options: { data: { full_name: fullName }, emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        toast.success("Account created. Welcome to BBITClassPoint!");
+        toast.success("Account created. Welcome to DEKUT BBIT 2026!");
       } else if (mode === "reset") {
         await resetPassword({ data: { email, code, newPassword: password } });
         toast.success("Password changed. Signing you in…");
@@ -92,10 +92,12 @@ function AuthPage() {
         <Link to="/" className="mb-6 flex items-center justify-center gap-2">
           <img
             src={logoAsset.url}
-            alt="BBITClassPoint logo"
+            alt="DEKUT BBIT 2026 Digital Student Platform logo"
             className="size-10 rounded-xl object-cover shadow-lg"
           />
-          <span className="font-display text-lg font-semibold">BBITClassPoint</span>
+          <span className="max-w-64 text-center font-display text-base font-semibold leading-tight">
+            DEKUT BBIT 2026 · DIGITAL STUDENT PLATFORM
+          </span>
         </Link>
 
         <div className="glass-panel p-6">

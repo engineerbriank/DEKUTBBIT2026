@@ -84,8 +84,8 @@ export function AppShell({
 }) {
   const { data: me } = useMe();
   return (
-    <div className="min-h-screen bg-navy lg:p-5">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1240px] overflow-hidden bg-navy lg:min-h-[calc(100vh-2.5rem)] lg:rounded-[2rem] lg:border lg:border-white/10 lg:shadow-2xl">
+    <div className="min-h-screen bg-background lg:p-5">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1240px] overflow-hidden bg-background lg:min-h-[calc(100vh-2.5rem)] lg:rounded-[2rem] lg:border lg:border-border lg:shadow-xl">
         <DesktopSidebar
           isAdmin={Boolean(me?.isAdmin)}
           isClassRep={Boolean(me?.roles?.includes("class_rep"))}
@@ -104,10 +104,10 @@ export function AppShell({
                   </span>
                   <div className="min-w-0">
                     <p className="hidden text-xs font-semibold uppercase tracking-[0.18em] text-navy-foreground/55 lg:block">
-                      BBITClassPoint
+                      DEKUT BBIT 2026
                     </p>
                     <h1 className="truncate font-display text-xl font-semibold sm:text-2xl">
-                      {title ?? "BBITClassPoint"}
+                      {title ?? "Digital Student Platform"}
                     </h1>
                   </div>
                 </div>
@@ -127,12 +127,12 @@ export function AppShell({
 
 function DesktopSidebar({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep: boolean }) {
   return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r border-white/10 bg-navy px-4 py-6 text-navy-foreground lg:flex">
+    <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card px-4 py-6 text-foreground lg:flex">
       <Link to="/dashboard" className="flex items-center gap-3 px-3">
         <AppLogo className="size-11" />
         <div>
-          <p className="font-display font-bold">BBITClassPoint</p>
-          <p className="text-[11px] text-white/55">Academic hub</p>
+          <p className="font-display text-sm font-bold leading-tight">DEKUT BBIT 2026</p>
+          <p className="text-[11px] text-muted-foreground">Digital Student Platform</p>
         </div>
       </Link>
       <nav className="mt-8 space-y-1">
@@ -147,9 +147,9 @@ function DesktopSidebar({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep:
           <NavLink item={{ to: "/class-rep", label: "Class Rep", icon: Settings }} />
         ) : null}
       </nav>
-      <div className="mt-auto rounded-2xl bg-white/7 p-4 ring-1 ring-white/10">
+      <div className="mt-auto rounded-2xl bg-secondary p-4 ring-1 ring-border">
         <p className="text-xs font-semibold">Learn together</p>
-        <p className="mt-1 text-[11px] leading-relaxed text-white/55">
+        <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
           Real class material, organized for every BBIT student.
         </p>
       </div>
@@ -164,8 +164,8 @@ function NavLink({ item }: { item: { to: string; label: string; icon: typeof Hom
       <Link
         to="/resources"
         search={{ q: "", unit: "", category: "" }}
-        activeProps={{ className: "bg-white/12 text-white" }}
-        inactiveProps={{ className: "text-white/65 hover:bg-white/7 hover:text-white" }}
+        activeProps={{ className: "bg-secondary text-primary" }}
+        inactiveProps={{ className: "text-muted-foreground hover:bg-muted hover:text-foreground" }}
         className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition"
       >
         <Icon className="size-4.5" /> {item.label}
@@ -175,8 +175,8 @@ function NavLink({ item }: { item: { to: string; label: string; icon: typeof Hom
   return (
     <Link
       to={item.to as never}
-      activeProps={{ className: "bg-white/12 text-white" }}
-      inactiveProps={{ className: "text-white/65 hover:bg-white/7 hover:text-white" }}
+      activeProps={{ className: "bg-secondary text-primary" }}
+      inactiveProps={{ className: "text-muted-foreground hover:bg-muted hover:text-foreground" }}
       className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition"
     >
       <Icon className="size-4.5" /> {item.label}
@@ -202,7 +202,7 @@ function MobileMenu({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep: boo
       >
         <SheetHeader className="text-left">
           <SheetTitle className="flex items-center gap-3 text-white">
-            <AppLogo /> BBITClassPoint
+             <AppLogo /> DEKUT BBIT 2026
           </SheetTitle>
         </SheetHeader>
         <nav className="mt-7 space-y-1">
@@ -245,7 +245,7 @@ export function AppLogo({ className }: { className?: string }) {
   return (
     <img
       src={logoAsset.url}
-      alt="BBITClassPoint logo"
+      alt="DEKUT BBIT 2026 Digital Student Platform logo"
       className={cn("size-10 rounded-xl object-cover", className)}
     />
   );
