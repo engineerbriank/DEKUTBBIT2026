@@ -1,5 +1,18 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
+
+async function assertAiAdmin(context: { userId: string; supabase: SupabaseClient<Database> }) {
+  const { data, error } = await context.supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", context.userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Administrator access is required for AI features.");
+}
 
 export type ExamQuestion = {
   number: number;
@@ -18,11 +31,14 @@ export const processDocument = createServerFn({ method: "POST" })
     return input;
   })
   .handler(async ({ data, context }) => {
+    await assertAiAdmin(context);
     if (!data.filePath.startsWith(`${context.userId}/`)) {
       throw new Error("Forbidden: you can only process your own uploads.");
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: blob, error } = await supabaseAdmin.storage.from("ai-uploads").download(data.filePath);
+    const { data: blob, error } = await supabaseAdmin.storage
+      .from("ai-uploads")
+      .download(data.filePath);
     if (error || !blob) throw new Error(error?.message ?? "Could not read the uploaded file.");
 
     const bytes = new Uint8Array(await blob.arrayBuffer());
@@ -53,6 +69,7 @@ export const processDocument = createServerFn({ method: "POST" })
 export const listDocuments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await assertAiAdmin(context);
     const { data, error } = await context.supabase
       .from("ai_documents")
       .select("id,file_name,char_count,created_at")
@@ -69,6 +86,7 @@ export const deleteDocument = createServerFn({ method: "POST" })
     return input;
   })
   .handler(async ({ data, context }) => {
+    await assertAiAdmin(context);
     const { data: doc } = await context.supabase
       .from("ai_documents")
       .select("file_path")
@@ -92,12 +110,15 @@ export const listMessages = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { documentId?: string | null }) => input ?? {})
   .handler(async ({ data, context }) => {
+    await assertAiAdmin(context);
     let query = context.supabase
       .from("ai_messages")
       .select("id,role,content,created_at,document_id")
       .eq("owner_id", context.userId)
       .order("created_at");
-    query = data.documentId ? query.eq("document_id", data.documentId) : query.is("document_id", null);
+    query = data.documentId
+      ? query.eq("document_id", data.documentId)
+      : query.is("document_id", null);
     const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
     return rows ?? [];
@@ -111,6 +132,7 @@ export const askAI = createServerFn({ method: "POST" })
     return input;
   })
   .handler(async ({ data, context }) => {
+    await assertAiAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { callGateway, userItem, assistantItem } = await import("./ai-gateway.server");
     const { retrieveContext } = await import("./doc-extract.server");
@@ -218,6 +240,7 @@ export const generateExam = createServerFn({ method: "POST" })
     },
   )
   .handler(async ({ data, context }) => {
+    await assertAiAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { callGateway, userItem } = await import("./ai-gateway.server");
     const { retrieveContext } = await import("./doc-extract.server");
@@ -240,7 +263,10 @@ export const generateExam = createServerFn({ method: "POST" })
           .eq("status", "published");
         material += `Unit outline: ${unit.description}\nPublished course material topics:\n`;
         material += (resources ?? [])
-          .map((row) => `- ${row.title}${row.topic ? ` (topic: ${row.topic})` : ""}: ${row.description}`)
+          .map(
+            (row) =>
+              `- ${row.title}${row.topic ? ` (topic: ${row.topic})` : ""}: ${row.description}`,
+          )
           .join("\n");
       }
     }
@@ -269,7 +295,10 @@ export const generateExam = createServerFn({ method: "POST" })
       {
         instructions:
           "You are an experienced university examiner writing Business Information Technology exam papers. Return valid JSON matching the schema.",
-        jsonSchema: { name: "exam_paper", schema: EXAM_SCHEMA as unknown as Record<string, unknown> },
+        jsonSchema: {
+          name: "exam_paper",
+          schema: EXAM_SCHEMA as unknown as Record<string, unknown>,
+        },
       },
     );
 
@@ -279,7 +308,8 @@ export const generateExam = createServerFn({ method: "POST" })
     } catch {
       throw new Error("The AI response could not be read. Please try generating again.");
     }
-    if (!parsed.questions?.length) throw new Error("No questions were generated. Please try again.");
+    if (!parsed.questions?.length)
+      throw new Error("No questions were generated. Please try again.");
 
     const { data: saved, error } = await supabaseAdmin
       .from("exams")
@@ -299,6 +329,7 @@ export const generateExam = createServerFn({ method: "POST" })
 export const listExams = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await assertAiAdmin(context);
     const { data, error } = await context.supabase
       .from("exams")
       .select("id,title,created_at,content")

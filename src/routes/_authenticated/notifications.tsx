@@ -11,7 +11,10 @@ export const Route = createFileRoute("/_authenticated/notifications")({
   head: () => ({
     meta: [
       { title: "Notifications — BBITClassPoint" },
-      { name: "description", content: "New notes, classes, assignments and announcements as they are published." },
+      {
+        name: "description",
+        content: "New notes, classes, assignments and announcements as they are published.",
+      },
       { property: "og:title", content: "Notifications — BBITClassPoint" },
       { property: "og:description", content: "Everything newly published for your BBIT class." },
     ],
@@ -51,7 +54,9 @@ function Notifications() {
     >
       {isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : null}
       {!isLoading && (data?.items ?? []).length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nothing yet. New uploads and announcements show up here.</p>
+        <p className="text-sm text-muted-foreground">
+          Nothing yet. New uploads and announcements show up here.
+        </p>
       ) : null}
 
       <ul className="space-y-3">
@@ -60,7 +65,10 @@ function Notifications() {
           return (
             <li
               key={item.id}
-              className={cn("surface-card flex cursor-pointer items-start gap-3 p-4", !item.read && "border-accent/40")}
+              className={cn(
+                "surface-card flex cursor-pointer items-start gap-3 p-4",
+                !item.read && "border-accent/40",
+              )}
               onClick={() => {
                 if (!item.read) mark.mutate(item.id);
                 if (item.link?.startsWith("/")) navigate({ to: item.link as never });
@@ -72,9 +80,13 @@ function Notifications() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-semibold">{item.title}</p>
-                  <span className="shrink-0 text-[10px] text-muted-foreground">{timeAgo(item.created_at)}</span>
+                  <span className="shrink-0 text-[10px] text-muted-foreground">
+                    {timeAgo(item.created_at)}
+                  </span>
                 </div>
-                {item.body ? <p className="mt-0.5 text-xs text-muted-foreground">{item.body}</p> : null}
+                {item.body ? (
+                  <p className="mt-0.5 text-xs text-muted-foreground">{item.body}</p>
+                ) : null}
               </div>
             </li>
           );

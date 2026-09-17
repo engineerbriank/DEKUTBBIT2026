@@ -191,7 +191,9 @@
 
 /* Rounded white sheet that sits over the navy header */
 @utility app-sheet {
-  background-image: radial-gradient(circle at 90% 5%, rgb(0 168 107 / 0.07), transparent 22rem), linear-gradient(var(--color-background), var(--color-background));
+  background-image:
+    radial-gradient(circle at 90% 5%, rgb(0 168 107 / 0.07), transparent 22rem),
+    linear-gradient(var(--color-background), var(--color-background));
   border-top-left-radius: 1.75rem;
   border-top-right-radius: 1.75rem;
 }
@@ -210,11 +212,23 @@
   font-size: 0.875rem;
 }
 
-button, a { -webkit-tap-highlight-color: transparent; }
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
 
 @media (prefers-reduced-motion: no-preference) {
-  .surface-card { transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
-  a.surface-card:hover, button.surface-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-raised); }
+  .surface-card {
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      border-color 180ms ease;
+  }
+  a.surface-card:hover,
+  button.surface-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-raised);
+  }
 }
 
 @utility pill {

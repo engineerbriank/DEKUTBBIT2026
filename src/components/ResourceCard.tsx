@@ -55,7 +55,8 @@ export function ResourceCard({ resource }: { resource: ResourceRow }) {
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-sm font-semibold">{resource.title}</h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {resource.unit?.code} · {formatBytes(resource.file_size)} · {resource.download_count} downloads
+            {resource.unit?.code} · {formatBytes(resource.file_size)} · {resource.download_count}{" "}
+            downloads
           </p>
         </div>
         {resource.category ? <Badge variant="secondary">{resource.category.name}</Badge> : null}

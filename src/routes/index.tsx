@@ -20,7 +20,8 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "BBITClassPoint — Your BBIT Academic Hub" },
       {
         property: "og:description",
-        content: "Real BBIT course material, live timetables, assignments and approved study groups.",
+        content:
+          "Real BBIT course material, live timetables, assignments and approved study groups.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -36,7 +37,11 @@ function Landing() {
   return (
     <div className="min-h-screen bg-background">
       <header className="relative flex min-h-[78vh] overflow-hidden text-primary-foreground">
-        <img src={campusAsset.url} alt="Aerial view of Dedan Kimathi University campus" className="absolute inset-0 size-full object-cover" />
+        <img
+          src={campusAsset.url}
+          alt="Aerial view of Dedan Kimathi University campus"
+          className="absolute inset-0 size-full object-cover"
+        />
         <div aria-hidden className="absolute inset-0 bg-navy/70" />
         <div className="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
           <div className="flex items-center gap-2">
@@ -57,10 +62,15 @@ function Landing() {
             Every BBIT note, past paper and timetable in one place.
           </h1>
           <p className="mt-5 max-w-2xl text-base text-primary-foreground/85 sm:text-lg">
-            Open real class material, follow the live timetable, track assignments and learn with approved study groups.
+            Open real class material, follow the live timetable, track assignments and learn with
+            approved study groups.
           </p>
           <div className="mt-8 flex w-full max-w-md flex-col justify-center gap-3 sm:flex-row">
-            <Button asChild size="lg" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
+            <Button
+              asChild
+              size="lg"
+              className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
+            >
               <Link to="/auth">Create account</Link>
             </Button>
             <Button
@@ -95,9 +105,9 @@ function Landing() {
             body="Everything you see is an actual stored document you can open in the browser or download."
           />
           <Feature
-             icon={<Users className="size-5" />}
-             title="Approved study groups"
-             body="Register for reviewed groups, open their WhatsApp communities and follow member announcements."
+            icon={<Users className="size-5" />}
+            title="Approved study groups"
+            body="Register for reviewed groups, open their WhatsApp communities and follow member announcements."
           />
         </div>
 

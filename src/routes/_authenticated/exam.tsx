@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Download, Loader2, Wand2 } from "lucide-react";
 
-import { AppShell } from "@/components/AppShell";
+import { AppShell, useMe } from "@/components/AppShell";
 import { generateExam, listDocuments, listExams } from "@/lib/ai.functions";
 import { listUnits } from "@/lib/catalog.functions";
 import { buildExamPdf, downloadBlob, type ExamPaper } from "@/lib/exam-pdf";
@@ -29,15 +29,28 @@ export const Route = createFileRoute("/_authenticated/exam")({
 });
 
 function ExamPage() {
+  const { data: me, isLoading: loadingMe } = useMe();
   const queryClient = useQueryClient();
   const fetchUnits = useServerFn(listUnits);
   const fetchDocuments = useServerFn(listDocuments);
   const fetchExams = useServerFn(listExams);
   const generate = useServerFn(generateExam);
 
-  const { data: units } = useQuery({ queryKey: ["units"], queryFn: () => fetchUnits() });
-  const { data: documents } = useQuery({ queryKey: ["ai-documents"], queryFn: () => fetchDocuments() });
-  const { data: exams } = useQuery({ queryKey: ["exams"], queryFn: () => fetchExams() });
+  const { data: units } = useQuery({
+    queryKey: ["units"],
+    queryFn: () => fetchUnits(),
+    enabled: Boolean(me?.isAdmin),
+  });
+  const { data: documents } = useQuery({
+    queryKey: ["ai-documents"],
+    queryFn: () => fetchDocuments(),
+    enabled: Boolean(me?.isAdmin),
+  });
+  const { data: exams } = useQuery({
+    queryKey: ["exams"],
+    queryFn: () => fetchExams(),
+    enabled: Boolean(me?.isAdmin),
+  });
 
   const [unitId, setUnitId] = useState("");
   const [documentId, setDocumentId] = useState("");
@@ -70,6 +83,25 @@ function ExamPage() {
   };
 
   const latest = mutation.data;
+
+  if (loadingMe)
+    return (
+      <AppShell>
+        <p className="text-sm text-muted-foreground">Checking access…</p>
+      </AppShell>
+    );
+  if (!me?.isAdmin)
+    return (
+      <AppShell title="Exam Generator" icon={<Wand2 className="size-5" />}>
+        <div className="surface-card mx-auto max-w-md p-6 text-center">
+          <Wand2 className="mx-auto size-8 text-primary" />
+          <h2 className="mt-3 text-lg font-semibold">Administrator access required</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Exam generation is managed by the platform administrator.
+          </p>
+        </div>
+      </AppShell>
+    );
 
   return (
     <AppShell>
@@ -151,7 +183,11 @@ function ExamPage() {
         </div>
         <div className="sm:col-span-2">
           <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Wand2 className="size-4" />}
+            {mutation.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Wand2 className="size-4" />
+            )}
             {mutation.isPending ? "Writing your paper…" : "Generate exam"}
           </Button>
         </div>
@@ -165,7 +201,11 @@ function ExamPage() {
               <p className="text-sm text-muted-foreground">{latest.unitLabel}</p>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => download(latest.exam, latest.unitLabel, false)}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => download(latest.exam, latest.unitLabel, false)}
+              >
                 <Download className="size-4" /> Question paper
               </Button>
               <Button size="sm" onClick={() => download(latest.exam, latest.unitLabel, true)}>
@@ -201,7 +241,10 @@ function ExamPage() {
           <h2 className="text-lg font-semibold">Your saved papers</h2>
           <ul className="mt-3 space-y-2">
             {(exams ?? []).map((exam) => (
-              <li key={exam.id} className="surface-card flex flex-wrap items-center justify-between gap-3 p-4">
+              <li
+                key={exam.id}
+                className="surface-card flex flex-wrap items-center justify-between gap-3 p-4"
+              >
                 <div>
                   <p className="text-sm font-medium">{exam.title}</p>
                   <p className="text-xs text-muted-foreground">

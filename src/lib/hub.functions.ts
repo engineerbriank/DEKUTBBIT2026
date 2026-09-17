@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
-async function assertAdmin(context: { userId: string; supabase: any }) {
+async function assertAdmin(context: { userId: string; supabase: SupabaseClient<Database> }) {
   const { data } = await context.supabase
     .from("user_roles")
     .select("role")
@@ -32,10 +34,15 @@ export const listAssignments = createServerFn({ method: "GET" })
     const [{ data: rows, error }, { data: progress }] = await Promise.all([
       context.supabase
         .from("assignments")
-        .select("id,title,description,due_date,weight_percent,status,created_at,unit:units(id,code,name)")
+        .select(
+          "id,title,description,due_date,weight_percent,status,created_at,unit:units(id,code,name)",
+        )
         .eq("status", "published")
         .order("due_date", { ascending: true, nullsFirst: false }),
-      context.supabase.from("assignment_progress").select("assignment_id,state").eq("user_id", context.userId),
+      context.supabase
+        .from("assignment_progress")
+        .select("assignment_id,state")
+        .eq("user_id", context.userId),
     ]);
     if (error) throw new Error(error.message);
     const states = new Map<string, string>();
@@ -54,7 +61,12 @@ export const setAssignmentState = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("assignment_progress").upsert(
-      { assignment_id: data.id, user_id: context.userId, state: data.state, updated_at: new Date().toISOString() },
+      {
+        assignment_id: data.id,
+        user_id: context.userId,
+        state: data.state,
+        updated_at: new Date().toISOString(),
+      },
       { onConflict: "assignment_id,user_id" },
     );
     if (error) throw new Error(error.message);
@@ -67,7 +79,9 @@ export const adminListAssignments = createServerFn({ method: "GET" })
     const admin = await assertAdmin(context);
     const { data, error } = await admin
       .from("assignments")
-      .select("id,title,description,due_date,weight_percent,status,created_at,unit:units(id,code,name)")
+      .select(
+        "id,title,description,due_date,weight_percent,status,created_at,unit:units(id,code,name)",
+      )
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
@@ -133,7 +147,7 @@ export const deleteAssignment = createServerFn({ method: "POST" })
 
 const WHATSAPP_GROUP_PATTERN = /^https:\/\/(chat\.whatsapp\.com\/|wa\.me\/)[A-Za-z0-9?&=_+%./-]+$/;
 
-async function isAdminUser(context: { userId: string; supabase: any }) {
+async function isAdminUser(context: { userId: string; supabase: SupabaseClient<Database> }) {
   const { data } = await context.supabase
     .from("user_roles")
     .select("role")
@@ -151,14 +165,23 @@ export const listStudyGroups = createServerFn({ method: "GET" })
         .from("study_groups")
         .select("id,name,description,join_code,created_by,created_at,status,leader_id")
         .order("created_at", { ascending: false }),
-      context.supabase.from("group_members").select("group_id,user_id").eq("user_id", context.userId),
+      context.supabase
+        .from("group_members")
+        .select("group_id,user_id")
+        .eq("user_id", context.userId),
     ]);
     if (error) throw new Error(error.message);
     const admin = await isAdminUser(context);
-    const visible = (groups ?? []).filter((group) => group.status === "approved" || group.created_by === context.userId || admin);
+    const visible = (groups ?? []).filter(
+      (group) => group.status === "approved" || group.created_by === context.userId || admin,
+    );
     const groupIds = visible.map((group) => group.id);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: allMembers } = groupIds.length
-      ? await context.supabase.from("group_members").select("group_id,user_id").in("group_id", groupIds)
+      ? await supabaseAdmin
+          .from("group_members")
+          .select("group_id,user_id")
+          .in("group_id", groupIds)
       : { data: [] };
     return visible.map((group) => ({
       ...group,
@@ -172,8 +195,10 @@ export const listStudyGroups = createServerFn({ method: "GET" })
 export const createStudyGroup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { name: string; description?: string; whatsappUrl: string }) => {
-    if (!input?.name?.trim() || input.name.trim().length > 100) throw new Error("Enter a group name under 100 characters");
-    if ((input.description?.trim().length ?? 0) > 500) throw new Error("Keep the description under 500 characters");
+    if (!input?.name?.trim() || input.name.trim().length > 100)
+      throw new Error("Enter a group name under 100 characters");
+    if ((input.description?.trim().length ?? 0) > 500)
+      throw new Error("Keep the description under 500 characters");
     if (!WHATSAPP_GROUP_PATTERN.test(input.whatsappUrl?.trim() ?? "")) {
       throw new Error("Enter a valid WhatsApp group or wa.me link");
     }
@@ -195,7 +220,9 @@ export const createStudyGroup = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (group) {
-      await context.supabase.from("group_members").insert({ group_id: group.id, user_id: context.userId });
+      await context.supabase
+        .from("group_members")
+        .insert({ group_id: group.id, user_id: context.userId });
     }
     return group;
   });
@@ -214,7 +241,8 @@ export const joinStudyGroup = createServerFn({ method: "POST" })
         .eq("join_code", code)
         .maybeSingle();
       if (!group) throw new Error("No group matches that code.");
-      if (group.status !== "approved") throw new Error("This group is still waiting for administrator approval.");
+      if (group.status !== "approved")
+        throw new Error("This group is still waiting for administrator approval.");
       groupId = group.id;
     }
     const { data: group } = await context.supabase
@@ -222,7 +250,8 @@ export const joinStudyGroup = createServerFn({ method: "POST" })
       .select("id,status")
       .eq("id", groupId)
       .maybeSingle();
-    if (!group || group.status !== "approved") throw new Error("This group is not available to join.");
+    if (!group || group.status !== "approved")
+      throw new Error("This group is not available to join.");
     const { error } = await context.supabase
       .from("group_members")
       .upsert({ group_id: groupId, user_id: context.userId }, { onConflict: "group_id,user_id" });
@@ -252,22 +281,49 @@ export const getStudyGroup = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .maybeSingle();
     const joined = Boolean(ownMembership);
-    if (group.status !== "approved" && group.created_by !== context.userId && !admin) throw new Error("Group not found.");
+    if (group.status !== "approved" && group.created_by !== context.userId && !admin)
+      throw new Error("Group not found.");
 
     const privileged = joined || admin;
-    let members: Array<{ userId: string; fullName: string; joinedAt: string; isLeader: boolean }> = [];
-    let announcements: Array<{ id: string; body: string; createdAt: string; createdBy: string; authorName: string; canDelete: boolean }> = [];
+    let members: Array<{ userId: string; fullName: string; joinedAt: string; isLeader: boolean }> =
+      [];
+    let announcements: Array<{
+      id: string;
+      body: string;
+      createdAt: string;
+      createdBy: string;
+      authorName: string;
+      canDelete: boolean;
+    }> = [];
     if (privileged) {
-      const [{ data: memberships }, { data: posts }] = await Promise.all([
-        context.supabase.from("group_members").select("user_id,joined_at").eq("group_id", group.id).order("joined_at"),
-        context.supabase.from("group_announcements").select("id,body,created_at,created_by").eq("group_id", group.id).order("created_at", { ascending: false }),
-      ]);
-      const userIds = [...new Set([...(memberships ?? []).map((row) => row.user_id), ...(posts ?? []).map((row) => row.created_by)])];
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const [{ data: memberships }, { data: posts }] = await Promise.all([
+        supabaseAdmin
+          .from("group_members")
+          .select("user_id,joined_at")
+          .eq("group_id", group.id)
+          .order("joined_at"),
+        supabaseAdmin
+          .from("group_announcements")
+          .select("id,body,created_at,created_by")
+          .eq("group_id", group.id)
+          .order("created_at", { ascending: false }),
+      ]);
+      const userIds = [
+        ...new Set([
+          ...(memberships ?? []).map((row) => row.user_id),
+          ...(posts ?? []).map((row) => row.created_by),
+        ]),
+      ];
       const { data: profiles } = userIds.length
         ? await supabaseAdmin.from("profiles").select("id,full_name,email").in("id", userIds)
         : { data: [] };
-      const names = new Map((profiles ?? []).map((profile) => [profile.id, profile.full_name || profile.email || "Member"]));
+      const names = new Map(
+        (profiles ?? []).map((profile) => [
+          profile.id,
+          profile.full_name || profile.email || "Member",
+        ]),
+      );
       members = (memberships ?? []).map((row) => ({
         userId: row.user_id,
         fullName: names.get(row.user_id) ?? "Member",
@@ -290,7 +346,8 @@ export const getStudyGroup = createServerFn({ method: "POST" })
       isAdmin: admin,
       members,
       announcements,
-      leaderName: members.find((member) => member.userId === group.leader_id)?.fullName ?? "Not selected",
+      leaderName:
+        members.find((member) => member.userId === group.leader_id)?.fullName ?? "Not selected",
     };
   });
 
@@ -298,22 +355,40 @@ export const postGroupAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { groupId: string; body: string }) => {
     const body = input?.body?.trim();
-    if (!input?.groupId || !body || body.length > 2000) throw new Error("Enter an announcement under 2,000 characters");
+    if (!input?.groupId || !body || body.length > 2000)
+      throw new Error("Enter an announcement under 2,000 characters");
     return { groupId: input.groupId, body };
   })
   .handler(async ({ data, context }) => {
-    const { data: group } = await context.supabase.from("study_groups").select("id,name,status").eq("id", data.groupId).maybeSingle();
+    const { data: group } = await context.supabase
+      .from("study_groups")
+      .select("id,name,status")
+      .eq("id", data.groupId)
+      .maybeSingle();
     if (!group || group.status !== "approved") throw new Error("This group is not approved.");
-    const { data: membership } = await context.supabase.from("group_members").select("id").eq("group_id", data.groupId).eq("user_id", context.userId).maybeSingle();
+    const { data: membership } = await context.supabase
+      .from("group_members")
+      .select("id")
+      .eq("group_id", data.groupId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
     if (!membership) throw new Error("Join this group before posting announcements.");
-    const { error } = await context.supabase.from("group_announcements").insert({ group_id: data.groupId, created_by: context.userId, body: data.body });
+    const { error } = await context.supabase
+      .from("group_announcements")
+      .insert({ group_id: data.groupId, created_by: context.userId, body: data.body });
     if (error) throw new Error(error.message);
-    const admin = await assertAdminOrService(context);
-    await admin.from("notifications").insert({ kind: "group", title: `New update in ${group.name}`, body: data.body.slice(0, 160), link: `/groups/${group.id}`, group_id: group.id });
+    const admin = await getServiceClient();
+    await admin.from("notifications").insert({
+      kind: "group",
+      title: `New update in ${group.name}`,
+      body: data.body.slice(0, 160),
+      link: `/groups/${group.id}`,
+      group_id: group.id,
+    });
     return { ok: true };
   });
 
-async function assertAdminOrService(context: { userId: string; supabase: any }) {
+async function getServiceClient() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
@@ -337,43 +412,79 @@ export const adminListStudyGroups = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const admin = await assertAdmin(context);
-    const { data: groups, error } = await admin.from("study_groups").select("id,name,description,status,whatsapp_url,join_code,leader_id,created_by,created_at").order("created_at", { ascending: false });
+    const { data: groups, error } = await admin
+      .from("study_groups")
+      .select("id,name,description,status,whatsapp_url,join_code,leader_id,created_by,created_at")
+      .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     const groupIds = (groups ?? []).map((group) => group.id);
-    const { data: memberships } = groupIds.length ? await admin.from("group_members").select("group_id,user_id,joined_at").in("group_id", groupIds) : { data: [] };
+    const { data: memberships } = groupIds.length
+      ? await admin
+          .from("group_members")
+          .select("group_id,user_id,joined_at")
+          .in("group_id", groupIds)
+      : { data: [] };
     const userIds = [...new Set((memberships ?? []).map((row) => row.user_id))];
-    const { data: profiles } = userIds.length ? await admin.from("profiles").select("id,full_name,email").in("id", userIds) : { data: [] };
-    const names = new Map((profiles ?? []).map((profile) => [profile.id, profile.full_name || profile.email || "Member"]));
+    const { data: profiles } = userIds.length
+      ? await admin.from("profiles").select("id,full_name,email").in("id", userIds)
+      : { data: [] };
+    const names = new Map(
+      (profiles ?? []).map((profile) => [
+        profile.id,
+        profile.full_name || profile.email || "Member",
+      ]),
+    );
     return (groups ?? []).map((group) => ({
       ...group,
-      members: (memberships ?? []).filter((row) => row.group_id === group.id).map((row) => ({ userId: row.user_id, fullName: names.get(row.user_id) ?? "Member" })),
+      members: (memberships ?? [])
+        .filter((row) => row.group_id === group.id)
+        .map((row) => ({ userId: row.user_id, fullName: names.get(row.user_id) ?? "Member" })),
     }));
   });
 
 export const adminReviewStudyGroup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { groupId: string; decision: "approved" | "rejected"; leaderId?: string }) => {
-    if (!input?.groupId) throw new Error("Group is required");
-    if (input.decision === "approved" && !input.leaderId) throw new Error("Select a registered group leader");
-    return input;
-  })
+  .inputValidator(
+    (input: { groupId: string; decision: "approved" | "rejected"; leaderId?: string }) => {
+      if (!input?.groupId) throw new Error("Group is required");
+      if (input.decision === "approved" && !input.leaderId)
+        throw new Error("Select a registered group leader");
+      return input;
+    },
+  )
   .handler(async ({ data, context }) => {
     const admin = await assertAdmin(context);
     if (data.decision === "approved") {
-      const { data: member } = await admin.from("group_members").select("id").eq("group_id", data.groupId).eq("user_id", data.leaderId ?? "").maybeSingle();
+      const { data: member } = await admin
+        .from("group_members")
+        .select("id")
+        .eq("group_id", data.groupId)
+        .eq("user_id", data.leaderId ?? "")
+        .maybeSingle();
       if (!member) throw new Error("The selected leader must be a registered group member.");
     }
-    const { data: group, error } = await admin.from("study_groups").update({
-      status: data.decision,
-      leader_id: data.decision === "approved" ? (data.leaderId ?? null) : null,
-      approved_by: context.userId,
-      approved_at: new Date().toISOString(),
-    }).eq("id", data.groupId).select("id,name").single();
+    const { data: group, error } = await admin
+      .from("study_groups")
+      .update({
+        status: data.decision,
+        leader_id: data.decision === "approved" ? (data.leaderId ?? null) : null,
+        approved_by: context.userId,
+        approved_at: new Date().toISOString(),
+      })
+      .eq("id", data.groupId)
+      .select("id,name")
+      .single();
     if (error) throw new Error(error.message);
     await admin.from("notifications").insert({
       kind: "group",
-      title: data.decision === "approved" ? `${group.name} was approved` : `${group.name} was not approved`,
-      body: data.decision === "approved" ? "The study group is now open to registered students." : "Review the group details or contact the administrator.",
+      title:
+        data.decision === "approved"
+          ? `${group.name} was approved`
+          : `${group.name} was not approved`,
+      body:
+        data.decision === "approved"
+          ? "The study group is now open to registered students."
+          : "Review the group details or contact the administrator.",
       link: `/groups/${group.id}`,
       group_id: group.id,
     });
@@ -407,7 +518,10 @@ export const listNotifications = createServerFn({ method: "GET" })
         .select("id,kind,title,body,link,created_at")
         .order("created_at", { ascending: false })
         .limit(50),
-      context.supabase.from("notification_reads").select("notification_id").eq("user_id", context.userId),
+      context.supabase
+        .from("notification_reads")
+        .select("notification_id")
+        .eq("user_id", context.userId),
     ]);
     if (error) throw new Error(error.message);
     const read = new Set((reads ?? []).map((row) => row.notification_id));
@@ -419,7 +533,10 @@ export const markNotificationsRead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data: rows } = await context.supabase.from("notifications").select("id").limit(200);
-    const payload = (rows ?? []).map((row) => ({ notification_id: row.id, user_id: context.userId }));
+    const payload = (rows ?? []).map((row) => ({
+      notification_id: row.id,
+      user_id: context.userId,
+    }));
     if (payload.length) {
       await context.supabase
         .from("notification_reads")
@@ -435,10 +552,12 @@ export const markNotificationRead = createServerFn({ method: "POST" })
     return input;
   })
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("notification_reads").upsert(
-      { notification_id: data.id, user_id: context.userId },
-      { onConflict: "notification_id,user_id", ignoreDuplicates: true },
-    );
+    const { error } = await context.supabase
+      .from("notification_reads")
+      .upsert(
+        { notification_id: data.id, user_id: context.userId },
+        { onConflict: "notification_id,user_id", ignoreDuplicates: true },
+      );
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -490,11 +609,26 @@ export const adminListQuickLinks = createServerFn({ method: "GET" })
 
 export const createQuickLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { label: string; subtitle?: string; url: string; sortOrder?: number }) => {
-    if (!input?.label?.trim()) throw new Error("Enter a label");
-    if (!input?.url?.trim()) throw new Error("Enter a link address");
-    return input;
-  })
+  .inputValidator(
+    (input: { label: string; subtitle?: string; url: string; sortOrder?: number }) => {
+      if (!input?.label?.trim() || input.label.trim().length > 80)
+        throw new Error("Enter a label under 80 characters");
+      if ((input.subtitle?.trim().length ?? 0) > 160)
+        throw new Error("Keep the description under 160 characters");
+      if (!input?.url?.trim() || input.url.trim().length > 500)
+        throw new Error("Enter a valid link address");
+      const candidate = input.url.trim().startsWith("http")
+        ? input.url.trim()
+        : `https://${input.url.trim()}`;
+      try {
+        const parsed = new URL(candidate);
+        if (!["http:", "https:"].includes(parsed.protocol)) throw new Error();
+      } catch {
+        throw new Error("Enter a valid http or https link address");
+      }
+      return input;
+    },
+  )
   .handler(async ({ data, context }) => {
     const admin = await assertAdmin(context);
     const url = data.url.trim().startsWith("http") ? data.url.trim() : `https://${data.url.trim()}`;
@@ -526,12 +660,21 @@ export const deleteQuickLink = createServerFn({ method: "POST" })
 export const getProfileOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const [{ data: profile }, { data: roles }, { data: groups }, { data: code }] = await Promise.all([
-      context.supabase.from("profiles").select("id,full_name,email,created_at").eq("id", context.userId).maybeSingle(),
-      context.supabase.from("user_roles").select("role").eq("user_id", context.userId),
-      context.supabase.from("group_members").select("group_id").eq("user_id", context.userId),
-      context.supabase.from("recovery_codes").select("code").eq("user_id", context.userId).maybeSingle(),
-    ]);
+    const [{ data: profile }, { data: roles }, { data: groups }, { data: code }] =
+      await Promise.all([
+        context.supabase
+          .from("profiles")
+          .select("id,full_name,email,created_at")
+          .eq("id", context.userId)
+          .maybeSingle(),
+        context.supabase.from("user_roles").select("role").eq("user_id", context.userId),
+        context.supabase.from("group_members").select("group_id").eq("user_id", context.userId),
+        context.supabase
+          .from("recovery_codes")
+          .select("code")
+          .eq("user_id", context.userId)
+          .maybeSingle(),
+      ]);
     const roleList = (roles ?? []).map((row) => row.role as string);
     return {
       fullName: profile?.full_name ?? "",
@@ -554,7 +697,9 @@ export const getClassRepOverview = createServerFn({ method: "GET" })
       .from("user_roles")
       .select("role")
       .eq("user_id", context.userId);
-    const allowed = (ownRoles ?? []).some((row) => row.role === "class_rep" || row.role === "admin");
+    const allowed = (ownRoles ?? []).some(
+      (row) => row.role === "class_rep" || row.role === "admin",
+    );
     if (!allowed) throw new Error("Class representative access is required.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -562,13 +707,23 @@ export const getClassRepOverview = createServerFn({ method: "GET" })
       supabaseAdmin.from("profiles").select("id,full_name,email,created_at").order("full_name"),
       supabaseAdmin.from("user_roles").select("user_id,role"),
       supabaseAdmin.from("study_groups").select("id", { count: "exact", head: true }),
-      supabaseAdmin.from("assignments").select("id", { count: "exact", head: true }).eq("status", "published"),
-      supabaseAdmin.from("resources").select("id", { count: "exact", head: true }).eq("status", "published"),
+      supabaseAdmin
+        .from("assignments")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "published"),
+      supabaseAdmin
+        .from("resources")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "published"),
     ]);
     const roleMap = new Map<string, string[]>();
-    for (const row of roles.data ?? []) roleMap.set(row.user_id, [...(roleMap.get(row.user_id) ?? []), row.role]);
+    for (const row of roles.data ?? [])
+      roleMap.set(row.user_id, [...(roleMap.get(row.user_id) ?? []), row.role]);
     return {
-      members: (profiles.data ?? []).map((profile) => ({ ...profile, roles: roleMap.get(profile.id) ?? [] })),
+      members: (profiles.data ?? []).map((profile) => ({
+        ...profile,
+        roles: roleMap.get(profile.id) ?? [],
+      })),
       groupCount: groups.count ?? 0,
       assignmentCount: assignments.count ?? 0,
       resourceCount: resources.count ?? 0,

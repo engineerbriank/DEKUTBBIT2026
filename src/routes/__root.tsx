@@ -87,7 +87,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "BBITClassPoint — BBIT Study Hub" },
       {
         property: "og:description",
-        content: "Notes, past papers, assignments, timetables and an AI study assistant for BBIT students.",
+        content:
+          "Notes, past papers, assignments, timetables and an AI study assistant for BBIT students.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

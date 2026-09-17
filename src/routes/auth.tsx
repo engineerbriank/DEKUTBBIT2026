@@ -17,7 +17,10 @@ export const Route = createFileRoute("/auth")({
       { title: "Sign in — BBITClassPoint" },
       { name: "description", content: "Sign in or create your BBITClassPoint student account." },
       { property: "og:title", content: "Sign in — BBITClassPoint" },
-      { property: "og:description", content: "Access BBIT notes, past papers and the AI study assistant." },
+      {
+        property: "og:description",
+        content: "Access BBIT notes, past papers and the AI study assistant.",
+      },
     ],
   }),
   component: AuthPage,
@@ -173,7 +176,11 @@ function AuthPage() {
               </div>
             </div>
             <Button type="submit" className="w-full" disabled={busy}>
-              {mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Set new password"}
+              {mode === "signin"
+                ? "Sign in"
+                : mode === "signup"
+                  ? "Create account"
+                  : "Set new password"}
             </Button>
           </form>
 
@@ -188,11 +195,17 @@ function AuthPage() {
           ) : null}
 
           <p className="mt-5 text-center text-sm text-muted-foreground">
-            {mode === "signup" ? "Already registered?" : mode === "reset" ? "Remembered it?" : "New here?"}{" "}
+            {mode === "signup"
+              ? "Already registered?"
+              : mode === "reset"
+                ? "Remembered it?"
+                : "New here?"}{" "}
             <button
               type="button"
               className="font-medium text-primary underline-offset-4 hover:underline"
-              onClick={() => setMode(mode === "signup" ? "signin" : mode === "reset" ? "signin" : "signup")}
+              onClick={() =>
+                setMode(mode === "signup" ? "signin" : mode === "reset" ? "signin" : "signup")
+              }
             >
               {mode === "signup" || mode === "reset" ? "Sign in instead" : "Create an account"}
             </button>

@@ -13,9 +13,15 @@ export const Route = createFileRoute("/_authenticated/assignments")({
   head: () => ({
     meta: [
       { title: "Assignments — BBITClassPoint" },
-      { name: "description", content: "Every published BBIT assignment with due dates, weighting and your own progress." },
+      {
+        name: "description",
+        content: "Every published BBIT assignment with due dates, weighting and your own progress.",
+      },
       { property: "og:title", content: "Assignments — BBITClassPoint" },
-      { property: "og:description", content: "Track BBIT assignment due dates and mark your progress." },
+      {
+        property: "og:description",
+        content: "Track BBIT assignment due dates and mark your progress.",
+      },
     ],
   }),
   component: Assignments,
@@ -29,10 +35,14 @@ function Assignments() {
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
 
-  const { data, isLoading } = useQuery({ queryKey: ["assignments"], queryFn: () => fetchAssignments() });
+  const { data, isLoading } = useQuery({
+    queryKey: ["assignments"],
+    queryFn: () => fetchAssignments(),
+  });
 
   const mutate = useMutation({
-    mutationFn: (input: { id: string; state: AssignmentRow["state"] }) => saveState({ data: input }),
+    mutationFn: (input: { id: string; state: AssignmentRow["state"] }) =>
+      saveState({ data: input }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["assignments"] });
       toast.success("Progress saved");
@@ -41,7 +51,11 @@ function Assignments() {
   });
 
   const rows = (data ?? []).filter((row) =>
-    filter === "All" ? true : filter === "Pending" ? row.state !== "completed" : row.state === "completed",
+    filter === "All"
+      ? true
+      : filter === "Pending"
+        ? row.state !== "completed"
+        : row.state === "completed",
   );
 
   return (
@@ -62,7 +76,9 @@ function Assignments() {
         ))}
       </div>
 
-      {isLoading ? <p className="mt-6 text-sm text-muted-foreground">Loading assignments…</p> : null}
+      {isLoading ? (
+        <p className="mt-6 text-sm text-muted-foreground">Loading assignments…</p>
+      ) : null}
       {!isLoading && rows.length === 0 ? (
         <p className="mt-6 text-sm text-muted-foreground">
           No assignments here yet. They appear as soon as an administrator publishes one.

@@ -21,7 +21,10 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
       { title: "Home — BBITClassPoint" },
-      { name: "description", content: "Today's BBIT classes, live counts and the newest published notes." },
+      {
+        name: "description",
+        content: "Today's BBIT classes, live counts and the newest published notes.",
+      },
       { property: "og:title", content: "Home — BBITClassPoint" },
       { property: "og:description", content: "Your BBIT study hub at a glance." },
     ],
@@ -42,10 +45,18 @@ const TILES = [
   { to: "/timetable", label: "My Timetable", icon: CalendarDays },
   { to: "/units", label: "Units", icon: LayoutGrid },
   { to: "/assignments", label: "Assignments", icon: ClipboardList },
-  { to: "/resources", label: "Resources", icon: FolderClosed, search: { q: "", unit: "", category: "" } },
+  {
+    to: "/resources",
+    label: "Resources",
+    icon: FolderClosed,
+    search: { q: "", unit: "", category: "" },
+  },
   { to: "/groups", label: "Study Groups", icon: Users },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
   { to: "/announcements", label: "Announcements", icon: Megaphone },
+] as const;
+
+const ADMIN_TILES = [
   { to: "/ai", label: "AI Assistant", icon: Sparkles },
   { to: "/exam", label: "Exam Maker", icon: GraduationCap },
 ] as const;
@@ -55,8 +66,14 @@ function Dashboard() {
   const fetchDashboard = useServerFn(getDashboard);
   const fetchTimetable = useServerFn(listTimetable);
 
-  const { data, isLoading } = useQuery({ queryKey: ["dashboard"], queryFn: () => fetchDashboard() });
-  const { data: timetable } = useQuery({ queryKey: ["timetable"], queryFn: () => fetchTimetable() });
+  const { data, isLoading } = useQuery({
+    queryKey: ["dashboard"],
+    queryFn: () => fetchDashboard(),
+  });
+  const { data: timetable } = useQuery({
+    queryKey: ["timetable"],
+    queryFn: () => fetchTimetable(),
+  });
 
   const firstName = (me?.fullName || me?.email || "there").split(/[\s@]/)[0] ?? "there";
   const today = new Date();
@@ -85,7 +102,9 @@ function Dashboard() {
               {firstName.charAt(0).toUpperCase()}
             </span>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold">{greeting()}, {firstName} 👋</p>
+              <p className="truncate text-sm font-semibold">
+                {greeting()}, {firstName} 👋
+              </p>
               <p className="truncate text-xs text-navy-foreground/70">
                 Keep pushing. Great things take time!
               </p>
@@ -104,7 +123,7 @@ function Dashboard() {
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-3">
-        {TILES.map((tile) => (
+        {[...TILES, ...(me?.isAdmin ? ADMIN_TILES : [])].map((tile) => (
           <Link
             key={tile.to}
             to={tile.to}
@@ -134,9 +153,14 @@ function Dashboard() {
           {todaySlots.map((slot) => {
             const state = slotState(slot, today);
             return (
-              <li key={slot.id} className="surface-card flex items-center gap-3 border-l-4 border-l-primary p-3.5">
+              <li
+                key={slot.id}
+                className="surface-card flex items-center gap-3 border-l-4 border-l-primary p-3.5"
+              >
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold">{slot.unit?.code ?? "Class"}</span>
+                  <span className="block truncate text-sm font-semibold">
+                    {slot.unit?.code ?? "Class"}
+                  </span>
                   <span className="block truncate text-xs text-muted-foreground">
                     {slot.venue || slot.unit?.name}
                   </span>
@@ -164,9 +188,17 @@ function Dashboard() {
 
       <h2 className="mt-6 font-display text-base font-semibold">This class at a glance</h2>
       <div className="mt-2 grid grid-cols-2 gap-3">
-        <Stat label="Published files" value={isLoading ? "…" : String(data?.totalResources ?? 0)} to="/resources" />
+        <Stat
+          label="Published files"
+          value={isLoading ? "…" : String(data?.totalResources ?? 0)}
+          to="/resources"
+        />
         <Stat label="Units" value={isLoading ? "…" : String(data?.totalUnits ?? 0)} to="/units" />
-        <Stat label="Classes" value={isLoading ? "…" : String(data?.totalClasses ?? 0)} to="/timetable" />
+        <Stat
+          label="Classes"
+          value={isLoading ? "…" : String(data?.totalClasses ?? 0)}
+          to="/timetable"
+        />
         <Stat
           label="Announcements"
           value={isLoading ? "…" : String(data?.totalAnnouncements ?? 0)}

@@ -1,7 +1,11 @@
 import { unzipSync, strFromU8 } from "fflate";
 
 function cleanup(text: string) {
-  return text.replace(/\u0000/g, " ").replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+  return text
+    .replace(/\u0000/g, " ")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 function xmlToText(xml: string) {

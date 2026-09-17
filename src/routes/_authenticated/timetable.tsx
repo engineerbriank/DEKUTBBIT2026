@@ -35,7 +35,10 @@ type Slot = {
 
 function Timetable() {
   const fetchTimetable = useServerFn(listTimetable);
-  const { data, isLoading } = useQuery({ queryKey: ["timetable"], queryFn: () => fetchTimetable() });
+  const { data, isLoading } = useQuery({
+    queryKey: ["timetable"],
+    queryFn: () => fetchTimetable(),
+  });
 
   const today = new Date();
   const [view, setView] = useState<"week" | "month">("week");
@@ -89,7 +92,9 @@ function Timetable() {
                   onClick={() => setDay(date.getDay())}
                   className={cn(
                     "flex flex-col items-center gap-0.5 rounded-xl py-2 text-[11px] font-semibold",
-                    active ? "bg-accent text-accent-foreground" : "surface-card text-muted-foreground",
+                    active
+                      ? "bg-accent text-accent-foreground"
+                      : "surface-card text-muted-foreground",
                   )}
                 >
                   <span>{DAY_LABELS[date.getDay()]}</span>
@@ -102,7 +107,9 @@ function Timetable() {
             })}
           </div>
 
-          {isLoading ? <p className="mt-6 text-sm text-muted-foreground">Loading timetable…</p> : null}
+          {isLoading ? (
+            <p className="mt-6 text-sm text-muted-foreground">Loading timetable…</p>
+          ) : null}
           {!isLoading && daySlots.length === 0 ? (
             <p className="mt-6 text-sm text-muted-foreground">
               No classes published for {DAY_NAMES[day]}.
@@ -117,7 +124,9 @@ function Timetable() {
                     <p className="text-xs font-semibold text-muted-foreground">
                       {slot.start_time.slice(0, 5)} – {slot.end_time.slice(0, 5)}
                     </p>
-                    <p className="mt-1 font-display text-sm font-bold">{slot.unit?.code ?? "Class"}</p>
+                    <p className="mt-1 font-display text-sm font-bold">
+                      {slot.unit?.code ?? "Class"}
+                    </p>
                     <p className="truncate text-xs text-muted-foreground">
                       {slot.venue || slot.unit?.name}
                       {slot.lecturer ? ` · ${slot.lecturer}` : ""}
@@ -140,15 +149,22 @@ function Timetable() {
             if (!rows.length) return null;
             return (
               <section key={name}>
-                <h2 className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{name}</h2>
+                <h2 className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                  {name}
+                </h2>
                 <ul className="mt-2 space-y-2">
                   {rows.map((slot) => (
-                    <li key={slot.id} className="surface-card flex items-center gap-3 border-l-4 border-l-navy-soft p-3.5">
+                    <li
+                      key={slot.id}
+                      className="surface-card flex items-center gap-3 border-l-4 border-l-navy-soft p-3.5"
+                    >
                       <span className="w-24 shrink-0 text-xs font-semibold text-primary">
                         {slot.start_time.slice(0, 5)}–{slot.end_time.slice(0, 5)}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-semibold">{slot.unit?.code ?? "Class"}</span>
+                        <span className="block truncate text-sm font-semibold">
+                          {slot.unit?.code ?? "Class"}
+                        </span>
                         <span className="block truncate text-xs text-muted-foreground">
                           {slot.venue || slot.unit?.name}
                         </span>

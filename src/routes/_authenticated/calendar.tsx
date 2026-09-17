@@ -12,7 +12,10 @@ export const Route = createFileRoute("/_authenticated/calendar")({
   head: () => ({
     meta: [
       { title: "Calendar — BBITClassPoint" },
-      { name: "description", content: "Month view of published BBIT classes and assignment due dates." },
+      {
+        name: "description",
+        content: "Month view of published BBIT classes and assignment due dates.",
+      },
       { property: "og:title", content: "Calendar — BBITClassPoint" },
       { property: "og:description", content: "See classes and assignment deadlines by month." },
     ],
@@ -31,7 +34,12 @@ type Slot = {
   unit: { code: string; name: string } | null;
 };
 
-type Due = { id: string; title: string; due_date: string; unit: { code: string; name: string } | null };
+type Due = {
+  id: string;
+  title: string;
+  due_date: string;
+  unit: { code: string; name: string } | null;
+};
 
 function CalendarPage() {
   const fetchCalendar = useServerFn(getCalendar);
@@ -39,7 +47,9 @@ function CalendarPage() {
 
   const today = new Date();
   const [cursor, setCursor] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
-  const [selected, setSelected] = useState(new Date(today.getFullYear(), today.getMonth(), today.getDate()));
+  const [selected, setSelected] = useState(
+    new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+  );
 
   const slots = (data?.slots ?? []) as unknown as Slot[];
   const dues = (data?.assignments ?? []) as unknown as Due[];
@@ -132,7 +142,11 @@ function CalendarPage() {
       <h2 className="mt-6 font-display text-base font-semibold">
         {sameDay(selected, today)
           ? "Today's Events"
-          : selected.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "short" })}
+          : selected.toLocaleDateString(undefined, {
+              weekday: "long",
+              day: "numeric",
+              month: "short",
+            })}
       </h2>
 
       {selectedSlots.length === 0 && selectedDues.length === 0 ? (
@@ -141,12 +155,17 @@ function CalendarPage() {
 
       <ul className="mt-2 space-y-2">
         {selectedSlots.map((slot) => (
-          <li key={slot.id} className="surface-card flex items-center gap-3 border-l-4 border-l-primary p-3.5">
+          <li
+            key={slot.id}
+            className="surface-card flex items-center gap-3 border-l-4 border-l-primary p-3.5"
+          >
             <span className="w-12 shrink-0 font-display text-xs font-bold text-primary">
               {slot.start_time.slice(0, 5)}
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-semibold">{slot.unit?.code ?? "Class"}</span>
+              <span className="block truncate text-sm font-semibold">
+                {slot.unit?.code ?? "Class"}
+              </span>
               <span className="block truncate text-xs text-muted-foreground">
                 {slot.venue || slot.unit?.name}
               </span>
@@ -154,8 +173,13 @@ function CalendarPage() {
           </li>
         ))}
         {selectedDues.map((due) => (
-          <li key={due.id} className="surface-card flex items-center gap-3 border-l-4 border-l-destructive p-3.5">
-            <span className="w-12 shrink-0 font-display text-xs font-bold text-destructive">Due</span>
+          <li
+            key={due.id}
+            className="surface-card flex items-center gap-3 border-l-4 border-l-destructive p-3.5"
+          >
+            <span className="w-12 shrink-0 font-display text-xs font-bold text-destructive">
+              Due
+            </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-semibold">{due.title}</span>
               <span className="block truncate text-xs text-muted-foreground">{due.unit?.code}</span>
@@ -169,6 +193,8 @@ function CalendarPage() {
 
 function sameDay(a: Date, b: Date) {
   return (
-    a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
   );
 }

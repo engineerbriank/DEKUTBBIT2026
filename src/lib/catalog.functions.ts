@@ -39,7 +39,10 @@ async function provisionMember(userId: string, claims: Record<string, unknown>) 
 
   await supabaseAdmin
     .from("recovery_codes")
-    .upsert({ user_id: userId, code: makeCode() }, { onConflict: "user_id", ignoreDuplicates: true });
+    .upsert(
+      { user_id: userId, code: makeCode() },
+      { onConflict: "user_id", ignoreDuplicates: true },
+    );
 
   const { data: existingRoles } = await supabaseAdmin
     .from("user_roles")
@@ -75,7 +78,11 @@ export const getMe = createServerFn({ method: "GET" })
       (context.claims ?? {}) as Record<string, unknown>,
     );
     const [{ data: profile }, { data: roles }] = await Promise.all([
-      context.supabase.from("profiles").select("id,full_name,email").eq("id", context.userId).maybeSingle(),
+      context.supabase
+        .from("profiles")
+        .select("id,full_name,email")
+        .eq("id", context.userId)
+        .maybeSingle(),
       context.supabase.from("user_roles").select("role").eq("user_id", context.userId),
     ]);
     const roleList = (roles ?? []).map((row) => row.role as string);
@@ -94,11 +101,20 @@ export const getDashboard = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { supabase } = context;
     const [resources, units, announcements, categories, timetable, recent] = await Promise.all([
-      supabase.from("resources").select("id,category:categories(slug,name)").eq("status", "published"),
+      supabase
+        .from("resources")
+        .select("id,category:categories(slug,name)")
+        .eq("status", "published"),
       supabase.from("units").select("id", { count: "exact", head: true }),
-      supabase.from("announcements").select("id", { count: "exact", head: true }).eq("status", "published"),
+      supabase
+        .from("announcements")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "published"),
       supabase.from("categories").select("id,slug,name").order("name"),
-      supabase.from("timetable").select("id", { count: "exact", head: true }).eq("status", "published"),
+      supabase
+        .from("timetable")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "published"),
       supabase
         .from("resources")
         .select(RESOURCE_SELECT)
@@ -158,7 +174,9 @@ export const listCategories = createServerFn({ method: "GET" })
 
 export const listResources = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { search?: string; unitCode?: string; categorySlug?: string }) => input ?? {})
+  .inputValidator(
+    (input: { search?: string; unitCode?: string; categorySlug?: string }) => input ?? {},
+  )
   .handler(async ({ data, context }) => {
     let query = context.supabase
       .from("resources")
@@ -254,11 +272,14 @@ export const getResourceLink = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: signed, error: signError } = await supabaseAdmin.storage
       .from("resources")
-      .createSignedUrl(resource.file_path, 300, data.download ? { download: resource.file_name } : undefined);
+      .createSignedUrl(
+        resource.file_path,
+        300,
+        data.download ? { download: resource.file_name } : undefined,
+      );
     if (signError || !signed) throw new Error(signError?.message ?? "Could not open this file.");
 
     if (data.download) {
-      
       const { data: current } = await supabaseAdmin
         .from("resources")
         .select("download_count")
@@ -290,7 +311,9 @@ export const listTimetable = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("timetable")
-      .select("id,day_of_week,start_time,end_time,venue,lecturer,group_label,unit:units(id,code,name)")
+      .select(
+        "id,day_of_week,start_time,end_time,venue,lecturer,group_label,unit:units(id,code,name)",
+      )
       .eq("status", "published")
       .order("day_of_week")
       .order("start_time");
