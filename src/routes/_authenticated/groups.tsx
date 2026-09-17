@@ -6,7 +6,12 @@ import { ChevronRight, Clock3, MessageCircle, Plus, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/AppShell";
-import { createStudyGroup, joinStudyGroup, leaveStudyGroup, listStudyGroups } from "@/lib/hub.functions";
+import {
+  createStudyGroup,
+  joinStudyGroup,
+  leaveStudyGroup,
+  listStudyGroups,
+} from "@/lib/hub.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,9 +20,15 @@ export const Route = createFileRoute("/_authenticated/groups")({
   head: () => ({
     meta: [
       { title: "Study Groups — BBITClassPoint" },
-      { name: "description", content: "Create or join a real BBIT study group and see who is in it." },
+      {
+        name: "description",
+        content: "Create or join a real BBIT study group and see who is in it.",
+      },
       { property: "og:title", content: "Study Groups — BBITClassPoint" },
-      { property: "og:description", content: "Create or join BBIT study groups with a share code." },
+      {
+        property: "og:description",
+        content: "Create or join BBIT study groups with a share code.",
+      },
     ],
   }),
   component: Groups,
@@ -103,7 +114,9 @@ function Groups() {
               value={form.whatsappUrl}
               onChange={(event) => setForm({ ...form, whatsappUrl: event.target.value })}
             />
-            <p className="text-xs text-muted-foreground">The WhatsApp link is shown only to registered members after approval.</p>
+            <p className="text-xs text-muted-foreground">
+              The WhatsApp link is shown only to registered members after approval.
+            </p>
             <Button type="submit" className="w-full rounded-xl" disabled={createMutation.isPending}>
               {createMutation.isPending ? "Creating…" : "Save group"}
             </Button>
@@ -113,7 +126,9 @@ function Groups() {
 
       {isLoading ? <p className="mt-6 text-sm text-muted-foreground">Loading groups…</p> : null}
       {!isLoading && (data ?? []).length === 0 ? (
-        <p className="mt-6 text-sm text-muted-foreground">No groups yet — create the first one above.</p>
+        <p className="mt-6 text-sm text-muted-foreground">
+          No groups yet — create the first one above.
+        </p>
       ) : null}
 
       <ul className="mt-4 space-y-3">
@@ -124,20 +139,63 @@ function Groups() {
             </span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold uppercase">{group.name}</p>
-               <p className="mt-0.5 text-xs text-muted-foreground">
-                {group.memberCount} member{group.memberCount === 1 ? "" : "s"} · Code {group.join_code}
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {group.memberCount} member{group.memberCount === 1 ? "" : "s"} · Code{" "}
+                {group.join_code}
               </p>
-               <span className={group.status === "approved" ? "pill mt-2 inline-flex bg-success text-success-foreground" : "pill mt-2 inline-flex bg-secondary text-secondary-foreground"}>
-                 {group.status === "approved" ? "Approved" : <><Clock3 className="mr-1 size-3" /> Pending approval</>}
-               </span>
+              <span
+                className={
+                  group.status === "approved"
+                    ? "pill mt-2 inline-flex bg-success text-success-foreground"
+                    : "pill mt-2 inline-flex bg-secondary text-secondary-foreground"
+                }
+              >
+                {group.status === "approved" ? (
+                  "Approved"
+                ) : (
+                  <>
+                    <Clock3 className="mr-1 size-3" /> Pending approval
+                  </>
+                )}
+              </span>
               {group.description ? (
-                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{group.description}</p>
+                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                  {group.description}
+                </p>
               ) : null}
             </div>
             <div className="flex shrink-0 flex-col gap-1">
-              {group.joined ? <Button asChild size="sm" className="rounded-xl"><Link to="/groups/$groupId" params={{ groupId: group.id }}><MessageCircle className="size-4" /> Open</Link></Button> : group.status === "approved" ? <Button size="sm" className="rounded-xl" onClick={() => joinMutation.mutate({ groupId: group.id })}>Register</Button> : null}
-              {group.joined && !group.isOwner ? <Button variant="ghost" size="sm" onClick={() => leaveMutation.mutate(group.id)}>Leave</Button> : null}
-              {!group.joined && group.status === "approved" ? <Button asChild variant="ghost" size="icon"><Link to="/groups/$groupId" params={{ groupId: group.id }} aria-label={`View ${group.name}`}><ChevronRight className="size-4" /></Link></Button> : null}
+              {group.joined ? (
+                <Button asChild size="sm" className="rounded-xl">
+                  <Link to="/groups/$groupId" params={{ groupId: group.id }}>
+                    <MessageCircle className="size-4" /> Open
+                  </Link>
+                </Button>
+              ) : group.status === "approved" ? (
+                <Button
+                  size="sm"
+                  className="rounded-xl"
+                  onClick={() => joinMutation.mutate({ groupId: group.id })}
+                >
+                  Register
+                </Button>
+              ) : null}
+              {group.joined && !group.isOwner ? (
+                <Button variant="ghost" size="sm" onClick={() => leaveMutation.mutate(group.id)}>
+                  Leave
+                </Button>
+              ) : null}
+              {!group.joined && group.status === "approved" ? (
+                <Button asChild variant="ghost" size="icon">
+                  <Link
+                    to="/groups/$groupId"
+                    params={{ groupId: group.id }}
+                    aria-label={`View ${group.name}`}
+                  >
+                    <ChevronRight className="size-4" />
+                  </Link>
+                </Button>
+              ) : null}
             </div>
           </li>
         ))}
@@ -151,8 +209,15 @@ function Groups() {
           joinMutation.mutate({ code });
         }}
       >
-        <Input placeholder="Enter group code" value={code} onChange={(event) => setCode(event.target.value)} />
-        <Button type="submit" className="rounded-xl bg-accent text-accent-foreground hover:bg-accent/90">
+        <Input
+          placeholder="Enter group code"
+          value={code}
+          onChange={(event) => setCode(event.target.value)}
+        />
+        <Button
+          type="submit"
+          className="rounded-xl bg-accent text-accent-foreground hover:bg-accent/90"
+        >
           Join
         </Button>
       </form>

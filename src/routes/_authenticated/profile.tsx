@@ -2,7 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ChevronRight, ExternalLink, LifeBuoy, LogOut, Pencil, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  ChevronRight,
+  ExternalLink,
+  LifeBuoy,
+  LogOut,
+  Pencil,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell, useSignOut } from "@/components/AppShell";
@@ -15,9 +23,15 @@ export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
     meta: [
       { title: "Profile — BBITClassPoint" },
-      { name: "description", content: "Your BBITClassPoint account, study groups and class quick links." },
+      {
+        name: "description",
+        content: "Your BBITClassPoint account, study groups and class quick links.",
+      },
       { property: "og:title", content: "Profile — BBITClassPoint" },
-      { property: "og:description", content: "Manage your account and open your class quick links." },
+      {
+        property: "og:description",
+        content: "Manage your account and open your class quick links.",
+      },
     ],
   }),
   component: Profile,
@@ -132,7 +146,9 @@ function Profile() {
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-semibold">{link.label}</span>
                 {link.subtitle ? (
-                  <span className="block truncate text-xs text-muted-foreground">{link.subtitle}</span>
+                  <span className="block truncate text-xs text-muted-foreground">
+                    {link.subtitle}
+                  </span>
                 ) : null}
               </span>
               <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
@@ -147,10 +163,12 @@ function Profile() {
       </ul>
 
       <div className="surface-card mt-6 divide-y divide-border">
-        {data?.isAdmin ? <Link to="/ai" className="flex items-center gap-3 p-3.5 text-sm font-medium">
-          <Sparkles className="size-4 text-primary" /> AI study assistant
-          <ChevronRight className="ml-auto size-4 text-muted-foreground" />
-        </Link> : null}
+        {data?.isAdmin ? (
+          <Link to="/ai" className="flex items-center gap-3 p-3.5 text-sm font-medium">
+            <Sparkles className="size-4 text-primary" /> AI study assistant
+            <ChevronRight className="ml-auto size-4 text-muted-foreground" />
+          </Link>
+        ) : null}
         {data?.isAdmin ? (
           <Link to="/admin" className="flex items-center gap-3 p-3.5 text-sm font-medium">
             <ShieldCheck className="size-4 text-primary" /> Admin panel

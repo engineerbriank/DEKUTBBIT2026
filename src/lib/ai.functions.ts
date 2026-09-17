@@ -34,7 +34,9 @@ export const processDocument = createServerFn({ method: "POST" })
       throw new Error("Forbidden: you can only process your own uploads.");
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: blob, error } = await supabaseAdmin.storage.from("ai-uploads").download(data.filePath);
+    const { data: blob, error } = await supabaseAdmin.storage
+      .from("ai-uploads")
+      .download(data.filePath);
     if (error || !blob) throw new Error(error?.message ?? "Could not read the uploaded file.");
 
     const bytes = new Uint8Array(await blob.arrayBuffer());
@@ -112,7 +114,9 @@ export const listMessages = createServerFn({ method: "POST" })
       .select("id,role,content,created_at,document_id")
       .eq("owner_id", context.userId)
       .order("created_at");
-    query = data.documentId ? query.eq("document_id", data.documentId) : query.is("document_id", null);
+    query = data.documentId
+      ? query.eq("document_id", data.documentId)
+      : query.is("document_id", null);
     const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
     return rows ?? [];
@@ -257,7 +261,10 @@ export const generateExam = createServerFn({ method: "POST" })
           .eq("status", "published");
         material += `Unit outline: ${unit.description}\nPublished course material topics:\n`;
         material += (resources ?? [])
-          .map((row) => `- ${row.title}${row.topic ? ` (topic: ${row.topic})` : ""}: ${row.description}`)
+          .map(
+            (row) =>
+              `- ${row.title}${row.topic ? ` (topic: ${row.topic})` : ""}: ${row.description}`,
+          )
           .join("\n");
       }
     }
@@ -286,7 +293,10 @@ export const generateExam = createServerFn({ method: "POST" })
       {
         instructions:
           "You are an experienced university examiner writing Business Information Technology exam papers. Return valid JSON matching the schema.",
-        jsonSchema: { name: "exam_paper", schema: EXAM_SCHEMA as unknown as Record<string, unknown> },
+        jsonSchema: {
+          name: "exam_paper",
+          schema: EXAM_SCHEMA as unknown as Record<string, unknown>,
+        },
       },
     );
 
@@ -296,7 +306,8 @@ export const generateExam = createServerFn({ method: "POST" })
     } catch {
       throw new Error("The AI response could not be read. Please try generating again.");
     }
-    if (!parsed.questions?.length) throw new Error("No questions were generated. Please try again.");
+    if (!parsed.questions?.length)
+      throw new Error("No questions were generated. Please try again.");
 
     const { data: saved, error } = await supabaseAdmin
       .from("exams")
