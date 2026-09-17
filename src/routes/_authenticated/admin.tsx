@@ -7,6 +7,7 @@ import {
   BookOpen,
   CalendarDays,
   FileStack,
+  Link2,
   Loader2,
   Megaphone,
   ShieldCheck,
@@ -20,6 +21,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatBytes } from "@/components/ResourceCard";
 import { listCategories, listUnits } from "@/lib/catalog.functions";
 import { SUPPORT_WHATSAPP } from "@/lib/recovery.functions";
+import {
+  adminListQuickLinks,
+  adminListStudyGroups,
+  adminReviewStudyGroup,
+  createQuickLink,
+  deleteQuickLink,
+} from "@/lib/hub.functions";
 import {
   regenerateMemberCode,
   adminHasOwner,
@@ -156,6 +164,12 @@ function AdminPage() {
           <TabsTrigger value="members" className="gap-2 rounded-xl">
             <Users className="size-4" /> Members
           </TabsTrigger>
+          <TabsTrigger value="groups" className="gap-2 rounded-xl">
+            <Users className="size-4" /> Study Groups
+          </TabsTrigger>
+          <TabsTrigger value="links" className="gap-2 rounded-xl">
+            <Link2 className="size-4" /> Quick Links
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="resources">
@@ -174,8 +188,93 @@ function AdminPage() {
         <TabsContent value="members">
           <MembersSection />
         </TabsContent>
+        <TabsContent value="groups">
+          <StudyGroupsSection />
+        </TabsContent>
+        <TabsContent value="links">
+          <QuickLinksSection />
+        </TabsContent>
       </Tabs>
     </AppShell>
+  );
+}
+
+function QuickLinksSection() {
+  const queryClient = useQueryClient();
+  const fetchLinks = useServerFn(adminListQuickLinks);
+  const create = useServerFn(createQuickLink);
+  const remove = useServerFn(deleteQuickLink);
+  const { data, isLoading } = useQuery({ queryKey: ["admin-quick-links"], queryFn: () => fetchLinks() });
+  const [form, setForm] = useState({ label: "", subtitle: "", url: "", sortOrder: 0 });
+  const save = useMutation({
+    mutationFn: () => create({ data: form }),
+    onSuccess: () => {
+      setForm({ label: "", subtitle: "", url: "", sortOrder: 0 });
+      queryClient.invalidateQueries({ queryKey: ["admin-quick-links"] });
+      queryClient.invalidateQueries({ queryKey: ["quick-links"] });
+      toast.success("Quick link added");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  return (
+    <section className="surface-card mt-6 p-5">
+      <h2 className="text-lg font-semibold">Clickable Quick Links</h2>
+      <p className="mt-1 text-sm text-muted-foreground">These links appear on every student’s Profile page.</p>
+      <form className="mt-4 grid gap-3 sm:grid-cols-2" onSubmit={(event) => { event.preventDefault(); save.mutate(); }}>
+        <Input required maxLength={80} placeholder="Link label" value={form.label} onChange={(event) => setForm({ ...form, label: event.target.value })} />
+        <Input required type="url" maxLength={500} placeholder="https://…" value={form.url} onChange={(event) => setForm({ ...form, url: event.target.value })} />
+        <Input maxLength={160} placeholder="Short description (optional)" value={form.subtitle} onChange={(event) => setForm({ ...form, subtitle: event.target.value })} />
+        <Input type="number" placeholder="Display order" value={form.sortOrder} onChange={(event) => setForm({ ...form, sortOrder: Number(event.target.value) })} />
+        <Button type="submit" className="sm:col-span-2 sm:w-fit" disabled={save.isPending}><Link2 className="size-4" /> {save.isPending ? "Adding…" : "Add quick link"}</Button>
+      </form>
+      <ul className="mt-5 space-y-2">
+        {isLoading ? <li className="text-sm text-muted-foreground">Loading links…</li> : null}
+        {(data ?? []).map((link) => <li key={link.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-border/70 p-3"><div className="min-w-0 flex-1"><a href={link.url} target="_blank" rel="noopener noreferrer" className="truncate text-sm font-semibold text-primary hover:underline">{link.label}</a><p className="truncate text-xs text-muted-foreground">{link.subtitle || link.url}</p></div><Badge variant={link.active ? "default" : "secondary"}>{link.active ? "Active" : "Hidden"}</Badge><span className="text-xs text-muted-foreground">Order {link.sort_order}</span><Button size="icon" variant="ghost" aria-label={`Delete ${link.label}`} onClick={async () => { await remove({ data: { id: link.id } }); queryClient.invalidateQueries({ queryKey: ["admin-quick-links"] }); queryClient.invalidateQueries({ queryKey: ["quick-links"] }); toast.success("Quick link removed"); }}><Trash2 className="size-4" /></Button></li>)}
+        {!isLoading && !(data ?? []).length ? <li className="text-sm text-muted-foreground">No quick links added yet.</li> : null}
+      </ul>
+    </section>
+  );
+}
+
+function StudyGroupsSection() {
+  const queryClient = useQueryClient();
+  const fetchGroups = useServerFn(adminListStudyGroups);
+  const review = useServerFn(adminReviewStudyGroup);
+  const { data, isLoading } = useQuery({ queryKey: ["admin-study-groups"], queryFn: () => fetchGroups() });
+  const [leaders, setLeaders] = useState<Record<string, string>>({});
+  const decide = useMutation({
+    mutationFn: (input: { groupId: string; decision: "approved" | "rejected"; leaderId?: string }) => review({ data: input }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-study-groups"] });
+      queryClient.invalidateQueries({ queryKey: ["groups"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success("Group review saved");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  return (
+    <section className="surface-card mt-6 p-5">
+      <h2 className="text-lg font-semibold">Study Group Approval</h2>
+      <p className="mt-1 text-sm text-muted-foreground">Review each group, choose a leader from registered members, then approve it for students.</p>
+      <div className="mt-5 space-y-3">
+        {isLoading ? <p className="text-sm text-muted-foreground">Loading groups…</p> : null}
+        {(data ?? []).map((group) => {
+          const selectedLeader = leaders[group.id] ?? group.leader_id ?? group.members[0]?.userId ?? "";
+          return <article key={group.id} className="rounded-xl border border-border/70 bg-card/50 p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate text-sm font-semibold">{group.name}</h3><p className="mt-1 text-xs text-muted-foreground">{group.description || "No description"}</p><a href={group.whatsapp_url} target="_blank" rel="noopener noreferrer" className="mt-2 block truncate text-xs font-semibold text-primary hover:underline">Check WhatsApp link</a></div><Badge variant={group.status === "approved" ? "default" : "secondary"}>{group.status}</Badge></div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+              <select className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm" value={selectedLeader} onChange={(event) => setLeaders({ ...leaders, [group.id]: event.target.value })}><option value="">Select group leader</option>{group.members.map((member) => <option key={member.userId} value={member.userId}>{member.fullName}</option>)}</select>
+              <Button size="sm" disabled={!selectedLeader || decide.isPending} onClick={() => decide.mutate({ groupId: group.id, decision: "approved", leaderId: selectedLeader })}>Approve</Button>
+              <Button size="sm" variant="outline" disabled={decide.isPending} onClick={() => decide.mutate({ groupId: group.id, decision: "rejected" })}>Reject</Button>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">{group.members.length} registered member{group.members.length === 1 ? "" : "s"} · Code {group.join_code}</p>
+          </article>;
+        })}
+        {!isLoading && !(data ?? []).length ? <p className="text-sm text-muted-foreground">No study groups have been submitted.</p> : null}
+      </div>
+    </section>
   );
 }
 
