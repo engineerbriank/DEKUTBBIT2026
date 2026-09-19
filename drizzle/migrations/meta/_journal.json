@@ -15,6 +15,13 @@
       "when": 1788971340091,
       "tag": "0001_storage_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789800654796,
+      "tag": "0002_add_user_and_group_images",
+      "breakpoints": true
     }
   ]
 }
