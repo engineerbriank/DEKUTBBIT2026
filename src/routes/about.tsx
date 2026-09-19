@@ -149,13 +149,13 @@ function AboutPage() {
             <ContributorCard
               name="Caleb Ajiambo"
               role="Reviewer · Tester · Feedback Contributor"
-              icon={<SearchCheck className="size-4" />}
+              photo={calebAsset.url}
               body="Caleb helped examine how the platform worked from a student’s point of view — testing features, identifying areas that could be improved and providing honest feedback. A platform becomes better when real users challenge it, test it and give honest feedback."
             />
             <ContributorCard
               name="Samuel Murira"
               role="Reviewer · Tester"
-              icon={<UserCheck className="size-4" />}
+              photo={samuelAsset.url}
               body="Samuel contributed through testing and reviewing. His feedback provided another student perspective during development, helping identify things that could be made clearer, simpler and more useful for BBIT students."
             />
           </div>
