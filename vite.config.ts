@@ -5,11 +5,98 @@
 //     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import type { Plugin } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
+
+// Only run the PWA plugin in the browser (client) build so the service worker is
+// emitted next to the public assets and precaches client files only.
+const clientOnly = (plugins: Plugin[]): Plugin[] =>
+  plugins.map((plugin) => ({
+    ...plugin,
+    applyToEnvironment: (environment: { name: string }) => environment.name === "client",
+  }));
 
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
+  },
+  vite: {
+    plugins: [
+      ...clientOnly(
+        VitePWA({
+        strategies: "generateSW",
+        registerType: "autoUpdate",
+        injectRegister: null,
+        filename: "sw.js",
+        // Emit the worker + manifest into the folder that is served as the site root.
+        outDir: "dist/client",
+        devOptions: { enabled: false },
+        manifest: {
+          id: "/",
+          name: "DEKUT BBIT 2026 · Digital Student Platform",
+          short_name: "BBIT 2026",
+          description:
+            "Notes, past papers, assignments, timetables, study groups and class updates for DEKUT BBIT students.",
+          start_url: "/",
+          scope: "/",
+          display: "standalone",
+          orientation: "portrait",
+          theme_color: "#0b1f33",
+          background_color: "#ffffff",
+          icons: [
+            { src: "/pwa-192x192.png", sizes: "192x192", type: "image/png" },
+            { src: "/pwa-512x512.png", sizes: "512x512", type: "image/png" },
+            {
+              src: "/pwa-maskable-512x512.png",
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "maskable",
+            },
+          ],
+        },
+        workbox: {
+          // Precache only the light app shell; JS chunks are cached at runtime on first use.
+          globDirectory: "dist/client",
+          globPatterns: ["**/*.{css,woff2,ico,svg}", "*.png"],
+          maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+          navigateFallback: "/",
+          navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//, /^\/__l5e\//],
+          cleanupOutdatedCaches: true,
+          clientsClaim: true,
+          skipWaiting: true,
+          runtimeCaching: [
+            {
+              // HTML navigations: always try the network first so data stays fresh.
+              urlPattern: ({ request }: { request: Request }) => request.mode === "navigate",
+              handler: "NetworkFirst",
+              options: {
+                cacheName: "html-navigations",
+                networkTimeoutSeconds: 5,
+                cacheableResponse: { statuses: [200] },
+              },
+            },
+            {
+              // Same-origin static build assets only.
+              urlPattern: ({ url, sameOrigin }: { url: URL; sameOrigin: boolean }) =>
+                sameOrigin && /\/(assets|_build)\//.test(url.pathname),
+              handler: "CacheFirst",
+              options: {
+                cacheName: "static-assets",
+                expiration: { maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 30 },
+                cacheableResponse: { statuses: [200] },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\//,
+              handler: "StaleWhileRevalidate",
+              options: { cacheName: "google-fonts" },
+            },
+          ],
+        },
+        }) as Plugin[],
+      ),
+    ],
   },
 });
