@@ -10,8 +10,6 @@ import {
   Lightbulb,
   Quote,
   Rocket,
-  SearchCheck,
-  UserCheck,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
