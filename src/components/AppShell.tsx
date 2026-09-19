@@ -111,7 +111,20 @@ export function AppShell({
                     </h1>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">{action ?? <HeaderBellLink />}</div>
+                <div className="flex items-center gap-2">
+                  {action ?? <HeaderBellLink />}
+                  <Link
+                    to="/profile"
+                    aria-label="Open profile"
+                    className="grid size-10 overflow-hidden rounded-full bg-white/12 ring-1 ring-white/20"
+                  >
+                    {me?.avatarUrl ? (
+                      <img src={me.avatarUrl} alt="" className="size-full object-cover" />
+                    ) : (
+                      <User className="m-auto size-5" />
+                    )}
+                  </Link>
+                </div>
               </div>
             )}
           </header>
