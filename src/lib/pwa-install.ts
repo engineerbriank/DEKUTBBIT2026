@@ -61,6 +61,10 @@ function subscribe(listener: () => void) {
   return () => listeners.delete(listener);
 }
 
+// Start listening as soon as this module loads so an early
+// "beforeinstallprompt" event is never missed before React mounts.
+start();
+
 const serverSnapshot: State = { canInstall: false, installed: false, iosInstructable: false };
 
 export function dismissInstallPrompt() {
