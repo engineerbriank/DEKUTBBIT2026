@@ -67,3 +67,15 @@ export function setupServiceWorker() {
     });
   });
 }
+
+export function isAndroid(): boolean {
+  if (typeof window === "undefined") return false;
+  return /Android/i.test(window.navigator.userAgent);
+}
+
+/** WhatsApp / Facebook / Instagram / Telegram in-app browsers cannot install apps. */
+export function isInAppBrowser(): boolean {
+  if (typeof window === "undefined") return false;
+  const ua = window.navigator.userAgent;
+  return /FBAN|FBAV|FB_IAB|Instagram|Line\/|WhatsApp|Twitter|TikTok|MiuiBrowser|GSA/i.test(ua);
+}
