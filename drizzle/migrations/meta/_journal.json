@@ -29,6 +29,13 @@
       "when": 1789801870630,
       "tag": "0003_relax_group_whatsapp_url_check",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789806445910,
+      "tag": "0004_create_group_messages",
+      "breakpoints": true
     }
   ]
 }
