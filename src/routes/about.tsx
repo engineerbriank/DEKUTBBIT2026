@@ -1,6 +1,8 @@
 import logoAsset from "@/assets/dekut-bbit-2026-logo.png.asset.json";
 import brianAsset from "@/assets/brian-macharia.png.asset.json";
 import linusAsset from "@/assets/linus-ezra.png.asset.json";
+import calebAsset from "@/assets/caleb-ajiambo.png.asset.json";
+import samuelAsset from "@/assets/samuel-murira.png.asset.json";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Code2,
@@ -8,8 +10,6 @@ import {
   Lightbulb,
   Quote,
   Rocket,
-  SearchCheck,
-  UserCheck,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -147,13 +147,13 @@ function AboutPage() {
             <ContributorCard
               name="Caleb Ajiambo"
               role="Reviewer · Tester · Feedback Contributor"
-              icon={<SearchCheck className="size-4" />}
+              photo={calebAsset.url}
               body="Caleb helped examine how the platform worked from a student’s point of view — testing features, identifying areas that could be improved and providing honest feedback. A platform becomes better when real users challenge it, test it and give honest feedback."
             />
             <ContributorCard
               name="Samuel Murira"
               role="Reviewer · Tester"
-              icon={<UserCheck className="size-4" />}
+              photo={samuelAsset.url}
               body="Samuel contributed through testing and reviewing. His feedback provided another student perspective during development, helping identify things that could be made clearer, simpler and more useful for BBIT students."
             />
           </div>
@@ -199,20 +199,27 @@ function AboutPage() {
 function ContributorCard({
   name,
   role,
-  icon,
+  photo,
   body,
 }: {
   name: string;
   role: string;
-  icon: React.ReactNode;
+  photo: string;
   body: string;
 }) {
   return (
     <div className="surface-card p-5 transition-transform hover:-translate-y-1">
-      <h3 className="font-display text-base font-bold">{name}</h3>
-      <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-primary">
-        {icon} {role}
-      </p>
+      <div className="flex items-center gap-3">
+        <img
+          src={photo}
+          alt={name}
+          className="size-10 shrink-0 rounded-full object-cover shadow ring-2 ring-white/40"
+        />
+        <div className="min-w-0">
+          <h3 className="font-display text-base font-bold">{name}</h3>
+          <p className="mt-0.5 text-xs font-semibold text-primary">{role}</p>
+        </div>
+      </div>
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
     </div>
   );
