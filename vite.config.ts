@@ -24,7 +24,8 @@ export default defineConfig({
   },
   vite: {
     plugins: [
-      VitePWA({
+      ...clientOnly(
+        VitePWA({
         strategies: "generateSW",
         registerType: "autoUpdate",
         injectRegister: null,
