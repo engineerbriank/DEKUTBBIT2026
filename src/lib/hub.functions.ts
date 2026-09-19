@@ -455,6 +455,128 @@ export const deleteGroupAnnouncement = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/* ------------------------------ group chat ------------------------------- */
+
+async function assertGroupMember(
+  context: { userId: string; supabase: SupabaseClient<Database> },
+  groupId: string,
+) {
+  const { data: membership } = await context.supabase
+    .from("group_members")
+    .select("id")
+    .eq("group_id", groupId)
+    .eq("user_id", context.userId)
+    .maybeSingle();
+  const admin = await isAdminUser(context);
+  if (!membership && !admin) throw new Error("Join this group to use the group chat.");
+  return { admin };
+}
+
+export const listGroupMessages = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { groupId: string }) => {
+    if (!input?.groupId) throw new Error("Group is required");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const { admin } = await assertGroupMember(context, data.groupId);
+    const service = await getServiceClient();
+    const { data: rows, error } = await service
+      .from("group_messages")
+      .select("id,body,created_at,user_id")
+      .eq("group_id", data.groupId)
+      .order("created_at", { ascending: true })
+      .limit(300);
+    if (error) throw new Error(error.message);
+    const userIds = [...new Set((rows ?? []).map((row) => row.user_id))];
+    const { data: profiles } = userIds.length
+      ? await service.from("profiles").select("id,full_name,email,avatar_path").in("id", userIds)
+      : { data: [] };
+    const imageUrls = await signedImageUrls((profiles ?? []).map((profile) => profile.avatar_path));
+    return (rows ?? []).map((row) => {
+      const profile = (profiles ?? []).find((item) => item.id === row.user_id);
+      return {
+        id: row.id,
+        body: row.body,
+        createdAt: row.created_at,
+        userId: row.user_id,
+        authorName: profile?.full_name || profile?.email || "Member",
+        avatarUrl: profile?.avatar_path ? imageUrls.get(profile.avatar_path) ?? "" : "",
+        isMine: row.user_id === context.userId,
+        canDelete: admin || row.user_id === context.userId,
+      };
+    });
+  });
+
+export const sendGroupMessage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { groupId: string; body: string }) => {
+    const body = input?.body?.trim();
+    if (!input?.groupId || !body) throw new Error("Type a message first");
+    if (body.length > 2000) throw new Error("Keep messages under 2,000 characters");
+    return { groupId: input.groupId, body };
+  })
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("group_messages")
+      .insert({ group_id: data.groupId, user_id: context.userId, body: data.body });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deleteGroupMessage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => {
+    if (!input?.id) throw new Error("Message is required");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("group_messages").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/* --------------------------- group leader panel --------------------------- */
+
+export const updateGroupSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { groupId: string; whatsappUrl?: string; description?: string }) => {
+    if (!input?.groupId) throw new Error("Group is required");
+    const out: { groupId: string; whatsappUrl?: string; description?: string } = {
+      groupId: input.groupId,
+    };
+    if (typeof input.whatsappUrl === "string") {
+      out.whatsappUrl = input.whatsappUrl.trim()
+        ? normalizeWhatsAppGroupUrl(input.whatsappUrl)
+        : "";
+    }
+    if (typeof input.description === "string") {
+      if (input.description.trim().length > 500)
+        throw new Error("Keep the description under 500 characters");
+      out.description = input.description.trim();
+    }
+    return out;
+  })
+  .handler(async ({ data, context }) => {
+    const admin = await isAdminUser(context);
+    const { data: group } = await context.supabase
+      .from("study_groups")
+      .select("id,leader_id,created_by,status")
+      .eq("id", data.groupId)
+      .maybeSingle();
+    if (!group) throw new Error("Group not found.");
+    const isLeader = group.leader_id === context.userId;
+    if (!admin && !isLeader) throw new Error("Only the group leader can change these settings.");
+    const patch: { whatsapp_url?: string; description?: string } = {};
+    if (data.whatsappUrl !== undefined) patch.whatsapp_url = data.whatsappUrl;
+    if (data.description !== undefined) patch.description = data.description;
+    if (!Object.keys(patch).length) return { ok: true };
+    const service = await getServiceClient();
+    const { error } = await service.from("study_groups").update(patch).eq("id", data.groupId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 export const adminListStudyGroups = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
