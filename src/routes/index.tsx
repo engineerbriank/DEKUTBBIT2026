@@ -84,6 +84,13 @@ function Landing() {
               <Link to="/auth">I have an account</Link>
             </Button>
           </div>
+          <Link
+            to="/about"
+            className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-foreground/85 underline-offset-4 hover:underline"
+          >
+            About Us · Meet the team behind the platform
+          </Link>
+
 
           <dl className="mt-12 grid w-full max-w-2xl grid-cols-2 gap-4 sm:grid-cols-3">
             <Stat label="Units on the platform" value={data ? String(data.unitCount) : "—"} />
@@ -129,8 +136,13 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
+        <Link to="/about" className="font-semibold text-primary hover:underline">
+          About Us
+        </Link>
+        <span className="mx-2">·</span>
         DEKUT BBIT 2026 · DIGITAL STUDENT PLATFORM
       </footer>
+
     </div>
   );
 }

@@ -6,6 +6,7 @@ import {
   ChevronRight,
   ExternalLink,
   Camera,
+  Info,
   Mail,
   LifeBuoy,
   LogOut,
@@ -13,6 +14,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+
 import { toast } from "sonner";
 
 import { AppShell, useSignOut } from "@/components/AppShell";
@@ -228,8 +230,13 @@ function Profile() {
             <ChevronRight className="ml-auto size-4 text-muted-foreground" />
           </Link>
         ) : null}
+        <Link to="/about" className="flex items-center gap-3 p-3.5 text-sm font-medium">
+          <Info className="size-4 text-primary" /> About Us — the team behind the platform
+          <ChevronRight className="ml-auto size-4 text-muted-foreground" />
+        </Link>
         <a
           href={`https://wa.me/254${SUPPORT_WHATSAPP.replace(/^0/, "")}`}
+
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 p-3.5 text-sm font-medium"
