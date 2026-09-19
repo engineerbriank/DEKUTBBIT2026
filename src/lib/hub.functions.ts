@@ -145,7 +145,32 @@ export const deleteAssignment = createServerFn({ method: "POST" })
 
 /* ------------------------------ study groups ------------------------------ */
 
-const WHATSAPP_GROUP_PATTERN = /^https:\/\/(chat\.whatsapp\.com\/|wa\.me\/)[A-Za-z0-9?&=_+%./-]+$/;
+function normalizeWhatsAppGroupUrl(value: string) {
+  const raw = value.trim().replace(/\s+/g, "");
+  const candidate = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  let parsed: URL;
+  try {
+    parsed = new URL(candidate);
+  } catch {
+    throw new Error("Enter a valid WhatsApp invite link");
+  }
+  const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+  const allowedHost = host === "chat.whatsapp.com" || host === "wa.me" || host === "whatsapp.com";
+  const validPath = parsed.pathname.length > 1;
+  if (!allowedHost || !validPath || !["http:", "https:"].includes(parsed.protocol)) {
+    throw new Error("Enter a valid WhatsApp group, community, channel, or wa.me link");
+  }
+  parsed.protocol = "https:";
+  return parsed.toString();
+}
+
+async function signedImageUrls(paths: Array<string | null>) {
+  const unique = [...new Set(paths.filter((path): path is string => Boolean(path)))];
+  if (!unique.length) return new Map<string, string>();
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin.storage.from("user-images").createSignedUrls(unique, 3600);
+  return new Map((data ?? []).filter((item) => item.signedUrl).map((item) => [item.path, item.signedUrl]));
+}
 
 async function isAdminUser(context: { userId: string; supabase: SupabaseClient<Database> }) {
   const { data } = await context.supabase
@@ -163,7 +188,7 @@ export const listStudyGroups = createServerFn({ method: "GET" })
     const [{ data: groups, error }, { data: memberships }] = await Promise.all([
       context.supabase
         .from("study_groups")
-        .select("id,name,description,join_code,created_by,created_at,status,leader_id")
+        .select("id,name,description,join_code,created_by,created_at,status,leader_id,logo_path")
         .order("created_at", { ascending: false }),
       context.supabase
         .from("group_members")
@@ -183,8 +208,10 @@ export const listStudyGroups = createServerFn({ method: "GET" })
           .select("group_id,user_id")
           .in("group_id", groupIds)
       : { data: [] };
+    const imageUrls = await signedImageUrls(visible.map((group) => group.logo_path));
     return visible.map((group) => ({
       ...group,
+      logoUrl: group.logo_path ? imageUrls.get(group.logo_path) ?? "" : "",
       memberCount: (allMembers ?? []).filter((row) => row.group_id === group.id).length,
       joined: (memberships ?? []).some((row) => row.group_id === group.id),
       isOwner: group.created_by === context.userId,
@@ -194,15 +221,13 @@ export const listStudyGroups = createServerFn({ method: "GET" })
 
 export const createStudyGroup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { name: string; description?: string; whatsappUrl: string }) => {
+  .inputValidator((input: { name: string; description?: string; whatsappUrl: string; logoPath?: string }) => {
     if (!input?.name?.trim() || input.name.trim().length > 100)
       throw new Error("Enter a group name under 100 characters");
     if ((input.description?.trim().length ?? 0) > 500)
       throw new Error("Keep the description under 500 characters");
-    if (!WHATSAPP_GROUP_PATTERN.test(input.whatsappUrl?.trim() ?? "")) {
-      throw new Error("Enter a valid WhatsApp group or wa.me link");
-    }
-    return input;
+    const whatsappUrl = normalizeWhatsAppGroupUrl(input.whatsappUrl ?? "");
+    return { ...input, whatsappUrl };
   })
   .handler(async ({ data, context }) => {
     const code = Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -211,7 +236,8 @@ export const createStudyGroup = createServerFn({ method: "POST" })
       .insert({
         name: data.name.trim(),
         description: data.description?.trim() ?? "",
-        whatsapp_url: data.whatsappUrl.trim(),
+        whatsapp_url: data.whatsappUrl,
+        logo_path: data.logoPath?.trim() || null,
         join_code: code,
         created_by: context.userId,
         status: "pending",
@@ -220,9 +246,10 @@ export const createStudyGroup = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (group) {
-      await context.supabase
+      const { error: memberError } = await context.supabase
         .from("group_members")
         .insert({ group_id: group.id, user_id: context.userId });
+      if (memberError) throw new Error(`Group created, but registration failed: ${memberError.message}`);
     }
     return group;
   });
@@ -269,7 +296,7 @@ export const getStudyGroup = createServerFn({ method: "POST" })
     const admin = await isAdminUser(context);
     const { data: group, error } = await context.supabase
       .from("study_groups")
-      .select("id,name,description,join_code,created_by,created_at,status,leader_id,whatsapp_url")
+      .select("id,name,description,join_code,created_by,created_at,status,leader_id,whatsapp_url,logo_path")
       .eq("id", data.groupId)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -285,7 +312,7 @@ export const getStudyGroup = createServerFn({ method: "POST" })
       throw new Error("Group not found.");
 
     const privileged = joined || admin;
-    let members: Array<{ userId: string; fullName: string; joinedAt: string; isLeader: boolean }> =
+    let members: Array<{ userId: string; fullName: string; joinedAt: string; isLeader: boolean; avatarUrl: string }> =
       [];
     let announcements: Array<{
       id: string;
@@ -316,8 +343,12 @@ export const getStudyGroup = createServerFn({ method: "POST" })
         ]),
       ];
       const { data: profiles } = userIds.length
-        ? await supabaseAdmin.from("profiles").select("id,full_name,email").in("id", userIds)
+        ? await supabaseAdmin.from("profiles").select("id,full_name,email,avatar_path").in("id", userIds)
         : { data: [] };
+      const imageUrls = await signedImageUrls([
+        group.logo_path,
+        ...(profiles ?? []).map((profile) => profile.avatar_path),
+      ]);
       const names = new Map(
         (profiles ?? []).map((profile) => [
           profile.id,
@@ -329,6 +360,10 @@ export const getStudyGroup = createServerFn({ method: "POST" })
         fullName: names.get(row.user_id) ?? "Member",
         joinedAt: row.joined_at,
         isLeader: row.user_id === group.leader_id,
+        avatarUrl: (() => {
+          const path = (profiles ?? []).find((profile) => profile.id === row.user_id)?.avatar_path;
+          return path ? imageUrls.get(path) ?? "" : "";
+        })(),
       }));
       announcements = (posts ?? []).map((post) => ({
         id: post.id,
@@ -341,6 +376,7 @@ export const getStudyGroup = createServerFn({ method: "POST" })
     }
     return {
       ...group,
+      logoUrl: group.logo_path ? (await signedImageUrls([group.logo_path])).get(group.logo_path) ?? "" : "",
       whatsapp_url: privileged ? group.whatsapp_url : "",
       joined,
       isAdmin: admin,
@@ -414,7 +450,7 @@ export const adminListStudyGroups = createServerFn({ method: "GET" })
     const admin = await assertAdmin(context);
     const { data: groups, error } = await admin
       .from("study_groups")
-      .select("id,name,description,status,whatsapp_url,join_code,leader_id,created_by,created_at")
+      .select("id,name,description,status,whatsapp_url,join_code,leader_id,created_by,created_at,logo_path")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     const groupIds = (groups ?? []).map((group) => group.id);
@@ -434,8 +470,10 @@ export const adminListStudyGroups = createServerFn({ method: "GET" })
         profile.full_name || profile.email || "Member",
       ]),
     );
+    const imageUrls = await signedImageUrls((groups ?? []).map((group) => group.logo_path));
     return (groups ?? []).map((group) => ({
       ...group,
+      logoUrl: group.logo_path ? imageUrls.get(group.logo_path) ?? "" : "",
       members: (memberships ?? [])
         .filter((row) => row.group_id === group.id)
         .map((row) => ({ userId: row.user_id, fullName: names.get(row.user_id) ?? "Member" })),
@@ -664,7 +702,7 @@ export const getProfileOverview = createServerFn({ method: "GET" })
       await Promise.all([
         context.supabase
           .from("profiles")
-          .select("id,full_name,email,created_at")
+          .select("id,full_name,email,created_at,avatar_path")
           .eq("id", context.userId)
           .maybeSingle(),
         context.supabase.from("user_roles").select("role").eq("user_id", context.userId),
@@ -676,6 +714,7 @@ export const getProfileOverview = createServerFn({ method: "GET" })
           .maybeSingle(),
       ]);
     const roleList = (roles ?? []).map((row) => row.role as string);
+    const avatarUrls = await signedImageUrls([profile?.avatar_path ?? null]);
     return {
       fullName: profile?.full_name ?? "",
       email: profile?.email ?? "",
@@ -685,6 +724,7 @@ export const getProfileOverview = createServerFn({ method: "GET" })
       roles: roleList,
       groupCount: (groups ?? []).length,
       recoveryCode: code?.code ?? "",
+      avatarUrl: profile?.avatar_path ? avatarUrls.get(profile.avatar_path) ?? "" : "",
     };
   });
 
@@ -740,6 +780,24 @@ export const updateProfileName = createServerFn({ method: "POST" })
     const { error } = await context.supabase
       .from("profiles")
       .update({ full_name: data.fullName.trim() })
+      .eq("id", context.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const updateProfilePhoto = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { avatarPath: string }) => {
+    if (!input?.avatarPath?.trim()) throw new Error("Upload a photo first");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    if (!data.avatarPath.startsWith(`${context.userId}/avatars/`)) {
+      throw new Error("That photo does not belong to your account");
+    }
+    const { error } = await context.supabase
+      .from("profiles")
+      .update({ avatar_path: data.avatarPath })
       .eq("id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };

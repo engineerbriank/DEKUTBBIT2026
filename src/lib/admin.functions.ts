@@ -63,7 +63,7 @@ export const adminListMembers = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: profiles, error } = await supabaseAdmin
       .from("profiles")
-      .select("id,full_name,email,created_at")
+      .select("id,full_name,email,created_at,avatar_path")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     const { data: roles } = await supabaseAdmin.from("user_roles").select("user_id,role");
@@ -74,6 +74,13 @@ export const adminListMembers = createServerFn({ method: "GET" })
     const { data: codes } = await supabaseAdmin.from("recovery_codes").select("user_id,code");
     const codeMap = new Map<string, string>();
     for (const row of codes ?? []) codeMap.set(row.user_id, row.code);
+    const paths = (profiles ?? [])
+      .map((profile) => profile.avatar_path)
+      .filter((path): path is string => Boolean(path));
+    const { data: signed } = paths.length
+      ? await supabaseAdmin.storage.from("user-images").createSignedUrls(paths, 3600)
+      : { data: [] };
+    const imageUrls = new Map((signed ?? []).map((item) => [item.path, item.signedUrl]));
     return (profiles ?? []).map((profile) => ({
       id: profile.id,
       fullName: profile.full_name,
@@ -82,6 +89,7 @@ export const adminListMembers = createServerFn({ method: "GET" })
       isAdmin: (roleMap.get(profile.id) ?? []).includes("admin"),
       roles: roleMap.get(profile.id) ?? [],
       recoveryCode: codeMap.get(profile.id) ?? "",
+      avatarUrl: profile.avatar_path ? imageUrls.get(profile.avatar_path) ?? "" : "",
     }));
   });
 

@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/bbit-logo.png.asset.json";
+import logoAsset from "@/assets/dekut-bbit-2026-logo.png.asset.json";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -95,7 +95,7 @@ export function AppShell({
             {header ?? (
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                 <div className="flex min-w-0 items-center gap-3">
-                  <MobileMenu
+                   <MobileMenu
                     isAdmin={Boolean(me?.isAdmin)}
                     isClassRep={Boolean(me?.roles?.includes("class_rep"))}
                   />
@@ -129,7 +129,7 @@ function DesktopSidebar({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep:
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card px-4 py-6 text-foreground lg:flex">
       <Link to="/dashboard" className="flex items-center gap-3 px-3">
-        <AppLogo className="size-11" />
+        <AppLogo className="size-12" />
         <div>
           <p className="font-display text-sm font-bold leading-tight">DEKUT BBIT 2026</p>
           <p className="text-[11px] text-muted-foreground">Digital Student Platform</p>
@@ -202,7 +202,7 @@ function MobileMenu({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep: boo
       >
         <SheetHeader className="text-left">
           <SheetTitle className="flex items-center gap-3 text-white">
-             <AppLogo /> DEKUT BBIT 2026
+              <AppLogo /> DEKUT BBIT 2026
           </SheetTitle>
         </SheetHeader>
         <nav className="mt-7 space-y-1">
@@ -246,7 +246,7 @@ export function AppLogo({ className }: { className?: string }) {
     <img
       src={logoAsset.url}
       alt="DEKUT BBIT 2026 Digital Student Platform logo"
-      className={cn("size-10 rounded-xl object-cover", className)}
+       className={cn("size-10 rounded-full object-cover", className)}
     />
   );
 }

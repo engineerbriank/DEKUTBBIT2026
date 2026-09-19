@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/bbit-logo.png.asset.json";
+import logoAsset from "@/assets/dekut-bbit-2026-logo.png.asset.json";
 import campusAsset from "@/assets/dekut-campus.png.asset.json";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -43,20 +43,20 @@ function Landing() {
           className="absolute inset-0 size-full object-cover"
         />
         <div aria-hidden className="absolute inset-0 bg-navy/70" />
-        <div className="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
-          <div className="flex items-center gap-2">
+        <div className="absolute inset-x-0 top-0 z-10 mx-auto flex max-w-6xl justify-center px-4 py-5 sm:px-6">
+          <div className="flex flex-col items-center gap-2 text-center">
             <img
               src={logoAsset.url}
               alt="DEKUT BBIT 2026 Digital Student Platform logo"
-              className="size-10 rounded-xl object-cover"
+              className="size-16 rounded-full object-cover shadow-lg sm:size-20"
             />
-            <span className="max-w-64 font-display text-sm font-semibold leading-tight sm:text-lg">
+            <span className="font-display text-sm font-semibold leading-tight sm:text-lg">
               DEKUT BBIT 2026 · DIGITAL STUDENT PLATFORM
             </span>
           </div>
         </div>
 
-        <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-4 pb-16 pt-20 text-center sm:px-6">
+        <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-4 pb-16 pt-40 text-center sm:px-6 sm:pt-44">
           <span className="glass-tint inline-flex rounded-full px-3 py-1 text-xs font-medium">
             Real files · Real timetable · Real AI
           </span>
