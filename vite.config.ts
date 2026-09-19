@@ -5,7 +5,16 @@
 //     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import type { Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+
+// Only run the PWA plugin in the browser (client) build so the service worker is
+// emitted next to the public assets and precaches client files only.
+const clientOnly = (plugins: Plugin[]): Plugin[] =>
+  plugins.map((plugin) => ({
+    ...plugin,
+    applyToEnvironment: (environment: { name: string }) => environment.name === "client",
+  }));
 
 export default defineConfig({
   tanstackStart: {
