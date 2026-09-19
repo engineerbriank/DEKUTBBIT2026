@@ -12,6 +12,33 @@ async function assertAdmin(context: { supabase: any; userId: string }) {
   if (!data) throw new Error("Forbidden: administrator access is required.");
 }
 
+/**
+ * Copy a row into public.archived_records before it is deleted, so nothing an
+ * administrator removes is ever irrecoverable. Never throws: a failed archive
+ * must not block the caller, but it is logged for follow-up.
+ */
+export async function archiveRow(
+  context: { supabase: any; userId: string },
+  table: "resources" | "units" | "announcements" | "timetable" | "quick_links" | "assignments",
+  id: string,
+  labelFrom: (row: Record<string, any>) => string,
+) {
+  try {
+    const { data: row } = await context.supabase.from(table).select("*").eq("id", id).maybeSingle();
+    if (!row) return;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("archived_records").insert({
+      table_name: table,
+      record_id: id,
+      label: labelFrom(row).slice(0, 200),
+      payload: row,
+      deleted_by: context.userId,
+    });
+  } catch (error) {
+    console.error("archiveRow failed", table, id, error);
+  }
+}
+
 /** Bootstrap: an approved email may claim administrator while no administrator exists yet. */
 export const claimFirstAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
