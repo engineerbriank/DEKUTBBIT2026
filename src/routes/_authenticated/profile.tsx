@@ -225,7 +225,7 @@ function Profile() {
         <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3">
           <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary">
             {installStatus === "installed" ? (
-              <CheckCircle2 className="size-4 text-green-600 dark:text-green-500" />
+              <CheckCircle2 className="size-4 text-primary" />
             ) : (
               <CircleDashed className="size-4 text-muted-foreground" />
             )}
