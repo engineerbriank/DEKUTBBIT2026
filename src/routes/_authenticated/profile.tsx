@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 
 import { AppShell, useSignOut } from "@/components/AppShell";
+import { InstallAppButton } from "@/components/InstallAppPrompt";
 import { getProfileOverview, listQuickLinks, updateProfileName, updateProfilePhoto } from "@/lib/hub.functions";
 import { SUPPORT_WHATSAPP } from "@/lib/recovery.functions";
 import { supabase } from "@/integrations/supabase/client";
