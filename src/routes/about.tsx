@@ -201,20 +201,27 @@ function AboutPage() {
 function ContributorCard({
   name,
   role,
-  icon,
+  photo,
   body,
 }: {
   name: string;
   role: string;
-  icon: React.ReactNode;
+  photo: string;
   body: string;
 }) {
   return (
     <div className="surface-card p-5 transition-transform hover:-translate-y-1">
-      <h3 className="font-display text-base font-bold">{name}</h3>
-      <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-primary">
-        {icon} {role}
-      </p>
+      <div className="flex items-center gap-3">
+        <img
+          src={photo}
+          alt={name}
+          className="size-10 shrink-0 rounded-full object-cover shadow ring-2 ring-white/40"
+        />
+        <div className="min-w-0">
+          <h3 className="font-display text-base font-bold">{name}</h3>
+          <p className="mt-0.5 text-xs font-semibold text-primary">{role}</p>
+        </div>
+      </div>
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
     </div>
   );
