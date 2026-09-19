@@ -104,6 +104,15 @@ export function InstallAppPrompt() {
   );
 }
 
+/** Install status for display: "installed", "installable", "ios", or "unavailable". */
+export function usePwaInstallStatus() {
+  const { canInstall, installed, iosInstructable } = usePwaInstall();
+  if (installed) return "installed" as const;
+  if (canInstall) return "installable" as const;
+  if (iosInstructable) return "ios" as const;
+  return "unavailable" as const;
+}
+
 /** Inline "Install App" control for menus/pages. Renders nothing when unavailable. */
 export function InstallAppButton({ className }: { className?: string }) {
   const { canInstall, installed, iosInstructable, promptInstall } = usePwaInstall();
