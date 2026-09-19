@@ -282,12 +282,20 @@ export const joinStudyGroup = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!group || group.status !== "approved")
       throw new Error("This group is not available to join.");
+    const { data: existing } = await context.supabase
+      .from("group_members")
+      .select("id")
+      .eq("group_id", groupId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (existing) return { ok: true, alreadyMember: true };
     const { error } = await context.supabase
       .from("group_members")
-      .upsert({ group_id: groupId, user_id: context.userId }, { onConflict: "group_id,user_id" });
+      .insert({ group_id: groupId, user_id: context.userId });
     if (error) throw new Error(error.message);
-    return { ok: true };
+    return { ok: true, alreadyMember: false };
   });
+
 
 export const getStudyGroup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
