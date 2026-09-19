@@ -3,7 +3,7 @@
 - [x] Add profile photo uploads and display
 - [x] Add WhatsApp and email class-rep contact
 - [x] Apply uploaded logo and center landing header
-- [ ] Verify signed-in and public experiences
+- [x] Verify signed-in and public experiences
 # Roadmap
 
 - [x] Hide the published Lovable badge

@@ -230,6 +230,9 @@ export const createStudyGroup = createServerFn({ method: "POST" })
     return { ...input, whatsappUrl };
   })
   .handler(async ({ data, context }) => {
+    if (data.logoPath && !data.logoPath.startsWith(`${context.userId}/groups/`)) {
+      throw new Error("That group logo does not belong to your account");
+    }
     const code = Math.random().toString(36).slice(2, 8).toUpperCase();
     const { data: group, error } = await context.supabase
       .from("study_groups")
