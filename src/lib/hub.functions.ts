@@ -391,6 +391,7 @@ export const getStudyGroup = createServerFn({ method: "POST" })
       whatsapp_url: privileged ? group.whatsapp_url : "",
       joined,
       isAdmin: admin,
+      isLeader: group.leader_id === context.userId,
       members,
       announcements,
       leaderName:
