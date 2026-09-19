@@ -217,6 +217,10 @@ function Profile() {
         ) : null}
       </ul>
 
+      <div className="mt-6">
+        <InstallAppButton />
+      </div>
+
       <div className="surface-card mt-6 divide-y divide-border">
         {data?.isAdmin ? (
           <Link to="/ai" className="flex items-center gap-3 p-3.5 text-sm font-medium">
