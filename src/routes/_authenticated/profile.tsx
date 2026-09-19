@@ -239,7 +239,7 @@ function Profile() {
                   ? "iPhone/iPad: tap Share → Add to Home Screen"
                   : installStatus === "installable"
                     ? "Install it below for faster access"
-                    : "Install it from the published site"}
+                    : "Tap Install App below to see how"}
             </span>
           </span>
         </div>
