@@ -1,0 +1,18 @@
+{
+  "name": "DEKUT BBIT 2026 · Digital Student Platform",
+  "short_name": "BBIT 2026",
+  "description": "Notes, past papers, assignments, timetables, study groups and class updates for DEKUT BBIT students.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "en",
+  "theme_color": "#0b1f33",
+  "background_color": "#ffffff",
+  "icons": [
+    { "src": "/pwa-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/pwa-512x512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/pwa-maskable-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

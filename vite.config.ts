@@ -59,7 +59,7 @@ export default defineConfig({
         workbox: {
           // Precache only the light app shell; JS chunks are cached at runtime on first use.
           globDirectory: "dist/client",
-          globPatterns: ["**/*.{css,woff2,ico,svg}", "favicon.png", "pwa-*.png"],
+          globPatterns: ["**/*.{css,woff2,ico,svg}", "*.png"],
           maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
           navigateFallback: "/",
           navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//, /^\/__l5e\//],
