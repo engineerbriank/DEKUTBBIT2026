@@ -393,18 +393,21 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_path: string | null
           created_at: string
           email: string
           full_name: string
           id: string
         }
         Insert: {
+          avatar_path?: string | null
           created_at?: string
           email?: string
           full_name?: string
           id: string
         }
         Update: {
+          avatar_path?: string | null
           created_at?: string
           email?: string
           full_name?: string
@@ -545,6 +548,7 @@ export type Database = {
           id: string
           join_code: string
           leader_id: string | null
+          logo_path: string | null
           name: string
           status: string
           updated_at: string
@@ -559,6 +563,7 @@ export type Database = {
           id?: string
           join_code: string
           leader_id?: string | null
+          logo_path?: string | null
           name: string
           status?: string
           updated_at?: string
@@ -573,6 +578,7 @@ export type Database = {
           id?: string
           join_code?: string
           leader_id?: string | null
+          logo_path?: string | null
           name?: string
           status?: string
           updated_at?: string

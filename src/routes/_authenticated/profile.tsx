@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   ChevronRight,
   ExternalLink,
+  Camera,
+  Mail,
   LifeBuoy,
   LogOut,
   Pencil,
@@ -14,8 +16,9 @@ import {
 import { toast } from "sonner";
 
 import { AppShell, useSignOut } from "@/components/AppShell";
-import { getProfileOverview, listQuickLinks, updateProfileName } from "@/lib/hub.functions";
+import { getProfileOverview, listQuickLinks, updateProfileName, updateProfilePhoto } from "@/lib/hub.functions";
 import { SUPPORT_WHATSAPP } from "@/lib/recovery.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -41,6 +44,7 @@ function Profile() {
   const fetchProfile = useServerFn(getProfileOverview);
   const fetchLinks = useServerFn(listQuickLinks);
   const saveName = useServerFn(updateProfileName);
+  const savePhoto = useServerFn(updateProfilePhoto);
   const queryClient = useQueryClient();
   const signOut = useSignOut();
 
@@ -49,6 +53,8 @@ function Profile() {
 
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
+  const photoInput = useRef<HTMLInputElement>(null);
+  const [photoBusy, setPhotoBusy] = useState(false);
 
   const rename = useMutation({
     mutationFn: () => saveName({ data: { fullName: name } }),
@@ -63,15 +69,62 @@ function Profile() {
 
   const displayName = data?.fullName || data?.email || "Student";
   const initial = displayName.trim().charAt(0).toUpperCase() || "S";
+  const uploadPhoto = async (file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) {
+      toast.error("Choose an image smaller than 5 MB");
+      return;
+    }
+    setPhotoBusy(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData.user?.id;
+      if (!userId) throw new Error("Sign in again to upload your photo");
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const path = `${userId}/avatars/${crypto.randomUUID()}-${safeName}`;
+      const { error } = await supabase.storage.from("user-images").upload(path, file, {
+        contentType: file.type,
+      });
+      if (error) throw error;
+      await savePhoto({ data: { avatarPath: path } });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["profile-overview"] }),
+        queryClient.invalidateQueries({ queryKey: ["me"] }),
+      ]);
+      toast.success("Profile photo updated");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Photo upload failed");
+    } finally {
+      setPhotoBusy(false);
+      if (photoInput.current) photoInput.current.value = "";
+    }
+  };
 
   return (
     <AppShell
       header={
         <div className="flex flex-col items-center py-2 text-center text-navy-foreground">
           <div className="flex items-center gap-4">
-            <span className="grid size-16 place-items-center rounded-full bg-white/15 font-display text-2xl font-bold ring-1 ring-white/20">
-              {initial}
-            </span>
+            <label className="relative cursor-pointer" title="Change profile photo">
+              {data?.avatarUrl ? (
+                <img src={data.avatarUrl} alt="Your profile" className="size-16 rounded-full object-cover ring-2 ring-white/30" />
+              ) : (
+                <span className="grid size-16 place-items-center rounded-full bg-white/15 font-display text-2xl font-bold ring-1 ring-white/20">
+                  {initial}
+                </span>
+              )}
+              <span className="absolute -bottom-1 -right-1 grid size-7 place-items-center rounded-full bg-accent text-accent-foreground ring-2 ring-primary">
+                <Camera className="size-3.5" />
+              </span>
+              <input
+                ref={photoInput}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                className="sr-only"
+                disabled={photoBusy}
+                onChange={(event) => void uploadPhoto(event.target.files?.[0])}
+              />
+            </label>
             <div className="text-left">
               <p className="font-display text-xl font-semibold">{displayName}</p>
               <p className="text-xs text-navy-foreground/70">{data?.email}</p>
@@ -176,12 +229,19 @@ function Profile() {
           </Link>
         ) : null}
         <a
-          href={`https://wa.me/${SUPPORT_WHATSAPP.replace(/\D/g, "")}`}
+          href={`https://wa.me/254${SUPPORT_WHATSAPP.replace(/^0/, "")}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 p-3.5 text-sm font-medium"
         >
           <LifeBuoy className="size-4 text-primary" /> Help &amp; Support (class rep)
+          <ChevronRight className="ml-auto size-4 text-muted-foreground" />
+        </a>
+        <a
+          href="mailto:bbitclassrep@gmail.com"
+          className="flex items-center gap-3 p-3.5 text-sm font-medium"
+        >
+          <Mail className="size-4 text-primary" /> Email class rep · bbitclassrep@gmail.com
           <ChevronRight className="ml-auto size-4 text-muted-foreground" />
         </a>
         <button

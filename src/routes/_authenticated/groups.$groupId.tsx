@@ -68,11 +68,20 @@ function GroupDetail() {
         <>
           <section className="surface-card mt-4 p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h2 className="font-display text-xl font-semibold">{group.name}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {group.description || "No description provided."}
-                </p>
+              <div className="flex min-w-0 items-center gap-3">
+                {group.logoUrl ? (
+                  <img src={group.logoUrl} alt="" className="size-14 shrink-0 rounded-xl object-cover" />
+                ) : (
+                  <span className="grid size-14 shrink-0 place-items-center rounded-xl bg-secondary text-primary">
+                    <Users className="size-6" />
+                  </span>
+                )}
+                <div className="min-w-0">
+                  <h2 className="truncate font-display text-xl font-semibold">{group.name}</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {group.description || "No description provided."}
+                  </p>
+                </div>
               </div>
               <span
                 className={
@@ -121,9 +130,13 @@ function GroupDetail() {
                 <ul className="mt-2 grid gap-2 sm:grid-cols-2">
                   {group.members.map((member) => (
                     <li key={member.userId} className="surface-card flex items-center gap-3 p-3">
-                      <span className="grid size-9 place-items-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                        {member.fullName.charAt(0).toUpperCase()}
-                      </span>
+                      {member.avatarUrl ? (
+                        <img src={member.avatarUrl} alt="" className="size-9 rounded-full object-cover" />
+                      ) : (
+                        <span className="grid size-9 place-items-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                          {member.fullName.charAt(0).toUpperCase()}
+                        </span>
+                      )}
                       <span className="min-w-0 flex-1 truncate text-sm font-medium">
                         {member.fullName}
                       </span>

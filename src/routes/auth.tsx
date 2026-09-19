@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/bbit-logo.png.asset.json";
+import logoAsset from "@/assets/dekut-bbit-2026-logo.png.asset.json";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -93,7 +93,7 @@ function AuthPage() {
           <img
             src={logoAsset.url}
             alt="DEKUT BBIT 2026 Digital Student Platform logo"
-            className="size-10 rounded-xl object-cover shadow-lg"
+            className="size-14 rounded-full object-cover shadow-lg"
           />
           <span className="max-w-64 text-center font-display text-base font-semibold leading-tight">
             DEKUT BBIT 2026 · DIGITAL STUDENT PLATFORM

@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
-import { ChevronRight, Clock3, MessageCircle, Plus, Users } from "lucide-react";
+import { useRef, useState } from "react";
+import { Camera, ChevronRight, Clock3, MessageCircle, Plus, Users } from "lucide-react";
 import { toast } from "sonner";
 
-import { AppShell } from "@/components/AppShell";
+import { AppShell, useMe } from "@/components/AppShell";
+import { supabase } from "@/integrations/supabase/client";
 import {
   createStudyGroup,
   joinStudyGroup,
@@ -40,18 +41,38 @@ function Groups() {
   const join = useServerFn(joinStudyGroup);
   const leave = useServerFn(leaveStudyGroup);
   const queryClient = useQueryClient();
+  const { data: me } = useMe();
+  const logoInput = useRef<HTMLInputElement>(null);
 
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: "", description: "", whatsappUrl: "" });
+  const [logo, setLogo] = useState<File | null>(null);
   const [code, setCode] = useState("");
 
   const { data, isLoading } = useQuery({ queryKey: ["groups"], queryFn: () => fetchGroups() });
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["groups"] });
 
   const createMutation = useMutation({
-    mutationFn: () => create({ data: form }),
+    mutationFn: async () => {
+      let logoPath = "";
+      if (logo) {
+        if (!logo.type.startsWith("image/") || logo.size > 5 * 1024 * 1024) {
+          throw new Error("Choose an image smaller than 5 MB");
+        }
+        if (!me?.userId) throw new Error("Your account is still loading. Try again.");
+        const safeName = logo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        logoPath = `${me.userId}/groups/${crypto.randomUUID()}-${safeName}`;
+        const { error } = await supabase.storage.from("user-images").upload(logoPath, logo, {
+          contentType: logo.type,
+        });
+        if (error) throw error;
+      }
+      return create({ data: { ...form, logoPath } });
+    },
     onSuccess: (group) => {
       setForm({ name: "", description: "", whatsappUrl: "" });
+      setLogo(null);
+      if (logoInput.current) logoInput.current.value = "";
       setShowForm(false);
       refresh();
       toast.success(`Group submitted for administrator approval · Code ${group?.join_code ?? ""}`);
@@ -108,15 +129,33 @@ function Groups() {
               onChange={(event) => setForm({ ...form, description: event.target.value })}
             />
             <Input
-              type="url"
               required
-              placeholder="https://chat.whatsapp.com/…"
+              inputMode="url"
+              placeholder="chat.whatsapp.com/… or WhatsApp channel link"
               value={form.whatsappUrl}
               onChange={(event) => setForm({ ...form, whatsappUrl: event.target.value })}
             />
             <p className="text-xs text-muted-foreground">
               The WhatsApp link is shown only to registered members after approval.
             </p>
+            <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-border bg-card/60 p-3 text-sm">
+              <span className="grid size-10 place-items-center rounded-lg bg-secondary text-primary">
+                <Camera className="size-4" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block font-medium">Group logo (optional)</span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {logo?.name ?? "PNG, JPG or WebP · up to 5 MB"}
+                </span>
+              </span>
+              <input
+                ref={logoInput}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                className="sr-only"
+                onChange={(event) => setLogo(event.target.files?.[0] ?? null)}
+              />
+            </label>
             <Button type="submit" className="w-full rounded-xl" disabled={createMutation.isPending}>
               {createMutation.isPending ? "Creating…" : "Save group"}
             </Button>
@@ -134,9 +173,13 @@ function Groups() {
       <ul className="mt-4 space-y-3">
         {(data ?? []).map((group) => (
           <li key={group.id} className="surface-card flex items-start gap-3 p-4">
-            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-secondary text-primary">
-              <Users className="size-5" />
-            </span>
+            {group.logoUrl ? (
+              <img src={group.logoUrl} alt="" className="size-11 shrink-0 rounded-xl object-cover" />
+            ) : (
+              <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-secondary text-primary">
+                <Users className="size-5" />
+              </span>
+            )}
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold uppercase">{group.name}</p>
               <p className="mt-0.5 text-xs text-muted-foreground">

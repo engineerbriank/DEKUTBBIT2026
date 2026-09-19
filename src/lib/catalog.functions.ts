@@ -80,19 +80,28 @@ export const getMe = createServerFn({ method: "GET" })
     const [{ data: profile }, { data: roles }] = await Promise.all([
       context.supabase
         .from("profiles")
-        .select("id,full_name,email")
+        .select("id,full_name,email,avatar_path")
         .eq("id", context.userId)
         .maybeSingle(),
       context.supabase.from("user_roles").select("role").eq("user_id", context.userId),
     ]);
     const roleList = (roles ?? []).map((row) => row.role as string);
     if (roleList.length === 0) roleList.push(...provisioned.roles);
+    let avatarUrl = "";
+    if (profile?.avatar_path) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data } = await supabaseAdmin.storage
+        .from("user-images")
+        .createSignedUrl(profile.avatar_path, 3600);
+      avatarUrl = data?.signedUrl ?? "";
+    }
     return {
       userId: context.userId,
       email: profile?.email || provisioned.email,
       fullName: profile?.full_name || provisioned.fullName,
       isAdmin: roleList.includes("admin"),
       roles: roleList,
+      avatarUrl,
     };
   });
 

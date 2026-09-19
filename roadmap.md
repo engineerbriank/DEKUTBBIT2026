@@ -1,9 +1,9 @@
-- [ ] Fix study-group creation and WhatsApp links
-- [ ] Add secure group-logo uploads and display
-- [ ] Add profile photo uploads and display
-- [ ] Add WhatsApp and email class-rep contact
-- [ ] Apply uploaded logo and center landing header
-- [ ] Verify signed-in and public experiences
+- [x] Fix study-group creation and WhatsApp links
+- [x] Add secure group-logo uploads and display
+- [x] Add profile photo uploads and display
+- [x] Add WhatsApp and email class-rep contact
+- [x] Apply uploaded logo and center landing header
+- [x] Verify signed-in and public experiences
 # Roadmap
 
 - [x] Hide the published Lovable badge
