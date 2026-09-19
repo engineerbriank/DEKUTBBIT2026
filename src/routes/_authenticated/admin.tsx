@@ -10,6 +10,7 @@ import {
   Link2,
   Loader2,
   Megaphone,
+  RotateCcw,
   ShieldCheck,
   Trash2,
   Upload,
@@ -33,6 +34,7 @@ import {
   adminHasOwner,
   adminListAnnouncements,
   adminListMembers,
+  adminListArchive,
   adminListResources,
   adminListTimetable,
   claimFirstAdmin,
@@ -45,6 +47,7 @@ import {
   discardTimetableDrafts,
   importTimetableFromFile,
   publishTimetableDrafts,
+  restoreArchivedRecord,
   setMemberAdmin,
   setMemberClassRep,
   updateClassSlot,
@@ -173,6 +176,9 @@ function AdminPage() {
           <TabsTrigger value="links" className="gap-2 rounded-xl">
             <Link2 className="size-4" /> Quick Links
           </TabsTrigger>
+          <TabsTrigger value="recycle" className="gap-2 rounded-xl">
+            <RotateCcw className="size-4" /> Recycle Bin
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="resources">
@@ -197,8 +203,78 @@ function AdminPage() {
         <TabsContent value="links">
           <QuickLinksSection />
         </TabsContent>
+        <TabsContent value="recycle">
+          <RecycleBinSection />
+        </TabsContent>
       </Tabs>
     </AppShell>
+  );
+}
+
+const ARCHIVE_LABELS: Record<string, string> = {
+  resources: "Document",
+  units: "Unit",
+  announcements: "Announcement",
+  timetable: "Class",
+  quick_links: "Quick link",
+  assignments: "Assignment",
+};
+
+function RecycleBinSection() {
+  const queryClient = useQueryClient();
+  const fetchArchive = useServerFn(adminListArchive);
+  const restore = useServerFn(restoreArchivedRecord);
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-archive"],
+    queryFn: () => fetchArchive(),
+  });
+  const put = useMutation({
+    mutationFn: (id: string) => restore({ data: { id } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+      toast.success("Item restored");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  return (
+    <section className="surface-card mt-6 p-5">
+      <h2 className="text-lg font-semibold">Recycle Bin</h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Everything deleted is kept here with its full details, and uploaded files stay stored. Restore
+        any item to put it back exactly as it was.
+      </p>
+      {isLoading ? (
+        <p className="mt-4 text-sm text-muted-foreground">Loading…</p>
+      ) : (data ?? []).length === 0 ? (
+        <p className="mt-4 text-sm text-muted-foreground">Nothing has been deleted.</p>
+      ) : (
+        <ul className="mt-4 space-y-2">
+          {(data ?? []).map((row: any) => (
+            <li
+              key={row.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/60 p-3"
+            >
+              <div className="min-w-0">
+                <p className="truncate font-medium">{row.label || "Untitled"}</p>
+                <p className="text-xs text-muted-foreground">
+                  {ARCHIVE_LABELS[row.table_name] ?? row.table_name} · deleted{" "}
+                  {new Date(row.deleted_at).toLocaleString()}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={put.isPending}
+                onClick={() => put.mutate(row.id)}
+              >
+                <RotateCcw className="mr-2 size-4" /> Restore
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 
