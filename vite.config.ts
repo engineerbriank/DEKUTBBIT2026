@@ -30,6 +30,8 @@ export default defineConfig({
         registerType: "autoUpdate",
         injectRegister: null,
         filename: "sw.js",
+        // Emit the worker + manifest into the folder that is served as the site root.
+        outDir: "dist/client",
         devOptions: { enabled: false },
         manifest: {
           id: "/",
@@ -55,7 +57,10 @@ export default defineConfig({
           ],
         },
         workbox: {
-          globPatterns: ["**/*.{js,css,png,svg,ico,webp,woff2}"],
+          // Precache only the light app shell; JS chunks are cached at runtime on first use.
+          globDirectory: "dist/client",
+          globPatterns: ["**/*.{css,woff2,ico,svg}", "favicon.png", "pwa-*.png"],
+          maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
           navigateFallback: "/",
           navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//, /^\/__l5e\//],
           cleanupOutdatedCaches: true,
