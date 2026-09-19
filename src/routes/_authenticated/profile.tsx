@@ -6,6 +6,7 @@ import {
   ChevronRight,
   ExternalLink,
   Camera,
+  Info,
   Mail,
   LifeBuoy,
   LogOut,
@@ -13,6 +14,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+
 import { toast } from "sonner";
 
 import { AppShell, useSignOut } from "@/components/AppShell";
