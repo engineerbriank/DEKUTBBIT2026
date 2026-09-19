@@ -74,6 +74,7 @@ function Profile() {
 
   const displayName = data?.fullName || data?.email || "Student";
   const initial = displayName.trim().charAt(0).toUpperCase() || "S";
+  const installStatus = usePwaInstallStatus();
   const uploadPhoto = async (file: File | undefined) => {
     if (!file) return;
     if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) {
@@ -220,7 +221,28 @@ function Profile() {
         ) : null}
       </ul>
 
-      <div className="mt-6">
+      <div className="mt-6 space-y-2">
+        <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3">
+          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary">
+            {installStatus === "installed" ? (
+              <CheckCircle2 className="size-4 text-green-600 dark:text-green-500" />
+            ) : (
+              <CircleDashed className="size-4 text-muted-foreground" />
+            )}
+          </span>
+          <span className="min-w-0">
+            {installStatus === "installed" ? "App installed" : "App not installed"}
+            <span className="block text-[11px] font-medium text-muted-foreground">
+              {installStatus === "installed"
+                ? "You're running the installed app"
+                : installStatus === "ios"
+                  ? "iPhone/iPad: tap Share → Add to Home Screen"
+                  : installStatus === "installable"
+                    ? "Install it below for faster access"
+                    : "Install it from the published site"}
+            </span>
+          </span>
+        </div>
         <InstallAppButton />
       </div>
 
