@@ -20,11 +20,11 @@ import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedClassRepRouteImport } from './routes/_authenticated/class-rep'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedExamRouteImport } from './routes/_authenticated/exam'
-import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedResourcesRouteImport } from './routes/_authenticated/resources'
 import { Route as AuthenticatedTimetableRouteImport } from './routes/_authenticated/timetable'
+import { Route as AuthenticatedGroupsIndexRouteImport } from './routes/_authenticated/groups.index'
 import { Route as AuthenticatedGroupsGroupIdRouteImport } from './routes/_authenticated/groups.$groupId'
 import { Route as AuthenticatedUnitsIndexRouteImport } from './routes/_authenticated/units.index'
 import { Route as AuthenticatedUnitsCodeRouteImport } from './routes/_authenticated/units.$code'
@@ -85,11 +85,6 @@ const AuthenticatedExamRoute = AuthenticatedExamRouteImport.update({
   path: '/exam',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
-  id: '/groups',
-  path: '/groups',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedNotificationsRoute =
   AuthenticatedNotificationsRouteImport.update({
     id: '/notifications',
@@ -111,11 +106,17 @@ const AuthenticatedTimetableRoute = AuthenticatedTimetableRouteImport.update({
   path: '/timetable',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGroupsIndexRoute =
+  AuthenticatedGroupsIndexRouteImport.update({
+    id: '/groups/',
+    path: '/groups/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedGroupsGroupIdRoute =
   AuthenticatedGroupsGroupIdRouteImport.update({
-    id: '/$groupId',
-    path: '/$groupId',
-    getParentRoute: () => AuthenticatedGroupsRoute,
+    id: '/groups/$groupId',
+    path: '/groups/$groupId',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedUnitsIndexRoute = AuthenticatedUnitsIndexRouteImport.update({
   id: '/units/',
@@ -139,13 +140,13 @@ export interface FileRoutesByFullPath {
   '/class-rep': typeof AuthenticatedClassRepRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exam': typeof AuthenticatedExamRoute
-  '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/resources': typeof AuthenticatedResourcesRoute
   '/timetable': typeof AuthenticatedTimetableRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRoute
   '/units/$code': typeof AuthenticatedUnitsCodeRoute
+  '/groups/': typeof AuthenticatedGroupsIndexRoute
   '/units/': typeof AuthenticatedUnitsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -159,13 +160,13 @@ export interface FileRoutesByTo {
   '/class-rep': typeof AuthenticatedClassRepRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exam': typeof AuthenticatedExamRoute
-  '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/resources': typeof AuthenticatedResourcesRoute
   '/timetable': typeof AuthenticatedTimetableRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRoute
   '/units/$code': typeof AuthenticatedUnitsCodeRoute
+  '/groups': typeof AuthenticatedGroupsIndexRoute
   '/units': typeof AuthenticatedUnitsIndexRoute
 }
 export interface FileRoutesById {
@@ -181,13 +182,13 @@ export interface FileRoutesById {
   '/_authenticated/class-rep': typeof AuthenticatedClassRepRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/exam': typeof AuthenticatedExamRoute
-  '/_authenticated/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/resources': typeof AuthenticatedResourcesRoute
   '/_authenticated/timetable': typeof AuthenticatedTimetableRoute
   '/_authenticated/groups/$groupId': typeof AuthenticatedGroupsGroupIdRoute
   '/_authenticated/units/$code': typeof AuthenticatedUnitsCodeRoute
+  '/_authenticated/groups/': typeof AuthenticatedGroupsIndexRoute
   '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
 }
 export interface FileRouteTypes {
@@ -203,13 +204,13 @@ export interface FileRouteTypes {
     | '/class-rep'
     | '/dashboard'
     | '/exam'
-    | '/groups'
     | '/notifications'
     | '/profile'
     | '/resources'
     | '/timetable'
     | '/groups/$groupId'
     | '/units/$code'
+    | '/groups/'
     | '/units/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -223,13 +224,13 @@ export interface FileRouteTypes {
     | '/class-rep'
     | '/dashboard'
     | '/exam'
-    | '/groups'
     | '/notifications'
     | '/profile'
     | '/resources'
     | '/timetable'
     | '/groups/$groupId'
     | '/units/$code'
+    | '/groups'
     | '/units'
   id:
     | '__root__'
@@ -244,13 +245,13 @@ export interface FileRouteTypes {
     | '/_authenticated/class-rep'
     | '/_authenticated/dashboard'
     | '/_authenticated/exam'
-    | '/_authenticated/groups'
     | '/_authenticated/notifications'
     | '/_authenticated/profile'
     | '/_authenticated/resources'
     | '/_authenticated/timetable'
     | '/_authenticated/groups/$groupId'
     | '/_authenticated/units/$code'
+    | '/_authenticated/groups/'
     | '/_authenticated/units/'
   fileRoutesById: FileRoutesById
 }
@@ -339,13 +340,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedExamRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/groups': {
-      id: '/_authenticated/groups'
-      path: '/groups'
-      fullPath: '/groups'
-      preLoaderRoute: typeof AuthenticatedGroupsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/notifications': {
       id: '/_authenticated/notifications'
       path: '/notifications'
@@ -374,12 +368,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTimetableRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/groups/': {
+      id: '/_authenticated/groups/'
+      path: '/groups'
+      fullPath: '/groups/'
+      preLoaderRoute: typeof AuthenticatedGroupsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/groups/$groupId': {
       id: '/_authenticated/groups/$groupId'
-      path: '/$groupId'
+      path: '/groups/$groupId'
       fullPath: '/groups/$groupId'
       preLoaderRoute: typeof AuthenticatedGroupsGroupIdRouteImport
-      parentRoute: typeof AuthenticatedGroupsRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/units/': {
       id: '/_authenticated/units/'
@@ -398,17 +399,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthenticatedGroupsRouteChildren {
-  AuthenticatedGroupsGroupIdRoute: typeof AuthenticatedGroupsGroupIdRoute
-}
-
-const AuthenticatedGroupsRouteChildren: AuthenticatedGroupsRouteChildren = {
-  AuthenticatedGroupsGroupIdRoute: AuthenticatedGroupsGroupIdRoute,
-}
-
-const AuthenticatedGroupsRouteWithChildren =
-  AuthenticatedGroupsRoute._addFileChildren(AuthenticatedGroupsRouteChildren)
-
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAiRoute: typeof AuthenticatedAiRoute
@@ -418,12 +408,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedClassRepRoute: typeof AuthenticatedClassRepRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExamRoute: typeof AuthenticatedExamRoute
-  AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRouteWithChildren
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedResourcesRoute: typeof AuthenticatedResourcesRoute
   AuthenticatedTimetableRoute: typeof AuthenticatedTimetableRoute
+  AuthenticatedGroupsGroupIdRoute: typeof AuthenticatedGroupsGroupIdRoute
   AuthenticatedUnitsCodeRoute: typeof AuthenticatedUnitsCodeRoute
+  AuthenticatedGroupsIndexRoute: typeof AuthenticatedGroupsIndexRoute
   AuthenticatedUnitsIndexRoute: typeof AuthenticatedUnitsIndexRoute
 }
 
@@ -436,12 +427,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedClassRepRoute: AuthenticatedClassRepRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExamRoute: AuthenticatedExamRoute,
-  AuthenticatedGroupsRoute: AuthenticatedGroupsRouteWithChildren,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedResourcesRoute: AuthenticatedResourcesRoute,
   AuthenticatedTimetableRoute: AuthenticatedTimetableRoute,
+  AuthenticatedGroupsGroupIdRoute: AuthenticatedGroupsGroupIdRoute,
   AuthenticatedUnitsCodeRoute: AuthenticatedUnitsCodeRoute,
+  AuthenticatedGroupsIndexRoute: AuthenticatedGroupsIndexRoute,
   AuthenticatedUnitsIndexRoute: AuthenticatedUnitsIndexRoute,
 }
 
