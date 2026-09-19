@@ -12,6 +12,33 @@ async function assertAdmin(context: { supabase: any; userId: string }) {
   if (!data) throw new Error("Forbidden: administrator access is required.");
 }
 
+/**
+ * Copy a row into public.archived_records before it is deleted, so nothing an
+ * administrator removes is ever irrecoverable. Never throws: a failed archive
+ * must not block the caller, but it is logged for follow-up.
+ */
+export async function archiveRow(
+  context: { supabase: any; userId: string },
+  table: "resources" | "units" | "announcements" | "timetable" | "quick_links" | "assignments",
+  id: string,
+  labelFrom: (row: Record<string, any>) => string,
+) {
+  try {
+    const { data: row } = await context.supabase.from(table).select("*").eq("id", id).maybeSingle();
+    if (!row) return;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("archived_records").insert({
+      table_name: table,
+      record_id: id,
+      label: labelFrom(row).slice(0, 200),
+      payload: row,
+      deleted_by: context.userId,
+    });
+  } catch (error) {
+    console.error("archiveRow failed", table, id, error);
+  }
+}
+
 /** Bootstrap: an approved email may claim administrator while no administrator exists yet. */
 export const claimFirstAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -275,17 +302,10 @@ export const deleteResource = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const { data: resource } = await context.supabase
-      .from("resources")
-      .select("file_path")
-      .eq("id", data.id)
-      .maybeSingle();
+    await archiveRow(context, "resources", data.id, (row) => row["title"] ?? "Resource");
     const { error } = await context.supabase.from("resources").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
-    if (resource?.file_path) {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin.storage.from("resources").remove([resource.file_path]);
-    }
+    // The stored file is deliberately kept so the record can be restored later.
     return { ok: true };
   });
 
@@ -332,6 +352,7 @@ export const deleteUnit = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    await archiveRow(context, "units", data.id, (row) => `${row["code"] ?? ""} ${row["name"] ?? ""}`.trim());
     const { error } = await context.supabase.from("units").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -364,6 +385,7 @@ export const deleteAnnouncement = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    await archiveRow(context, "announcements", data.id, (row) => row["title"] ?? "Announcement");
     const { error } = await context.supabase.from("announcements").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -419,6 +441,7 @@ export const deleteClassSlot = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
+    await archiveRow(context, "timetable", data.id, (row) => `Class ${row["start_time"] ?? ""}`.trim());
     const { error } = await context.supabase.from("timetable").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -655,4 +678,46 @@ export const importTimetableFromFile = createServerFn({ method: "POST" })
     const { error: insertError } = await supabaseAdmin.from("timetable").insert(rows as never);
     if (insertError) throw new Error(insertError.message);
     return { drafted: rows.length };
+  });
+
+
+/** Everything administrators have deleted, newest first — recoverable. */
+export const adminListArchive = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data, error } = await context.supabase
+      .from("archived_records")
+      .select("id,table_name,record_id,label,deleted_at")
+      .order("deleted_at", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+/** Put a deleted record back exactly as it was. */
+export const restoreArchivedRecord = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => {
+    if (!input?.id) throw new Error("Archive id is required");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: entry, error } = await supabaseAdmin
+      .from("archived_records")
+      .select("id,table_name,payload")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!entry) throw new Error("That deleted item is no longer available.");
+    const allowed = ["resources", "units", "announcements", "timetable", "quick_links", "assignments"];
+    if (!allowed.includes(entry.table_name)) throw new Error("This item cannot be restored.");
+    const { error: insertError } = await supabaseAdmin
+      .from(entry.table_name as never)
+      .upsert(entry.payload as never, { onConflict: "id" });
+    if (insertError) throw new Error(insertError.message);
+    await supabaseAdmin.from("archived_records").delete().eq("id", entry.id);
+    return { ok: true };
   });

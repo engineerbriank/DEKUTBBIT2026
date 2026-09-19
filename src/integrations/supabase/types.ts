@@ -121,6 +121,36 @@ export type Database = {
         }
         Relationships: []
       }
+      archived_records: {
+        Row: {
+          deleted_at: string
+          deleted_by: string | null
+          id: string
+          label: string
+          payload: Json
+          record_id: string
+          table_name: string
+        }
+        Insert: {
+          deleted_at?: string
+          deleted_by?: string | null
+          id?: string
+          label?: string
+          payload: Json
+          record_id: string
+          table_name: string
+        }
+        Update: {
+          deleted_at?: string
+          deleted_by?: string | null
+          id?: string
+          label?: string
+          payload?: Json
+          record_id?: string
+          table_name?: string
+        }
+        Relationships: []
+      }
       assignment_progress: {
         Row: {
           assignment_id: string

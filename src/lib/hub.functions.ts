@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { archiveRow } from "./admin.functions";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -138,6 +139,7 @@ export const deleteAssignment = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const admin = await assertAdmin(context);
+    await archiveRow(context, "assignments", data.id, (row) => row["title"] ?? "Assignment");
     const { error } = await admin.from("assignments").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -822,6 +824,7 @@ export const deleteQuickLink = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const admin = await assertAdmin(context);
+    await archiveRow(context, "quick_links", data.id, (row) => row["title"] ?? "Quick link");
     const { error } = await admin.from("quick_links").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };

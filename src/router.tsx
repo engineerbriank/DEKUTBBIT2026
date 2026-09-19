@@ -7,10 +7,13 @@ export const getRouter = () => {
     defaultOptions: {
       queries: {
         // Serve cached data instantly, refresh quietly in the background.
-        staleTime: 60_000,
-        gcTime: 10 * 60_000,
+        staleTime: 5 * 60_000,
+        gcTime: 30 * 60_000,
         refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        refetchOnReconnect: true,
         retry: 1,
+        placeholderData: (previous: unknown) => previous,
       },
     },
   });
@@ -19,8 +22,13 @@ export const getRouter = () => {
     routeTree,
     context: { queryClient },
     scrollRestoration: true,
+    // Fetch the next page's code and data the moment a link is touched/hovered.
     defaultPreload: "intent",
-    defaultPreloadStaleTime: 30_000,
+    defaultPreloadDelay: 0,
+    defaultPreloadStaleTime: 5 * 60_000,
+    // Keep the old screen on-screen briefly instead of flashing a spinner.
+    defaultPendingMs: 250,
+    defaultPendingMinMs: 0,
   });
 
   return router;
