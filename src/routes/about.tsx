@@ -1,6 +1,8 @@
 import logoAsset from "@/assets/dekut-bbit-2026-logo.png.asset.json";
 import brianAsset from "@/assets/brian-macharia.png.asset.json";
 import linusAsset from "@/assets/linus-ezra.png.asset.json";
+import calebAsset from "@/assets/caleb-ajiambo.png.asset.json";
+import samuelAsset from "@/assets/samuel-murira.png.asset.json";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Code2,
