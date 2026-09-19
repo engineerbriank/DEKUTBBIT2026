@@ -3,9 +3,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import {
+  CheckCircle2,
   ChevronRight,
   ExternalLink,
   Camera,
+  CircleDashed,
   Info,
   Mail,
   LifeBuoy,
@@ -18,7 +20,7 @@ import {
 import { toast } from "sonner";
 
 import { AppShell, useSignOut } from "@/components/AppShell";
-import { InstallAppButton } from "@/components/InstallAppPrompt";
+import { InstallAppButton, usePwaInstallStatus } from "@/components/InstallAppPrompt";
 import { getProfileOverview, listQuickLinks, updateProfileName, updateProfilePhoto } from "@/lib/hub.functions";
 import { SUPPORT_WHATSAPP } from "@/lib/recovery.functions";
 import { supabase } from "@/integrations/supabase/client";
