@@ -29,6 +29,13 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    resolve: {
+      alias: {
+        "entities/lib/decode.js": path.resolve(import.meta.dirname, "node_modules/entities/lib/decode.js"),
+        "entities/lib/encode.js": path.resolve(import.meta.dirname, "node_modules/entities/lib/encode.js"),
+        entities: path.resolve(import.meta.dirname, "node_modules/entities"),
+      },
+    },
     plugins: [
       ...clientOnly(
         VitePWA({
