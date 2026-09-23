@@ -387,12 +387,23 @@ export const upsertAnnouncement = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const payload = { title: data.title.trim(), body: data.body ?? "", status: data.status };
     const query = data.id
-      ? context.supabase.from("announcements").update(payload).eq("id", data.id)
-      : context.supabase.from("announcements").insert(payload);
-    const { error } = await query;
+      ? context.supabase.from("announcements").update(payload).eq("id", data.id).select("id")
+      : context.supabase.from("announcements").insert(payload).select("id");
+    const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
+
+    const announcementId = data.id ?? rows?.[0]?.id;
+    if (data.status === "published" && announcementId) {
+      const { notifyAnnouncementPublished } = await import("@/lib/notify.server");
+      await notifyAnnouncementPublished(context, {
+        announcementId,
+        title: payload.title,
+        body: payload.body,
+      });
+    }
     return { ok: true };
   });
+
 
 export const deleteAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
