@@ -31,9 +31,9 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: {
-        "entities/lib/decode.js": path.resolve(import.meta.dirname, "node_modules/entities/lib/decode.js"),
-        "entities/lib/encode.js": path.resolve(import.meta.dirname, "node_modules/entities/lib/encode.js"),
-        entities: path.resolve(import.meta.dirname, "node_modules/entities"),
+        // @react-email/render imports legacy entities v4 paths; map them onto the installed v6 layout.
+        "entities/lib/decode.js": path.resolve(import.meta.dirname, "node_modules/entities/dist/esm/decode.js"),
+        "entities/lib/encode.js": path.resolve(import.meta.dirname, "node_modules/entities/dist/esm/encode.js"),
       },
     },
     plugins: [
