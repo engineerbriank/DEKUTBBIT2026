@@ -255,8 +255,25 @@ export const createResource = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
+
+    if (data.status === "published" && row?.id) {
+      const [{ data: unit }, { data: category }] = await Promise.all([
+        context.supabase.from("units").select("code,name").eq("id", data.unitId).maybeSingle(),
+        context.supabase.from("categories").select("name").eq("id", data.categoryId).maybeSingle(),
+      ]);
+      const { notifyResourcePublished } = await import("@/lib/notify.server");
+      await notifyResourcePublished(context, {
+        resourceId: row.id,
+        title: data.title.trim(),
+        unit: unit ? `${unit.code} — ${unit.name}` : "BBIT",
+        category: category?.name ?? "Resource",
+        ...(data.lecturer?.trim() ? { uploadedBy: data.lecturer.trim() } : {}),
+      });
+    }
+
     return row;
   });
+
 
 export const updateResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
