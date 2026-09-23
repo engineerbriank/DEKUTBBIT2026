@@ -255,8 +255,25 @@ export const createResource = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
+
+    if (data.status === "published" && row?.id) {
+      const [{ data: unit }, { data: category }] = await Promise.all([
+        context.supabase.from("units").select("code,name").eq("id", data.unitId).maybeSingle(),
+        context.supabase.from("categories").select("name").eq("id", data.categoryId).maybeSingle(),
+      ]);
+      const { notifyResourcePublished } = await import("@/lib/notify.server");
+      await notifyResourcePublished(context, {
+        resourceId: row.id,
+        title: data.title.trim(),
+        unit: unit ? `${unit.code} — ${unit.name}` : "BBIT",
+        category: category?.name ?? "Resource",
+        ...(data.lecturer?.trim() ? { uploadedBy: data.lecturer.trim() } : {}),
+      });
+    }
+
     return row;
   });
+
 
 export const updateResource = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -370,12 +387,23 @@ export const upsertAnnouncement = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const payload = { title: data.title.trim(), body: data.body ?? "", status: data.status };
     const query = data.id
-      ? context.supabase.from("announcements").update(payload).eq("id", data.id)
-      : context.supabase.from("announcements").insert(payload);
-    const { error } = await query;
+      ? context.supabase.from("announcements").update(payload).eq("id", data.id).select("id")
+      : context.supabase.from("announcements").insert(payload).select("id");
+    const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
+
+    const announcementId = data.id ?? rows?.[0]?.id;
+    if (data.status === "published" && announcementId) {
+      const { notifyAnnouncementPublished } = await import("@/lib/notify.server");
+      await notifyAnnouncementPublished(context, {
+        announcementId,
+        title: payload.title,
+        body: payload.body,
+      });
+    }
     return { ok: true };
   });
+
 
 export const deleteAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
