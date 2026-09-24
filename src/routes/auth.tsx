@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { Eye, EyeOff, MessageCircle } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
+
 import { resetPasswordWithCode, SUPPORT_WHATSAPP } from "@/lib/recovery.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +38,7 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const resetPassword = useServerFn(resetPasswordWithCode);
 
@@ -44,6 +47,23 @@ function AuthPage() {
       if (data.session) navigate({ to: "/dashboard" });
     });
   }, [navigate]);
+
+  const signInWithGoogle = async () => {
+    setGoogleBusy(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) throw result.error;
+      if (result.redirected) return;
+      navigate({ to: "/dashboard" });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Google sign-in failed");
+    } finally {
+      setGoogleBusy(false);
+    }
+  };
+
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -119,7 +139,32 @@ function AuthPage() {
             </a>
           ) : null}
 
+          {mode === "reset" ? null : (
+            <>
+              <button
+                type="button"
+                disabled={googleBusy}
+                onClick={signInWithGoogle}
+                className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-border/70 bg-card px-4 py-2.5 text-sm font-medium transition hover:bg-card/70 disabled:opacity-60"
+              >
+                <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true">
+                  <path
+                    fill="#EA4335"
+                    d="M12 10.2v3.9h5.5c-.24 1.3-1.74 3.8-5.5 3.8A6 6 0 1 1 15.9 7.4l2.7-2.6A9.6 9.6 0 1 0 12 21.6c5.5 0 9.2-3.9 9.2-9.3 0-.7-.07-1.3-.18-2.1H12z"
+                  />
+                </svg>
+                {googleBusy ? "Opening Google…" : "Continue with Google"}
+              </button>
+              <div className="mt-4 flex items-center gap-3 text-xs text-muted-foreground">
+                <span className="h-px flex-1 bg-border" />
+                or use your email
+                <span className="h-px flex-1 bg-border" />
+              </div>
+            </>
+          )}
+
           <form className="mt-6 space-y-4" onSubmit={submit}>
+
             {mode === "signup" ? (
               <div className="space-y-1.5">
                 <Label htmlFor="fullName">Full name</Label>
