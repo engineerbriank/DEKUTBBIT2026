@@ -539,8 +539,17 @@ export const publishTimetableDrafts = createServerFn({ method: "POST" })
       .eq("status", "draft")
       .select("id");
     if (error) throw new Error(error.message);
-    return { published: data?.length ?? 0 };
+    const published = data?.length ?? 0;
+    if (published > 0) {
+      const { notifyTimetablePublished } = await import("@/lib/notify.server");
+      await notifyTimetablePublished(context, {
+        classCount: published,
+        batchKey: `${context.userId}-${(data ?? []).map((row: { id: string }) => row.id).join("").slice(0, 60)}`,
+      });
+    }
+    return { published };
   });
+
 
 export const discardTimetableDrafts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
