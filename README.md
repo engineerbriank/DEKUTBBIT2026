@@ -1,6 +1,5 @@
-# Companion Pro (17)
+# DEKUT BBIT STUDENT DIGITAL PLATFORM 
 
-BUILD A FULLY WORKING PLATFORM USE THE 20 CREDITS, AND THE LAST MESSAGE FROM U SHOULD BE UR ROJECT IS READY FOR PUBLISH
 
 For BBITClassPoint, the requirement should be:
 
@@ -201,19 +200,9 @@ PDF is actually created.
 
 PDF can actually be opened/downloaded.
 
-This project was built with [Lovable](https://lovable.dev).
 
-**Live app**: https://real-class-link.lovable.app
 
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/ec7c4771-4200-49d8-98f7-b9adac9988cc).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
+**Live app**: https://dekutbbit2026.online
 
 Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
