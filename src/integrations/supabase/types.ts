@@ -600,6 +600,117 @@ export type Database = {
           },
         ]
       }
+      sms_logs: {
+        Row: {
+          accepted_count: number
+          created_at: string
+          created_by: string | null
+          dedupe_key: string | null
+          id: string
+          kind: string
+          message: string
+          recipient_count: number
+          status: string
+        }
+        Insert: {
+          accepted_count?: number
+          created_at?: string
+          created_by?: string | null
+          dedupe_key?: string | null
+          id?: string
+          kind: string
+          message: string
+          recipient_count?: number
+          status: string
+        }
+        Update: {
+          accepted_count?: number
+          created_at?: string
+          created_by?: string | null
+          dedupe_key?: string | null
+          id?: string
+          kind?: string
+          message?: string
+          recipient_count?: number
+          status?: string
+        }
+        Relationships: []
+      }
+      sms_payments: {
+        Row: {
+          amount: number
+          checkout_request_id: string | null
+          created_at: string
+          id: string
+          phone: string
+          plan: string
+          receipt: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          checkout_request_id?: string | null
+          created_at?: string
+          id?: string
+          phone: string
+          plan: string
+          receipt?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          checkout_request_id?: string | null
+          created_at?: string
+          id?: string
+          phone?: string
+          plan?: string
+          receipt?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sms_subscribers: {
+        Row: {
+          code_attempts: number
+          code_expires_at: string | null
+          code_hash: string | null
+          pending_phone: string | null
+          phone: string | null
+          phone_verified: boolean
+          premium_until: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          code_attempts?: number
+          code_expires_at?: string | null
+          code_hash?: string | null
+          pending_phone?: string | null
+          phone?: string | null
+          phone_verified?: boolean
+          premium_until?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          code_attempts?: number
+          code_expires_at?: string | null
+          code_hash?: string | null
+          pending_phone?: string | null
+          phone?: string | null
+          phone_verified?: boolean
+          premium_until?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       study_groups: {
         Row: {
           approved_at: string | null
