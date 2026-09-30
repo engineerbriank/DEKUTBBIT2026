@@ -43,6 +43,13 @@
       "when": 1789810063953,
       "tag": "0005_create_archived_records",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790741296562,
+      "tag": "0006_create_sms_premium",
+      "breakpoints": true
     }
   ]
 }
