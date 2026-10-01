@@ -135,9 +135,6 @@ export function SmsPremiumCard() {
         <div className="mt-4 flex items-center gap-2 rounded-xl bg-secondary px-3 py-2.5 text-sm">
           <CheckCircle2 className="size-4 text-primary" />
           SMS updates go to <b>+{status.phone}</b>
-          <button type="button" className="ml-auto text-xs text-primary underline" onClick={() => setCodeSent(false)}>
-            {""}
-          </button>
         </div>
       ) : null}
 
@@ -162,7 +159,6 @@ export function SmsPremiumCard() {
               </Button>
             </div>
           )}
-          {status.isPremium && !status.phoneVerified ? null : null}
           <p className="text-[11px] text-muted-foreground">
             Renew anytime — extra time is added to your current plan.
           </p>
