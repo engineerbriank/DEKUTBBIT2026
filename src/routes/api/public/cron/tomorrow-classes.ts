@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { authenticateCronRequest } from "@/integrations/supabase/cron-auth";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -7,14 +6,22 @@ export const Route = createFileRoute("/api/public/cron/tomorrow-classes")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const denied = await authenticateCronRequest(request);
-        if (denied) return denied;
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const provided = request.headers.get("x-sms-cron-token") ?? "";
+        const { data: setting } = await supabaseAdmin
+          .from("internal_settings" as never)
+          .select("value")
+          .eq("key", "sms_cron_token")
+          .maybeSingle();
+        const expected = (setting as { value?: string } | null)?.value ?? "";
+        const { timingSafeEqual } = await import("node:crypto");
+        if (!expected || provided.length !== expected.length || !timingSafeEqual(Buffer.from(provided), Buffer.from(expected)))
+          return new Response("Unauthorized", { status: 401 });
         // Nairobi is UTC+3 year-round.
         const nairobi = new Date(Date.now() + 3 * 3600000);
         const tomorrow = new Date(nairobi.getTime() + 86400000);
         const day = tomorrow.getUTCDay();
         const dateKey = tomorrow.toISOString().slice(0, 10);
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data: slots } = await supabaseAdmin
           .from("timetable")
           .select("start_time, end_time, venue, units(code)")
