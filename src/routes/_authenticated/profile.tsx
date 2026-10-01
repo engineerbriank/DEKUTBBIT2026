@@ -21,6 +21,7 @@ import { toast } from "sonner";
 
 import { AppShell, useSignOut } from "@/components/AppShell";
 import { InstallAppButton, usePwaInstallStatus } from "@/components/InstallAppPrompt";
+import { SmsPremiumCard } from "@/components/SmsPremiumCard";
 import { getProfileOverview, listQuickLinks, updateProfileName, updateProfilePhoto } from "@/lib/hub.functions";
 import { SUPPORT_WHATSAPP } from "@/lib/recovery.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -188,6 +189,8 @@ function Profile() {
           <p className="text-xs text-muted-foreground">Your recovery code</p>
         </div>
       </div>
+
+      <SmsPremiumCard />
 
       <h2 className="mt-6 font-display text-base font-semibold">Quick Links</h2>
       <ul className="mt-2 space-y-2">

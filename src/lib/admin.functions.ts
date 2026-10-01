@@ -269,6 +269,13 @@ export const createResource = createServerFn({ method: "POST" })
         category: category?.name ?? "Resource",
         ...(data.lecturer?.trim() ? { uploadedBy: data.lecturer.trim() } : {}),
       });
+      const sms = await import("@/lib/sms.server");
+      await sms.broadcastSms(
+        "resource",
+        sms.smsTemplates.resource(data.title.trim(), unit ? `${unit.code} ${unit.name}` : "BBIT"),
+        `resource-${row.id}`,
+        context.userId,
+      );
     }
 
     return row;
@@ -400,6 +407,13 @@ export const upsertAnnouncement = createServerFn({ method: "POST" })
         title: payload.title,
         body: payload.body,
       });
+      const sms = await import("@/lib/sms.server");
+      await sms.broadcastSms(
+        "announcement",
+        sms.smsTemplates.announcement(payload.title, payload.body),
+        `announcement-${announcementId}-${Date.now()}`,
+        context.userId,
+      );
     }
     return { ok: true };
   });
@@ -546,6 +560,8 @@ export const publishTimetableDrafts = createServerFn({ method: "POST" })
         classCount: published,
         batchKey: `${context.userId}-${(data ?? []).map((row: { id: string }) => row.id).join("").slice(0, 60)}`,
       });
+      const sms = await import("@/lib/sms.server");
+      await sms.broadcastSms("timetable", sms.smsTemplates.timetable(published), `timetable-${Date.now()}`, context.userId);
     }
     return { published };
   });
