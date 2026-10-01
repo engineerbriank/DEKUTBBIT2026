@@ -29,6 +29,7 @@ import { Route as AuthenticatedGroupsIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedGroupsGroupIdRouteImport } from './routes/_authenticated/groups.$groupId'
 import { Route as AuthenticatedUnitsIndexRouteImport } from './routes/_authenticated/units.index'
 import { Route as AuthenticatedUnitsCodeRouteImport } from './routes/_authenticated/units.$code'
+import { Route as ApiPublicCronTomorrowClassesRouteImport } from './routes/api/public/cron/tomorrow-classes'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -137,6 +138,12 @@ const AuthenticatedUnitsCodeRoute = AuthenticatedUnitsCodeRouteImport.update({
   path: '/units/$code',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicCronTomorrowClassesRoute =
+  ApiPublicCronTomorrowClassesRouteImport.update({
+    id: '/api/public/cron/tomorrow-classes',
+    path: '/api/public/cron/tomorrow-classes',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   id: '/lovable/email/auth/preview',
   path: '/lovable/email/auth/preview',
@@ -174,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/units/$code': typeof AuthenticatedUnitsCodeRoute
   '/groups/': typeof AuthenticatedGroupsIndexRoute
   '/units/': typeof AuthenticatedUnitsIndexRoute
+  '/api/public/cron/tomorrow-classes': typeof ApiPublicCronTomorrowClassesRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -198,6 +206,7 @@ export interface FileRoutesByTo {
   '/units/$code': typeof AuthenticatedUnitsCodeRoute
   '/groups': typeof AuthenticatedGroupsIndexRoute
   '/units': typeof AuthenticatedUnitsIndexRoute
+  '/api/public/cron/tomorrow-classes': typeof ApiPublicCronTomorrowClassesRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -224,6 +233,7 @@ export interface FileRoutesById {
   '/_authenticated/units/$code': typeof AuthenticatedUnitsCodeRoute
   '/_authenticated/groups/': typeof AuthenticatedGroupsIndexRoute
   '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
+  '/api/public/cron/tomorrow-classes': typeof ApiPublicCronTomorrowClassesRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | '/units/$code'
     | '/groups/'
     | '/units/'
+    | '/api/public/cron/tomorrow-classes'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -274,6 +285,7 @@ export interface FileRouteTypes {
     | '/units/$code'
     | '/groups'
     | '/units'
+    | '/api/public/cron/tomorrow-classes'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -299,6 +311,7 @@ export interface FileRouteTypes {
     | '/_authenticated/units/$code'
     | '/_authenticated/groups/'
     | '/_authenticated/units/'
+    | '/api/public/cron/tomorrow-classes'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -309,6 +322,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
+  ApiPublicCronTomorrowClassesRoute: typeof ApiPublicCronTomorrowClassesRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -456,6 +470,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUnitsCodeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/cron/tomorrow-classes': {
+      id: '/api/public/cron/tomorrow-classes'
+      path: '/api/public/cron/tomorrow-classes'
+      fullPath: '/api/public/cron/tomorrow-classes'
+      preLoaderRoute: typeof ApiPublicCronTomorrowClassesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/auth/preview': {
       id: '/lovable/email/auth/preview'
       path: '/lovable/email/auth/preview'
@@ -526,6 +547,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
+  ApiPublicCronTomorrowClassesRoute: ApiPublicCronTomorrowClassesRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
