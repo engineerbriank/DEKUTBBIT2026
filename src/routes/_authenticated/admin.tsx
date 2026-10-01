@@ -20,6 +20,7 @@ import {
 import { AppShell, useMe } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBytes } from "@/components/ResourceCard";
+import { SmsAdminSection } from "@/components/SmsAdminSection";
 import { listCategories, listUnits } from "@/lib/catalog.functions";
 import { SUPPORT_WHATSAPP } from "@/lib/recovery.functions";
 import {
@@ -176,6 +177,9 @@ function AdminPage() {
           <TabsTrigger value="links" className="gap-2 rounded-xl">
             <Link2 className="size-4" /> Quick Links
           </TabsTrigger>
+          <TabsTrigger value="sms" className="gap-2 rounded-xl">
+            <Megaphone className="size-4" /> SMS
+          </TabsTrigger>
           <TabsTrigger value="recycle" className="gap-2 rounded-xl">
             <RotateCcw className="size-4" /> Recycle Bin
           </TabsTrigger>
@@ -202,6 +206,9 @@ function AdminPage() {
         </TabsContent>
         <TabsContent value="links">
           <QuickLinksSection />
+        </TabsContent>
+        <TabsContent value="sms">
+          <SmsAdminSection />
         </TabsContent>
         <TabsContent value="recycle">
           <RecycleBinSection />
