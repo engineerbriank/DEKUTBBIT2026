@@ -122,11 +122,23 @@ export async function mpesaStkPush(phone: string, amount: number, reference: str
 }
 
 export async function mpesaStatus(checkoutRequestId: string) {
-  const key = process.env["MAKAMESCO_MPESA_API_KEY"]!;
+  const key = process.env["MAKAMESCO_MPESA_API_KEY"];
+  if (!key) throw new Error("Payments are not configured");
   const res = await fetch(`${MPESA_URL}/status/${encodeURIComponent(checkoutRequestId)}`, {
     headers: { "X-API-Key": key },
   });
   const json: any = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    console.error("M-Pesa status failed", res.status, JSON.stringify(json).slice(0, 300));
+    throw new Error(json?.message || json?.error || "Could not check M-Pesa payment status");
+  }
   const d = json?.data ?? json;
-  return { status: String(d?.status ?? "pending").toLowerCase(), receipt: d?.mpesaReceiptNumber ?? null };
+  const rawStatus = String(d?.status ?? "pending").toLowerCase();
+  const status = ["pending", "completed", "failed", "cancelled"].includes(rawStatus)
+    ? rawStatus
+    : "pending";
+  return {
+    status,
+    receipt: d?.mpesaReceiptNumber ?? d?.MpesaReceiptNumber ?? null,
+  };
 }
