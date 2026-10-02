@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- The authenticated experience uses one shared green-and-mint AppShell for desktop sidebar and mobile bottom navigation, so route pages must compose inside it rather than creating independent navigation chrome.

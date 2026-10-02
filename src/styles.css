@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * DEKUT BBIT 2026 — light-first digital student platform.
- * Reference blue + green. All colours are semantic tokens; never hardcode colours in components.
+ * DEKUT BBIT 2026 Student Hub — forest green and mint academic workspace.
+ * All colours are semantic tokens; never hardcode colours in components.
  */
 
 @theme inline {
@@ -61,74 +61,74 @@
 }
 
 :root {
-  --radius: 0.9rem;
-  --background: #f3f8fc;
-  --foreground: #0d2033;
-  --card: rgb(255 255 255 / 0.88);
-  --card-foreground: #0d2033;
+  --radius: 0.7rem;
+  --background: #f1f8f4;
+  --foreground: #123126;
+  --card: #ffffff;
+  --card-foreground: #123126;
   --popover: #ffffff;
-  --popover-foreground: #0d2033;
-  --primary: #003c63;
+  --popover-foreground: #123126;
+  --primary: #075c3b;
   --primary-foreground: #ffffff;
-  --secondary: #e6f1f8;
-  --secondary-foreground: #003c63;
-  --muted: #eef4f9;
-  --muted-foreground: #5c7386;
-  --accent: #00a86b;
-  --accent-foreground: #ffffff;
+  --secondary: #e2f6e9;
+  --secondary-foreground: #075c3b;
+  --muted: #edf5f0;
+  --muted-foreground: #648073;
+  --accent: #20b66a;
+  --accent-foreground: #052d20;
   --destructive: #dc3b40;
   --destructive-foreground: #ffffff;
-  --success: #00a86b;
+  --success: #20b66a;
   --success-foreground: #ffffff;
   --warning: #f0a13a;
   --warning-foreground: #3b2503;
-  --navy: #002b47;
-  --navy-foreground: #eef6fb;
-  --navy-soft: #006b88;
-  --border: #e2ecf3;
-  --input: #dbe7f0;
-  --ring: #006b88;
-  --chart-1: #003c63;
-  --chart-2: #006b88;
-  --chart-3: #00a86b;
+  --navy: #06432f;
+  --navy-foreground: #f2fff7;
+  --navy-soft: #128454;
+  --border: #dbe9df;
+  --input: #cedfd4;
+  --ring: #168b58;
+  --chart-1: #075c3b;
+  --chart-2: #168b58;
+  --chart-3: #20b66a;
   --chart-4: #f0a13a;
   --chart-5: #7a5cf0;
-  --sidebar: #002b47;
-  --sidebar-foreground: #eef6fb;
-  --sidebar-primary: #00a86b;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #013b5f;
+  --sidebar: #06432f;
+  --sidebar-foreground: #f2fff7;
+  --sidebar-primary: #a7f3c2;
+  --sidebar-primary-foreground: #06432f;
+  --sidebar-accent: #0d6644;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #0a3f63;
-  --sidebar-ring: #00a86b;
-  --shadow-card: 0 1px 2px rgb(13 32 51 / 0.04), 0 10px 30px rgb(13 32 51 / 0.08);
-  --shadow-raised: 0 14px 34px rgb(0 43 71 / 0.16);
+  --sidebar-border: #1b684b;
+  --sidebar-ring: #a7f3c2;
+  --shadow-card: 0 1px 2px rgb(7 92 59 / 0.03), 0 8px 22px rgb(18 49 38 / 0.06);
+  --shadow-raised: 0 16px 36px rgb(6 67 47 / 0.15);
 }
 
 .dark {
-  --background: #08192a;
-  --foreground: #eaf3fa;
-  --card: #0f2439;
-  --card-foreground: #eaf3fa;
-  --popover: #0f2439;
-  --popover-foreground: #eaf3fa;
-  --primary: #4ba8d8;
-  --primary-foreground: #04121f;
-  --secondary: #13314b;
-  --secondary-foreground: #eaf3fa;
-  --muted: #13304a;
-  --muted-foreground: #9db6c9;
-  --accent: #12c07d;
-  --accent-foreground: #04121f;
-  --border: #17364f;
-  --input: #1c3e59;
-  --ring: #4ba8d8;
-  --navy: #04121f;
-  --navy-foreground: #eaf3fa;
-  --navy-soft: #0f4d63;
-  --sidebar: #04121f;
-  --sidebar-foreground: #eaf3fa;
-  --sidebar-accent: #123c58;
+  --background: #071d15;
+  --foreground: #effaf3;
+  --card: #0d2a20;
+  --card-foreground: #effaf3;
+  --popover: #0d2a20;
+  --popover-foreground: #effaf3;
+  --primary: #63dda0;
+  --primary-foreground: #052d20;
+  --secondary: #123a2b;
+  --secondary-foreground: #e8fff1;
+  --muted: #143628;
+  --muted-foreground: #a5c1b3;
+  --accent: #42cf88;
+  --accent-foreground: #052d20;
+  --border: #1e4938;
+  --input: #285240;
+  --ring: #63dda0;
+  --navy: #041710;
+  --navy-foreground: #effaf3;
+  --navy-soft: #168b58;
+  --sidebar: #041710;
+  --sidebar-foreground: #effaf3;
+  --sidebar-accent: #124d36;
 }
 
 @layer base {
@@ -149,7 +149,7 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
   }
 }
 
@@ -159,7 +159,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-card);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(12px);
 }
 
 @utility glass-panel {
@@ -176,15 +176,15 @@
 }
 
 @utility hero-gradient {
-  background-image: linear-gradient(160deg, #00223a 0%, #003c63 55%, #006b88 100%);
+  background-image: linear-gradient(145deg, #075c3b 0%, #168b58 58%, #20b66a 100%);
 }
 
 @utility navy-gradient {
-  background-image: linear-gradient(150deg, #002b47 0%, #013a5e 100%);
+  background-image: linear-gradient(145deg, #06432f 0%, #075c3b 100%);
 }
 
 @utility text-gradient {
-  background-image: linear-gradient(100deg, #003c63, #00a86b);
+  background-image: linear-gradient(100deg, #075c3b, #20b66a);
   background-clip: text;
   color: transparent;
 }
@@ -192,7 +192,7 @@
 /* Rounded white sheet that sits over the navy header */
 @utility app-sheet {
   background-image:
-    radial-gradient(circle at 90% 5%, rgb(0 168 107 / 0.07), transparent 22rem),
+    radial-gradient(circle at 90% 5%, rgb(32 182 106 / 0.08), transparent 22rem),
     linear-gradient(var(--color-background), var(--color-background));
   border-top-left-radius: 1.75rem;
   border-top-right-radius: 1.75rem;
