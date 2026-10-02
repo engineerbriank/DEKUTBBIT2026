@@ -386,6 +386,21 @@ export type Database = {
           },
         ]
       }
+      internal_settings: {
+        Row: {
+          key: string
+          value: string
+        }
+        Insert: {
+          key: string
+          value: string
+        }
+        Update: {
+          key?: string
+          value?: string
+        }
+        Relationships: []
+      }
       notification_reads: {
         Row: {
           id: string
