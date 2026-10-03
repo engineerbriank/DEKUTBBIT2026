@@ -32,6 +32,10 @@ export function SmsPremiumCard() {
   const [codeSent, setCodeSent] = useState(false);
 
   useEffect(() => {
+    if (!checkoutId && status?.pendingCheckoutId) setCheckoutId(status.pendingCheckoutId);
+  }, [status?.pendingCheckoutId, checkoutId]);
+
+  useEffect(() => {
     if (!checkoutId) return;
     let tries = 0;
     const timer = setInterval(async () => {

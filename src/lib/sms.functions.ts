@@ -32,12 +32,21 @@ export const getSmsStatus = createServerFn({ method: "GET" })
       .eq("user_id", context.userId)
       .maybeSingle();
     const until = data?.premium_until ?? null;
+    const { data: pendingPayment } = await context.supabase
+      .from("sms_payments")
+      .select("checkout_request_id")
+      .eq("user_id", context.userId)
+      .eq("status", "pending")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
     return {
       premiumUntil: until,
       isPremium: !!until && new Date(until) > new Date(),
       phone: data?.phone ?? null,
       phoneVerified: !!data?.phone_verified,
       pendingPhone: data?.pending_phone ?? null,
+      pendingCheckoutId: pendingPayment?.checkout_request_id ?? null,
     };
   });
 

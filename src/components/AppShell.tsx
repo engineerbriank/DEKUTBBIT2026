@@ -2,14 +2,13 @@ import logoAsset from "@/assets/dekut-bbit-2026-logo.png.asset.json";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   Bell,
   BookOpen,
   CalendarDays,
   ClipboardList,
   FolderClosed,
-  GraduationCap,
   Home,
   Menu,
   Moon,
@@ -25,6 +24,7 @@ import { getMe } from "@/lib/catalog.functions";
 import { listNotifications } from "@/lib/hub.functions";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 const PRIMARY_NAV = [
   { to: "/dashboard", label: "Home", icon: Home },
@@ -36,11 +36,9 @@ const PRIMARY_NAV = [
 
 const MORE_NAV = [
   { to: "/units", label: "My Units", icon: BookOpen },
-  { to: "/assignments", label: "Assignments", icon: ClipboardList },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
   { to: "/notifications", label: "Notifications", icon: Bell },
   { to: "/groups", label: "Study Groups", icon: Users },
-  { to: "/profile", label: "Profile", icon: User },
 ] as const;
 
 const ADMIN_AI_NAV = [
@@ -111,7 +109,7 @@ export function AppShell({
                       DEKUT BBIT 2026
                     </p>
                     <h1 className="truncate font-display text-xl font-semibold sm:text-2xl">
-                      {title ?? "Digital Student Platform"}
+                      {title ?? "Student Hub"}
                     </h1>
                   </div>
                 </div>
@@ -153,7 +151,7 @@ function DesktopSidebar({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep:
         </div>
       </Link>
       <nav className="mt-8 space-y-1">
-        {[...PRIMARY_NAV, ...MORE_NAV].map((item) => (
+        {[...PRIMARY_NAV.slice(0, 4), ...MORE_NAV, { to: "/profile", label: "Profile", icon: User }].map((item) => (
           <NavLink key={item.to} item={item} />
         ))}
         {isAdmin ? ADMIN_AI_NAV.map((item) => <NavLink key={item.to} item={item} />) : null}
@@ -165,9 +163,7 @@ function DesktopSidebar({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep:
         ) : null}
       </nav>
       <div className="mt-auto space-y-3">
-        <button type="button" onClick={() => document.documentElement.classList.toggle("dark")} className="flex w-full items-center gap-3 rounded-lg border border-sidebar-border px-3 py-2.5 text-xs font-semibold text-sidebar-foreground/80 hover:bg-sidebar-accent">
-          <Moon className="size-4" /> Dark mode
-        </button>
+        <ThemeToggle />
         <div className="rounded-lg border border-sidebar-border bg-sidebar-accent/35 p-4">
         <p className="text-sm font-semibold italic">“Discipline today,<br />success tomorrow.”</p>
         <p className="mt-3 text-[10px] text-sidebar-foreground/65">
@@ -223,7 +219,7 @@ function MobileMenu({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep: boo
         className="w-[86%] border-white/10 bg-navy p-5 text-navy-foreground"
       >
         <SheetHeader className="text-left">
-          <SheetTitle className="flex items-center gap-3 text-white">
+          <SheetTitle className="flex items-center gap-3 text-navy-foreground">
               <AppLogo /> DEKUT BBIT 2026
           </SheetTitle>
         </SheetHeader>
@@ -241,6 +237,31 @@ function MobileMenu({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep: boo
         </nav>
       </SheetContent>
     </Sheet>
+  );
+}
+
+function ThemeToggle() {
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    const saved = window.localStorage.getItem("bbit-theme");
+    const active = saved === "dark";
+    document.documentElement.classList.toggle("dark", active);
+    setDark(active);
+  }, []);
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      onClick={() => {
+        const next = !dark;
+        setDark(next);
+        document.documentElement.classList.toggle("dark", next);
+        window.localStorage.setItem("bbit-theme", next ? "dark" : "light");
+      }}
+      className="w-full justify-start border border-sidebar-border text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+    >
+      <Moon className="size-4" /> {dark ? "Light mode" : "Dark mode"}
+    </Button>
   );
 }
 

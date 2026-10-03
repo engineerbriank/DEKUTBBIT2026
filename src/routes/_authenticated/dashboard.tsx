@@ -76,7 +76,7 @@ function Dashboard() {
   const fetchAnnouncements = useServerFn(listAnnouncements);
   const fetchAssignments = useServerFn(listAssignments);
 
-  const { data, isLoading } = useQuery({
+  const { data } = useQuery({
     queryKey: ["dashboard"],
     queryFn: () => fetchDashboard(),
   });
@@ -136,7 +136,9 @@ function Dashboard() {
         <OverviewStat icon={Megaphone} label="New Announcements" value={String(announcements?.length ?? 0)} detail="View all" to="/announcements" />
       </div>
 
-      <div className="mt-5 flex items-center justify-between">
+      <div className="mt-5 grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
+      <section>
+      <div className="flex items-center justify-between">
         <h2 className="font-display text-base font-semibold">Today's Classes</h2>
         <Link to="/timetable" className="text-xs font-semibold text-accent">
           View All
@@ -182,8 +184,9 @@ function Dashboard() {
           })}
         </ul>
       )}
+      </section>
 
-      <div className="mt-5 grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
         <section>
           <div className="flex items-center justify-between"><h2 className="font-display text-base font-semibold">Recent Announcements</h2><Link to="/announcements" className="text-xs font-semibold text-primary">View All</Link></div>
           <div className="mt-2 space-y-2">
@@ -198,6 +201,7 @@ function Dashboard() {
             {!pendingAssignments.length ? <p className="empty-state">No pending assignments.</p> : null}
           </div>
         </section>
+      </div>
       </div>
 
       <h2 className="mt-5 font-display text-base font-semibold">Quick Actions</h2>
@@ -218,28 +222,6 @@ function Dashboard() {
         </p>
       )}
     </AppShell>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  to,
-}: {
-  label: string;
-  value: string;
-  to: "/resources" | "/units" | "/timetable" | "/announcements";
-}) {
-  return (
-    <Link
-      to={to}
-      {...(to === "/resources" ? { search: { q: "", unit: "", category: "" } } : {})}
-      preload="intent"
-      className="surface-card p-4"
-    >
-      <p className="font-display text-2xl font-bold text-primary">{value}</p>
-      <p className="text-xs text-muted-foreground">{label}</p>
-    </Link>
   );
 }
 
