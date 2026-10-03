@@ -80,13 +80,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "DEKUT BBIT 2026 — Digital Student Platform" },
+      { title: "DEKUT BBIT 2026 — Student Hub" },
       {
         name: "description",
         content:
           "DEKUT BBIT 2026 is the digital student platform for notes, past papers, timetables and class collaboration.",
       },
-      { property: "og:title", content: "DEKUT BBIT 2026 — Digital Student Platform" },
+      { property: "og:title", content: "DEKUT BBIT 2026 — Student Hub" },
       {
         property: "og:description",
         content:
@@ -94,7 +94,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "theme-color", content: "#0b1f33" },
+      { name: "theme-color", content: "#06432f" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },

@@ -11,13 +11,13 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "DEKUT BBIT 2026 — Digital Student Platform" },
+      { title: "DEKUT BBIT 2026 — Student Hub" },
       {
         name: "description",
         content:
           "One place for BBIT unit notes, assignments, past papers, timetables, announcements and approved study groups.",
       },
-      { property: "og:title", content: "DEKUT BBIT 2026 — Digital Student Platform" },
+       { property: "og:title", content: "DEKUT BBIT 2026 — Student Hub" },
       {
         property: "og:description",
         content:
@@ -51,7 +51,7 @@ function Landing() {
               className="size-16 rounded-full object-cover shadow-lg sm:size-20"
             />
             <span className="font-display text-sm font-semibold leading-tight sm:text-lg">
-              DEKUT BBIT 2026 · DIGITAL STUDENT PLATFORM
+               DEKUT BBIT 2026 · STUDENT HUB
             </span>
           </div>
         </div>
@@ -140,7 +140,7 @@ function Landing() {
           About Us
         </Link>
         <span className="mx-2">·</span>
-        DEKUT BBIT 2026 · DIGITAL STUDENT PLATFORM
+         DEKUT BBIT 2026 · STUDENT HUB
       </footer>
 
     </div>

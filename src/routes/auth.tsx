@@ -15,13 +15,15 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — DEKUT BBIT 2026 Digital Student Platform" },
+      { title: "Sign in — DEKUT BBIT 2026 Student Hub" },
       { name: "description", content: "Sign in or create your DEKUT BBIT 2026 student account." },
-      { property: "og:title", content: "Sign in — DEKUT BBIT 2026 Digital Student Platform" },
+      { property: "og:title", content: "Sign in — DEKUT BBIT 2026 Student Hub" },
       {
         property: "og:description",
         content: "Access BBIT notes, past papers and the AI study assistant.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AuthPage,
@@ -100,11 +102,11 @@ function AuthPage() {
             className="size-14 rounded-full object-cover shadow-lg"
           />
           <span className="max-w-64 text-center font-display text-base font-semibold leading-tight">
-            DEKUT BBIT 2026 · DIGITAL STUDENT PLATFORM
+            DEKUT BBIT 2026 · STUDENT HUB
           </span>
         </Link>
 
-        <div className="glass-panel p-6">
+        <div className="surface-card border-primary/10 p-6">
           <h1 className="text-xl font-semibold">{heading}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === "reset"
