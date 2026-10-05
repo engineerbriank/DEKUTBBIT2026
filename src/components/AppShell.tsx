@@ -101,7 +101,7 @@ export function AppShell({
                     isAdmin={Boolean(me?.isAdmin)}
                     isClassRep={Boolean(me?.roles?.includes("class_rep"))}
                   />
-                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/12 text-navy-foreground ring-1 ring-white/15 lg:hidden">
+                   <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-foreground/12 text-navy-foreground ring-1 ring-primary-foreground/15 lg:hidden">
                     {icon ?? <BookOpen className="size-5" />}
                   </span>
                   <div className="min-w-0">
@@ -118,7 +118,7 @@ export function AppShell({
                   <Link
                     to="/profile"
                     aria-label="Open profile"
-                    className="grid size-10 overflow-hidden rounded-full bg-white/12 ring-1 ring-white/20"
+                    className="grid size-10 overflow-hidden rounded-full bg-primary-foreground/12 ring-1 ring-primary-foreground/20"
                   >
                     {me?.avatarUrl ? (
                       <img src={me.avatarUrl} alt="" className="size-full object-cover" />
@@ -142,7 +142,7 @@ export function AppShell({
 
 function DesktopSidebar({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep: boolean }) {
   return (
-    <aside className="hidden w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar px-4 py-6 text-sidebar-foreground lg:flex">
+    <aside className="navy-gradient hidden w-60 shrink-0 flex-col border-r border-sidebar-border px-4 py-6 text-sidebar-foreground lg:flex">
       <Link to="/dashboard" className="flex items-center gap-3 px-3">
         <AppLogo className="size-12" />
         <div>
@@ -209,14 +209,14 @@ function MobileMenu({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep: boo
         <button
           type="button"
           aria-label="Open navigation"
-          className="grid size-10 place-items-center rounded-xl bg-white/12 ring-1 ring-white/15 lg:hidden"
+          className="grid size-10 place-items-center rounded-xl bg-primary-foreground/12 ring-1 ring-primary-foreground/15 lg:hidden"
         >
           <Menu className="size-5" />
         </button>
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="w-[86%] border-white/10 bg-navy p-5 text-navy-foreground"
+        className="navy-gradient w-[86%] border-primary-foreground/10 p-5 text-navy-foreground"
       >
         <SheetHeader className="text-left">
           <SheetTitle className="flex items-center gap-3 text-navy-foreground">
@@ -272,7 +272,7 @@ export function HeaderBellLink() {
     <Link
       to="/notifications"
       aria-label={`${unread} unread notifications`}
-      className="relative grid size-10 place-items-center rounded-xl bg-white/12 ring-1 ring-white/15 transition hover:bg-white/20"
+      className="relative grid size-10 place-items-center rounded-xl bg-primary-foreground/12 ring-1 ring-primary-foreground/15 transition hover:bg-primary-foreground/20"
     >
       <Bell className="size-5" />
       {unread > 0 ? (
@@ -296,7 +296,7 @@ export function AppLogo({ className }: { className?: string }) {
 
 function BottomNav() {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto w-full border-t border-border/80 bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgb(18_49_38/0.08)] backdrop-blur-xl lg:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto w-full border-t border-border/80 bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_color-mix(in_oklab,var(--primary)_10%,transparent)] backdrop-blur-xl lg:hidden">
       <ul className="mx-auto grid max-w-[560px] grid-cols-5">
         {PRIMARY_NAV.map((item) => (
           <li key={item.to}>

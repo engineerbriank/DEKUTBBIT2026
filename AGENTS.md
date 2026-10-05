@@ -9,4 +9,4 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- The authenticated experience uses one shared green-and-mint AppShell for desktop sidebar and mobile bottom navigation, so route pages must compose inside it rather than creating independent navigation chrome.
+- The authenticated experience uses one shared royal-blue AppShell for desktop sidebar and mobile bottom navigation, so route pages must compose inside it rather than creating independent navigation chrome.
