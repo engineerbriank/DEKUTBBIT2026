@@ -14,3 +14,5 @@
 - [x] Correct Makamesco M-Pesa request and status handling
 - [x] Apply final green reference redesign across the shared app shell
 - [ ] Verify public and authenticated flows at desktop and mobile widths
+- [x] Replace the green system with the approved blue reference palette
+- [x] Match the dashboard cards, greeting banner, class list, announcement rows, and mobile navigation to the uploaded reference

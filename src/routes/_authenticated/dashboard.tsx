@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Clock3,
   FileText,
+  GraduationCap,
 } from "lucide-react";
 
 import { AppLogo, AppShell, HeaderBellLink, useMe } from "@/components/AppShell";
@@ -21,7 +22,6 @@ import { getDashboard, listTimetable } from "@/lib/catalog.functions";
 import { listAnnouncements } from "@/lib/catalog.functions";
 import { listAssignments } from "@/lib/hub.functions";
 import { cn } from "@/lib/utils";
-import campusAsset from "@/assets/dekut-campus.png.asset.json";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -116,12 +116,12 @@ function Dashboard() {
         </div>
       }
     >
-      <div className="hero-gradient relative min-h-40 overflow-hidden rounded-xl p-5 text-primary-foreground sm:p-7">
-        <img src={campusAsset.url} alt="Dedan Kimathi University campus" className="absolute inset-y-0 right-0 hidden h-full w-1/2 object-cover opacity-75 sm:block" />
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-primary via-primary/85 to-transparent" />
-        <div className="relative max-w-lg">
+      <div className="hero-gradient relative min-h-44 overflow-hidden rounded-2xl p-5 text-primary-foreground shadow-raised sm:p-7">
+        <div aria-hidden className="absolute -right-14 -top-20 size-72 rotate-45 bg-primary-foreground/5" />
+        <GraduationCap aria-hidden className="absolute right-6 top-1/2 size-24 -translate-y-1/2 text-primary-foreground/40 sm:right-12 sm:size-32" />
+        <div className="relative max-w-[75%] sm:max-w-lg">
           <h1 className="font-display text-2xl font-bold sm:text-3xl">{greeting()}, {firstName} 👋</h1>
-          <p className="mt-1 text-sm text-primary-foreground/80">Keep pushing. Great things take consistency.</p>
+          <p className="mt-2 text-sm text-primary-foreground/80 sm:text-base">Keep pushing. Great things take consistency.</p>
           <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-semibold">
             <span className="rounded-full bg-primary-foreground/15 px-3 py-1.5">BBIT 2026</span>
             <span className="rounded-full bg-primary-foreground/15 px-3 py-1.5">DEKUT Student Hub</span>
@@ -129,7 +129,7 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <OverviewStat icon={CalendarDays} label="Next Class" value={nextClass?.unit?.code ?? "None"} detail={nextClass ? `${nextClass.start_time.slice(0,5)} · ${nextClass.venue}` : "No class remaining"} to="/timetable" />
         <OverviewStat icon={Clock3} label="Today's Classes" value={String(todaySlots.length)} detail="View timetable" to="/timetable" />
         <OverviewStat icon={ClipboardList} label="Pending Assignments" value={String(pendingAssignments.length)} detail="View assignments" to="/assignments" />
@@ -154,7 +154,7 @@ function Dashboard() {
             return (
               <li
                 key={slot.id}
-                className="surface-card flex items-center gap-3 border-l-4 border-l-primary p-3.5"
+                className="surface-card flex items-center gap-3 border-l-4 border-l-accent p-3.5"
               >
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold">
@@ -190,7 +190,7 @@ function Dashboard() {
         <section>
           <div className="flex items-center justify-between"><h2 className="font-display text-base font-semibold">Recent Announcements</h2><Link to="/announcements" className="text-xs font-semibold text-primary">View All</Link></div>
           <div className="mt-2 space-y-2">
-            {(announcements ?? []).slice(0,3).map((item) => <article key={item.id} className="surface-card flex gap-3 p-3.5"><span className="grid size-9 shrink-0 place-items-center rounded-lg bg-secondary text-primary"><Megaphone className="size-4" /></span><div className="min-w-0"><p className="truncate text-sm font-semibold">{item.title}</p><p className="line-clamp-1 text-xs text-muted-foreground">{item.body}</p></div></article>)}
+            {(announcements ?? []).slice(0,3).map((item) => <Link key={item.id} to="/announcements" className="surface-card flex items-center gap-3 p-3.5"><span className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-primary"><Megaphone className="size-4" /></span><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{item.title}</p><p className="line-clamp-1 text-xs text-muted-foreground">{item.body}</p></div><ArrowRight className="size-4 shrink-0 text-muted-foreground" /></Link>)}
             {!announcements?.length ? <p className="empty-state">No announcements yet.</p> : null}
           </div>
         </section>
@@ -226,7 +226,7 @@ function Dashboard() {
 }
 
 function OverviewStat({ icon: Icon, label, value, detail, to }: { icon: typeof CalendarDays; label: string; value: string; detail: string; to: string }) {
-  return <Link to={to as never} className="surface-card min-w-0 p-3.5"><div className="flex items-center gap-2"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-secondary text-primary"><Icon className="size-4" /></span><p className="truncate text-[10px] font-semibold text-muted-foreground">{label}</p></div><p className="mt-2 truncate font-display text-xl font-bold text-foreground">{value}</p><p className="mt-1 flex items-center gap-1 truncate text-[10px] font-semibold text-primary">{detail}<ArrowRight className="size-3" /></p></Link>;
+  return <Link to={to as never} className="surface-card min-w-0 p-4"><div className="flex items-center gap-2"><span className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-accent"><Icon className="size-5" /></span><p className="truncate text-[11px] font-semibold text-muted-foreground">{label}</p></div><p className="mt-2 truncate font-display text-2xl font-bold text-foreground">{value}</p><p className="mt-1 flex items-center gap-1 truncate text-[11px] font-semibold text-accent">{detail}<ArrowRight className="size-3.5" /></p></Link>;
 }
 
 function greeting() {
