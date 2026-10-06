@@ -119,7 +119,10 @@ function Dashboard() {
         <div aria-hidden className="absolute -right-14 -top-20 size-72 rotate-45 bg-primary-foreground/5" />
         <GraduationCap aria-hidden className="absolute right-6 top-1/2 size-24 -translate-y-1/2 text-primary-foreground/40 sm:right-12 sm:size-32" />
         <div className="relative max-w-[75%] sm:max-w-lg">
-          <h1 className="font-display text-2xl font-bold sm:text-3xl">{greeting()}, {firstName} 👋</h1>
+          <h1 className="flex items-center gap-2 font-display text-2xl font-bold sm:text-3xl">
+            {greeting()}, {firstName}
+            <Sparkles className="size-6 shrink-0 text-warning sm:size-7" aria-hidden />
+          </h1>
           <p className="mt-2 text-sm text-primary-foreground/80 sm:text-base">Keep pushing. Great things take consistency.</p>
           <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-semibold">
             <span className="rounded-full bg-primary-foreground/15 px-3 py-1.5">BBIT 2026</span>
