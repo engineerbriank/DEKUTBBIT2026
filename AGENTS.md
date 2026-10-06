@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - The authenticated experience uses one shared royal-blue AppShell for desktop sidebar and mobile bottom navigation, so route pages must compose inside it rather than creating independent navigation chrome.
+- Account recovery uses emailed one-time reset links and a public password-reset route; shared recovery codes are forbidden because they enable account takeover.
