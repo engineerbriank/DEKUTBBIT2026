@@ -13,7 +13,6 @@ import {
   ArrowRight,
   Clock3,
   FileText,
-  GraduationCap,
 } from "lucide-react";
 
 import { AppLogo, AppShell, HeaderBellLink, useMe } from "@/components/AppShell";
