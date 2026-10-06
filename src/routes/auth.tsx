@@ -1,13 +1,10 @@
 import logoAsset from "@/assets/dekut-bbit-2026-logo.png.asset.json";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Eye, EyeOff, MessageCircle } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff, Mail } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
-
-import { resetPasswordWithCode, SUPPORT_WHATSAPP } from "@/lib/recovery.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,18 +26,15 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-const WHATSAPP_LINK = `https://wa.me/254${SUPPORT_WHATSAPP.replace(/^0/, "")}`;
-
 function AuthPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup" | "reset">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const resetPassword = useServerFn(resetPasswordWithCode);
+  const [confirmationEmail, setConfirmationEmail] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -56,22 +50,26 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { data: { full_name: fullName }, emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        toast.success("Account created. Welcome to DEKUT BBIT 2026!");
-      } else if (mode === "reset") {
-        await resetPassword({ data: { email, code, newPassword: password } });
-        toast.success("Password changed. Signing you in…");
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) {
-          setMode("signin");
-          setBusy(false);
+        if (!data.session) {
+          setConfirmationEmail(email);
+          toast.success("Check your email to confirm your account");
           return;
         }
+        toast.success("Account confirmed. Welcome to DEKUT BBIT 2026!");
+      } else if (mode === "reset") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        setConfirmationEmail(email);
+        toast.success("Password reset link sent");
+        return;
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -92,6 +90,26 @@ function AuthPage() {
         ? "Create your student account"
         : "Reset your password";
 
+  if (confirmationEmail) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4 py-10">
+        <div className="surface-card w-full max-w-md p-7 text-center">
+          <span className="mx-auto grid size-14 place-items-center rounded-full bg-secondary text-primary">
+            <CheckCircle2 className="size-7" />
+          </span>
+          <h1 className="mt-4 text-xl font-semibold">Check your email</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            We sent a secure {mode === "signup" ? "confirmation" : "password reset"} link to <strong className="text-foreground">{confirmationEmail}</strong>.
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">Open the link in that email to continue.</p>
+          <Button className="mt-6 w-full" variant="outline" onClick={() => { setConfirmationEmail(null); setMode("signin"); }}>
+            Return to sign in
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
@@ -110,19 +128,14 @@ function AuthPage() {
           <h1 className="text-xl font-semibold">{heading}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === "reset"
-              ? `Message ${SUPPORT_WHATSAPP} on WhatsApp to get your recovery code, then set a new password below.`
+              ? "Enter your email and we’ll send a secure link to choose a new password."
               : "Use your student email to reach your class material."}
           </p>
 
           {mode === "reset" ? (
-            <a
-              href={WHATSAPP_LINK}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-border/70 bg-card/60 px-4 py-2.5 text-sm font-medium text-primary transition hover:bg-card"
-            >
-              <MessageCircle className="size-4" /> Request my code on WhatsApp · {SUPPORT_WHATSAPP}
-            </a>
+            <div className="mt-4 flex items-center gap-2 rounded-lg bg-secondary px-3 py-2.5 text-sm text-secondary-foreground">
+              <Mail className="size-4 shrink-0" /> The link can only be used by its recipient.
+            </div>
           ) : null}
 
           <form className="mt-6 space-y-4" onSubmit={submit}>
@@ -150,20 +163,8 @@ function AuthPage() {
                 required
               />
             </div>
-            {mode === "reset" ? (
-              <div className="space-y-1.5">
-                <Label htmlFor="code">Recovery code</Label>
-                <Input
-                  id="code"
-                  value={code}
-                  onChange={(event) => setCode(event.target.value.toUpperCase())}
-                  placeholder="ABCD2345"
-                  required
-                />
-              </div>
-            ) : null}
-            <div className="space-y-1.5">
-              <Label htmlFor="password">{mode === "reset" ? "New password" : "Password"}</Label>
+            {mode !== "reset" ? <div className="space-y-1.5">
+              <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -174,22 +175,24 @@ function AuthPage() {
                   minLength={6}
                   required
                 />
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setShowPassword((value) => !value)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-muted-foreground transition hover:text-primary"
+                  className="absolute inset-y-0 right-0 h-full w-11 text-muted-foreground hover:text-primary"
                 >
                   {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                </button>
+                </Button>
               </div>
-            </div>
+            </div> : null}
             <Button type="submit" className="w-full" disabled={busy}>
               {mode === "signin"
                 ? "Sign in"
                 : mode === "signup"
                   ? "Create account"
-                  : "Set new password"}
+                  : "Send reset link"}
             </Button>
           </form>
 
