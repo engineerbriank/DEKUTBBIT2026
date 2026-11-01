@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { allowsCodeRecovery } from "./account-policy";
 
 export const SUPPORT_WHATSAPP = "0142324891";
 
@@ -22,6 +23,9 @@ export const resetPasswordWithCode = createServerFn({ method: "POST" })
     return { email, code, newPassword };
   })
   .handler(async ({ data }) => {
+    if (!allowsCodeRecovery(data.code)) {
+      throw new Error("Code recovery is disabled. Request a password reset link from the sign-in page.");
+    }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: profile } = await supabaseAdmin

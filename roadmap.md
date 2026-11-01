@@ -6,6 +6,11 @@
 - [x] Verify signed-in and public experiences
 # Roadmap
 
+- [x] Require confirmation for Cloud email signups and provide emailed password-reset screens
+- [x] Disable legacy code-based password resets; preserve existing recovery records
+- [ ] Verify email delivery end-to-end — blocked by sender-domain DNS verification
+- [ ] Apply confirmation settings to the separate Vercel backend — requires access to its auth settings
+
 - [x] Hide the published Lovable badge
 - [x] Make the visual experience light-first
 - [x] Rename the public, sign-in, shell, and dashboard branding to DEKUT BBIT 2026 · DIGITAL STUDENT PLATFORM

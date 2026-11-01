@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { CheckCircle2, Eye, EyeOff, Mail } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { canEnterAfterSignup } from "@/lib/account-policy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,7 +57,7 @@ function AuthPage() {
           options: { data: { full_name: fullName }, emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        if (!data.session) {
+        if (!canEnterAfterSignup(data.session)) {
           setConfirmationEmail(email);
           toast.success("Check your email to confirm your account");
           return;
