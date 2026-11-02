@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * DEKUT BBIT 2026 Student Hub — royal blue academic workspace.
+ * StudyLyn · DEKUT BBIT 2026 Hub — royal blue academic workspace.
  * All colours are semantic tokens; never hardcode colours in components.
  */
 
@@ -134,6 +134,11 @@
 @layer base {
   * {
     border-color: var(--color-border);
+  }
+
+  /* Compact scale: one smaller root size tightens text and spacing app-wide. */
+  html {
+    font-size: 15px;
   }
 
   body {

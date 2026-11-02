@@ -1,11 +1,11 @@
-import logoAsset from "@/assets/dekut-bbit-2026-logo.png.asset.json";
+import logoAsset from "@/assets/studylyn-logo.png.asset.json";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { CheckCircle2, Eye, EyeOff, Mail } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { canEnterAfterSignup } from "@/lib/account-policy";
+import { canEnterAfterSignup, isEligibleSignupEmail } from "@/lib/account-policy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,9 +13,9 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — DEKUT BBIT 2026 Student Hub" },
-      { name: "description", content: "Sign in or create your DEKUT BBIT 2026 student account." },
-      { property: "og:title", content: "Sign in — DEKUT BBIT 2026 Student Hub" },
+      { title: "Sign in — StudyLyn · DEKUT BBIT 2026 Hub" },
+      { name: "description", content: "Sign in or create your StudyLyn student account." },
+      { property: "og:title", content: "Sign in — StudyLyn · DEKUT BBIT 2026 Hub" },
       {
         property: "og:description",
         content: "Access BBIT notes, past papers and the AI study assistant.",
@@ -51,6 +51,10 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
+        if (!isEligibleSignupEmail(email)) {
+          toast.error("Only student emails ending in 26@students.dkut.ac.ke can sign up.");
+          return;
+        }
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -62,7 +66,7 @@ function AuthPage() {
           toast.success("Check your email to confirm your account");
           return;
         }
-        toast.success("Account confirmed. Welcome to DEKUT BBIT 2026!");
+        toast.success("Account confirmed. Welcome to StudyLyn!");
       } else if (mode === "reset") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/reset-password`,
@@ -114,14 +118,14 @@ function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
-        <Link to="/" className="mb-6 flex items-center justify-center gap-2">
+        <Link to="/" className="mb-6 flex flex-col items-center gap-1.5">
           <img
             src={logoAsset.url}
-            alt="DEKUT BBIT 2026 Digital Student Platform logo"
-            className="size-14 rounded-full object-cover shadow-lg"
+            alt="StudyLyn logo"
+            className="h-12 w-auto"
           />
-          <span className="max-w-64 text-center font-display text-base font-semibold leading-tight">
-            DEKUT BBIT 2026 · STUDENT HUB
+          <span className="text-center font-display text-sm font-semibold leading-tight">
+            DEKUT BBIT 2026 Hub
           </span>
         </Link>
 
@@ -160,9 +164,15 @@ function AuthPage() {
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                placeholder="you@student.ac.ke"
+                placeholder={mode === "signup" ? "yourname26@students.dkut.ac.ke" : "you@student.ac.ke"}
                 required
               />
+              {mode === "signup" ? (
+                <p className="text-[11px] text-muted-foreground">
+                  Only student emails ending in <strong>26@students.dkut.ac.ke</strong> can create
+                  accounts. You must confirm the email before entering.
+                </p>
+              ) : null}
             </div>
             {mode !== "reset" ? <div className="space-y-1.5">
               <Label htmlFor="password">Password</Label>

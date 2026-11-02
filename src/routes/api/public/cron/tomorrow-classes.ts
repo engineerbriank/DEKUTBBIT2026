@@ -33,8 +33,8 @@ export const Route = createFileRoute("/api/public/cron/tomorrow-classes")({
           (s: any) => `${String(s.start_time).slice(0, 5)} ${s.units?.code ?? "Class"}${s.venue ? ` @${s.venue}` : ""}`,
         );
         const message = lines.length
-          ? `DEKUT BBIT 2026: Tomorrow's classes (${DAYS[day]}):\n${lines.slice(0, 8).join("\n")}${lines.length > 8 ? `\n+${lines.length - 8} more` : ""}\nFull timetable: ${sms.SITE_LINK}/timetable`
-          : `DEKUT BBIT 2026: No classes scheduled for tomorrow (${DAYS[day]}). Check updates: ${sms.SITE_LINK}/timetable`;
+          ? `StudyLyn: Tomorrow's classes (${DAYS[day]}):\n${lines.slice(0, 8).join("\n")}${lines.length > 8 ? `\n+${lines.length - 8} more` : ""}\nFull timetable: ${sms.SITE_LINK}/timetable`
+          : `StudyLyn: No classes scheduled for tomorrow (${DAYS[day]}). Check updates: ${sms.SITE_LINK}/timetable`;
         const result = await sms.broadcastSms("tomorrow_classes", message, `tomorrow-${dateKey}`, null);
         return Response.json(result);
       },

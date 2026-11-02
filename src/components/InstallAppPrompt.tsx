@@ -48,7 +48,7 @@ function manualGuide(): Guide {
     title: "Install on this computer",
     steps: [
       "Click the install icon in the browser address bar",
-      "Or open the ⋮ menu and choose “Install DEKUT BBIT 2026”",
+      "Or open the ⋮ menu and choose “Install StudyLyn”",
       "The app then opens in its own window",
     ],
   };
@@ -117,7 +117,7 @@ export function InstallAppPrompt() {
           <AppLogo className="size-12 shrink-0" />
           <div className="min-w-0 pr-6">
             <p className="font-display text-base font-bold leading-tight">
-              Install DEKUT BBIT 2026
+              Install StudyLyn
             </p>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
               Get faster access by installing the app on your device — notes, timetable and groups
@@ -201,7 +201,7 @@ export function InstallAppButton({ className }: { className?: string }) {
         <span className="min-w-0">
           Install App
           <span className="block text-[11px] font-medium text-muted-foreground">
-            Add DEKUT BBIT 2026 to your device
+            Add StudyLyn to your device
           </span>
         </span>
       </button>
