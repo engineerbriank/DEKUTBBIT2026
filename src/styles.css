@@ -136,6 +136,11 @@
     border-color: var(--color-border);
   }
 
+  /* Compact scale: one smaller root size tightens text and spacing app-wide. */
+  html {
+    font-size: 15px;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);

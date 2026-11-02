@@ -101,7 +101,7 @@ export function AppShell({
                     isAdmin={Boolean(me?.isAdmin)}
                     isClassRep={Boolean(me?.roles?.includes("class_rep"))}
                   />
-                   <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-foreground/12 text-navy-foreground ring-1 ring-primary-foreground/15 lg:hidden">
+                   <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary-foreground/12 text-navy-foreground ring-1 ring-primary-foreground/15 lg:hidden">
                     {icon ?? <BookOpen className="size-5" />}
                   </span>
                   <div className="min-w-0">
@@ -272,7 +272,7 @@ export function HeaderBellLink() {
     <Link
       to="/notifications"
       aria-label={`${unread} unread notifications`}
-      className="relative grid size-10 place-items-center rounded-xl bg-primary-foreground/12 ring-1 ring-primary-foreground/15 transition hover:bg-primary-foreground/20"
+      className="relative grid size-9 place-items-center rounded-xl bg-primary-foreground/12 ring-1 ring-primary-foreground/15 transition hover:bg-primary-foreground/20"
     >
       <Bell className="size-5" />
       {unread > 0 ? (

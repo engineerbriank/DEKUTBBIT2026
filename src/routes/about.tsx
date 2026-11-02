@@ -41,11 +41,11 @@ function AboutPage() {
     <div className="min-h-screen bg-background">
       <header className="hero-gradient relative overflow-hidden text-primary-foreground">
         <div className="relative mx-auto flex max-w-4xl flex-col items-center px-4 pb-14 pt-12 text-center sm:px-6">
-          <img
-            src={logoAsset.url}
-            alt="StudyLyn · DEKUT BBIT 2026 Hub logo"
-            className="size-16 rounded-full object-cover shadow-lg sm:size-20"
-          />
+            <img
+              src={logoAsset.url}
+              alt="StudyLyn logo"
+              className="h-14 w-auto"
+            />
           <span className="glass-tint mt-4 inline-flex rounded-full px-3 py-1 text-xs font-medium">
             StudyLyn · DEKUT BBIT 2026 Hub
           </span>
