@@ -99,14 +99,14 @@ function Dashboard() {
       header={
         <div>
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <AppLogo />
+            <div className="flex min-w-0 items-center gap-2.5">
+              <AppLogo className="h-8" />
               <div className="min-w-0">
-                 <p className="font-display text-base font-semibold leading-tight sm:text-lg">
-                   StudyLyn
+                <p className="font-display text-sm font-semibold leading-tight sm:text-base">
+                  StudyLyn
                 </p>
-                <p className="truncate text-xs text-navy-foreground/70">
-                   DEKUT BBIT 2026 Hub
+                <p className="truncate text-[10px] text-navy-foreground/70">
+                  DEKUT BBIT 2026 Hub
                 </p>
               </div>
             </div>
@@ -115,18 +115,18 @@ function Dashboard() {
         </div>
       }
     >
-      <div className="hero-gradient relative min-h-44 overflow-hidden rounded-2xl p-5 text-primary-foreground shadow-raised sm:p-7">
+      <div className="hero-gradient relative min-h-36 overflow-hidden rounded-2xl p-4 text-primary-foreground shadow-raised sm:p-5">
         <div aria-hidden className="absolute -right-14 -top-20 size-72 rotate-45 bg-primary-foreground/5" />
-        <GraduationCap aria-hidden className="absolute right-6 top-1/2 size-24 -translate-y-1/2 text-primary-foreground/40 sm:right-12 sm:size-32" />
+        <GraduationCap aria-hidden className="absolute right-6 top-1/2 size-20 -translate-y-1/2 text-primary-foreground/40 sm:right-12 sm:size-28" />
         <div className="relative max-w-[75%] sm:max-w-lg">
-          <h1 className="flex items-center gap-2 font-display text-2xl font-bold sm:text-3xl">
+          <h1 className="flex items-center gap-2 font-display text-xl font-bold sm:text-2xl">
             {greeting()}, {firstName}
-            <Sparkles className="size-6 shrink-0 text-warning sm:size-7" aria-hidden />
+            <Sparkles className="size-5 shrink-0 text-warning sm:size-6" aria-hidden />
           </h1>
-          <p className="mt-2 text-sm text-primary-foreground/80 sm:text-base">Keep pushing. Great things take consistency.</p>
-          <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-semibold">
-            <span className="rounded-full bg-primary-foreground/15 px-3 py-1.5">BBIT 2026</span>
-            <span className="rounded-full bg-primary-foreground/15 px-3 py-1.5">DEKUT BBIT 2026 Hub</span>
+          <p className="mt-1.5 text-[13px] text-primary-foreground/80 sm:text-sm">Keep pushing. Great things take consistency.</p>
+          <div className="mt-3.5 flex flex-wrap gap-1.5 text-[10px] font-semibold">
+            <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1">BBIT 2026</span>
+            <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1">DEKUT BBIT 2026 Hub</span>
           </div>
         </div>
       </div>
