@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/dekut-bbit-2026-logo.png.asset.json";
+import logoAsset from "@/assets/studylyn-logo.png.asset.json";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -13,9 +13,9 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — DEKUT BBIT 2026 Student Hub" },
-      { name: "description", content: "Sign in or create your DEKUT BBIT 2026 student account." },
-      { property: "og:title", content: "Sign in — DEKUT BBIT 2026 Student Hub" },
+      { title: "Sign in — StudyLyn · DEKUT BBIT 2026 Hub" },
+      { name: "description", content: "Sign in or create your StudyLyn student account." },
+      { property: "og:title", content: "Sign in — StudyLyn · DEKUT BBIT 2026 Hub" },
       {
         property: "og:description",
         content: "Access BBIT notes, past papers and the AI study assistant.",
@@ -62,7 +62,7 @@ function AuthPage() {
           toast.success("Check your email to confirm your account");
           return;
         }
-        toast.success("Account confirmed. Welcome to DEKUT BBIT 2026!");
+        toast.success("Account confirmed. Welcome to StudyLyn!");
       } else if (mode === "reset") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/reset-password`,
@@ -117,11 +117,11 @@ function AuthPage() {
         <Link to="/" className="mb-6 flex items-center justify-center gap-2">
           <img
             src={logoAsset.url}
-            alt="DEKUT BBIT 2026 Digital Student Platform logo"
+            alt="StudyLyn · DEKUT BBIT 2026 Hub logo"
             className="size-14 rounded-full object-cover shadow-lg"
           />
           <span className="max-w-64 text-center font-display text-base font-semibold leading-tight">
-            DEKUT BBIT 2026 · STUDENT HUB
+            StudyLyn · DEKUT BBIT 2026 Hub
           </span>
         </Link>
 

@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/dekut-bbit-2026-logo.png.asset.json";
+import logoAsset from "@/assets/studylyn-logo.png.asset.json";
 import brianAsset from "@/assets/brian-macharia.png.asset.json";
 import linusAsset from "@/assets/linus-ezra.png.asset.json";
 import calebAsset from "@/assets/caleb-ajiambo.png.asset.json";
@@ -17,13 +17,13 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About Us — DEKUT BBIT 2026 Digital Student Platform" },
+      { title: "About Us — StudyLyn · DEKUT BBIT 2026 Hub" },
       {
         name: "description",
         content:
           "Built by students, for students. Meet Brian Macharia Kariuki and the team behind the DEKUT BBIT Student Platform.",
       },
-      { property: "og:title", content: "About Us — DEKUT BBIT 2026 Digital Student Platform" },
+      { property: "og:title", content: "About Us — StudyLyn · DEKUT BBIT 2026 Hub" },
       {
         property: "og:description",
         content:
@@ -43,11 +43,11 @@ function AboutPage() {
         <div className="relative mx-auto flex max-w-4xl flex-col items-center px-4 pb-14 pt-12 text-center sm:px-6">
           <img
             src={logoAsset.url}
-            alt="DEKUT BBIT 2026 Digital Student Platform logo"
+            alt="StudyLyn · DEKUT BBIT 2026 Hub logo"
             className="size-16 rounded-full object-cover shadow-lg sm:size-20"
           />
           <span className="glass-tint mt-4 inline-flex rounded-full px-3 py-1 text-xs font-medium">
-            DEKUT BBIT 2026 · DIGITAL STUDENT PLATFORM
+            StudyLyn · DEKUT BBIT 2026 Hub
           </span>
           <h1 className="mt-4 text-3xl font-bold leading-tight sm:text-5xl">About Us</h1>
           <p className="mt-3 text-base font-medium text-primary-foreground/90 sm:text-lg">
@@ -190,7 +190,7 @@ function AboutPage() {
       </main>
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        DEKUT BBIT 2026 · DIGITAL STUDENT PLATFORM
+        StudyLyn · DEKUT BBIT 2026 Hub
       </footer>
     </div>
   );

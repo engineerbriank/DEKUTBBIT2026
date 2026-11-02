@@ -80,13 +80,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "DEKUT BBIT 2026 — Student Hub" },
+      { title: "StudyLyn — DEKUT BBIT 2026 Hub" },
       {
         name: "description",
         content:
-          "DEKUT BBIT 2026 is the digital student platform for notes, past papers, timetables and class collaboration.",
+          "StudyLyn is the digital student platform for notes, past papers, timetables and class collaboration.",
       },
-      { property: "og:title", content: "DEKUT BBIT 2026 — Student Hub" },
+      { property: "og:title", content: "StudyLyn — DEKUT BBIT 2026 Hub" },
       {
         property: "og:description",
         content:

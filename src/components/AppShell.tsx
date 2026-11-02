@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/dekut-bbit-2026-logo.png.asset.json";
+import logoAsset from "@/assets/studylyn-logo.png.asset.json";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -106,10 +106,10 @@ export function AppShell({
                   </span>
                   <div className="min-w-0">
                     <p className="hidden text-xs font-semibold uppercase text-muted-foreground lg:block">
-                      DEKUT BBIT 2026
+                      StudyLyn
                     </p>
                     <h1 className="truncate font-display text-xl font-semibold sm:text-2xl">
-                      {title ?? "Student Hub"}
+                      {title ?? "DEKUT BBIT 2026 Hub"}
                     </h1>
                   </div>
                 </div>
@@ -146,8 +146,8 @@ function DesktopSidebar({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep:
       <Link to="/dashboard" className="flex items-center gap-3 px-3">
         <AppLogo className="size-12" />
         <div>
-          <p className="font-display text-sm font-bold leading-tight">DEKUT BBIT 2026</p>
-          <p className="text-[11px] text-sidebar-foreground/65">Student Hub</p>
+          <p className="font-display text-sm font-bold leading-tight">StudyLyn</p>
+          <p className="text-[11px] text-sidebar-foreground/65">DEKUT BBIT 2026 Hub</p>
         </div>
       </Link>
       <nav className="mt-8 space-y-1">
@@ -220,7 +220,7 @@ function MobileMenu({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep: boo
       >
         <SheetHeader className="text-left">
           <SheetTitle className="flex items-center gap-3 text-navy-foreground">
-              <AppLogo /> DEKUT BBIT 2026
+              <AppLogo /> StudyLyn
           </SheetTitle>
         </SheetHeader>
         <nav className="mt-7 space-y-1">
@@ -288,7 +288,7 @@ export function AppLogo({ className }: { className?: string }) {
   return (
     <img
       src={logoAsset.url}
-      alt="DEKUT BBIT 2026 Digital Student Platform logo"
+      alt="StudyLyn · DEKUT BBIT 2026 Hub logo"
        className={cn("size-10 rounded-full object-cover", className)}
     />
   );

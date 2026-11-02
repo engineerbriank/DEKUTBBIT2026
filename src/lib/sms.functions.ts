@@ -116,7 +116,7 @@ export const requestPhoneCode = createServerFn({ method: "POST" })
       pending_phone: phone, code_hash: await hashCode(context.userId, code),
       code_expires_at: new Date(Date.now() + 10 * 60000).toISOString(), code_attempts: 0,
     }).eq("user_id", context.userId);
-    const res = await sendSms([phone], `DEKUT BBIT 2026: Your verification code is ${code}. It expires in 10 minutes.`);
+    const res = await sendSms([phone], `StudyLyn: Your verification code is ${code}. It expires in 10 minutes.`);
     if (!res.accepted) throw new Error("Could not send the code. Check the number and try again.");
     return { ok: true };
   });

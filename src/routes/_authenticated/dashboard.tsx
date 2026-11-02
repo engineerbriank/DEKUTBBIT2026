@@ -25,12 +25,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Home — DEKUT BBIT 2026 Digital Student Platform" },
+      { title: "Home — StudyLyn · DEKUT BBIT 2026 Hub" },
       {
         name: "description",
         content: "Today's BBIT classes, live counts and the newest published notes.",
       },
-      { property: "og:title", content: "Home — DEKUT BBIT 2026 Digital Student Platform" },
+      { property: "og:title", content: "Home — StudyLyn · DEKUT BBIT 2026 Hub" },
       { property: "og:description", content: "Your BBIT study hub at a glance." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -103,10 +103,10 @@ function Dashboard() {
               <AppLogo />
               <div className="min-w-0">
                  <p className="font-display text-base font-semibold leading-tight sm:text-lg">
-                   DEKUT BBIT 2026
+                   StudyLyn
                 </p>
                 <p className="truncate text-xs text-navy-foreground/70">
-                   Student Hub
+                   DEKUT BBIT 2026 Hub
                 </p>
               </div>
             </div>
@@ -126,7 +126,7 @@ function Dashboard() {
           <p className="mt-2 text-sm text-primary-foreground/80 sm:text-base">Keep pushing. Great things take consistency.</p>
           <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-semibold">
             <span className="rounded-full bg-primary-foreground/15 px-3 py-1.5">BBIT 2026</span>
-            <span className="rounded-full bg-primary-foreground/15 px-3 py-1.5">DEKUT Student Hub</span>
+            <span className="rounded-full bg-primary-foreground/15 px-3 py-1.5">DEKUT BBIT 2026 Hub</span>
           </div>
         </div>
       </div>

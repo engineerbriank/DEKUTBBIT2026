@@ -40,7 +40,7 @@ const TimetablePublishedEmail = ({ recipientName, classCount }: Props) => (
     <Preview>The class timetable has been updated</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Text style={brandLine}>DEKUT BBIT 2026</Text>
+        <Text style={brandLine}>StudyLyn</Text>
         <Heading style={h1}>The class timetable has been updated</Heading>
         <Text style={text}>
           {recipientName ? `Hi ${recipientName},` : 'Hi,'} the BBIT 2026 class timetable has just
@@ -83,7 +83,7 @@ const TimetablePublishedEmail = ({ recipientName, classCount }: Props) => (
 
 export const template = {
   component: TimetablePublishedEmail,
-  subject: 'Class timetable updated — DEKUT BBIT 2026',
+  subject: 'Class timetable updated — StudyLyn',
   displayName: 'Timetable published',
   previewData: { recipientName: 'Jane', classCount: 24 },
 } satisfies TemplateEntry

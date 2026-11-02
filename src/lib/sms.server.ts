@@ -96,11 +96,11 @@ function clip(text: string, max: number) {
 
 export const smsTemplates = {
   announcement: (title: string, body: string) =>
-    `DEKUT BBIT 2026: New announcement - ${clip(title, 60)}. ${clip(body, 160)}\nRead more: ${SITE_LINK}/announcements`,
+    `StudyLyn: New announcement - ${clip(title, 60)}. ${clip(body, 160)}\nRead more: ${SITE_LINK}/announcements`,
   resource: (title: string, unit: string) =>
-    `DEKUT BBIT 2026: New document "${clip(title, 60)}" for ${clip(unit, 50)} is now available. Download it: ${SITE_LINK}/resources`,
+    `StudyLyn: New document "${clip(title, 60)}" for ${clip(unit, 50)} is now available. Download it: ${SITE_LINK}/resources`,
   timetable: (count: number) =>
-    `DEKUT BBIT 2026: The class timetable has been updated (${count} class${count === 1 ? "" : "es"}). View it: ${SITE_LINK}/timetable`,
+    `StudyLyn: The class timetable has been updated (${count} class${count === 1 ? "" : "es"}). View it: ${SITE_LINK}/timetable`,
 };
 
 export async function mpesaStkPush(phone: string, amount: number, reference: string) {

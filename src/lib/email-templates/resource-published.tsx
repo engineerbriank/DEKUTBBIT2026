@@ -49,11 +49,11 @@ const ResourcePublishedEmail = ({
     <Preview>{`${title} is now available on the platform`}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Text style={brandLine}>DEKUT BBIT 2026</Text>
+        <Text style={brandLine}>StudyLyn</Text>
         <Heading style={h1}>New resource published: {title}</Heading>
         <Text style={text}>
           {recipientName ? `Hi ${recipientName},` : 'Hi,'} a new study file has just been published
-          on the DEKUT BBIT 2026 Digital Student Platform.
+          on the StudyLyn · DEKUT BBIT 2026 Hub.
         </Text>
 
         <Section style={detailBox}>
@@ -101,7 +101,7 @@ const ResourcePublishedEmail = ({
 export const template = {
   component: ResourcePublishedEmail,
   subject: (data: Record<string, any>) =>
-    `New resource: ${data['title'] ?? 'study file'} — DEKUT BBIT 2026`,
+    `New resource: ${data['title'] ?? 'study file'} — StudyLyn`,
   displayName: 'Resource published',
   previewData: {
     recipientName: 'Jane',

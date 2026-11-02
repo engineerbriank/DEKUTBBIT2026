@@ -11,10 +11,10 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Choose a new password — DEKUT BBIT 2026" },
-      { name: "description", content: "Securely choose a new password for your DEKUT BBIT 2026 account." },
-      { property: "og:title", content: "Choose a new password — DEKUT BBIT 2026" },
-      { property: "og:description", content: "Secure password recovery for the DEKUT BBIT 2026 Student Hub." },
+      { title: "Choose a new password — StudyLyn" },
+      { name: "description", content: "Securely choose a new password for your StudyLyn account." },
+      { property: "og:title", content: "Choose a new password — StudyLyn" },
+      { property: "og:description", content: "Secure password recovery for the StudyLyn · DEKUT BBIT 2026 Hub." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

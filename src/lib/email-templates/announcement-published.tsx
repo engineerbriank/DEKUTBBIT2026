@@ -44,11 +44,11 @@ const AnnouncementPublishedEmail = ({
     <Preview>{`${title} — class announcement`}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Text style={brandLine}>DEKUT BBIT 2026</Text>
+        <Text style={brandLine}>StudyLyn</Text>
         <Heading style={h1}>{title}</Heading>
         <Text style={text}>
           {recipientName ? `Hi ${recipientName},` : 'Hi,'} a new announcement was published on the
-          DEKUT BBIT 2026 Digital Student Platform.
+          StudyLyn · DEKUT BBIT 2026 Hub.
         </Text>
 
         {body ? (
@@ -80,7 +80,7 @@ const AnnouncementPublishedEmail = ({
 export const template = {
   component: AnnouncementPublishedEmail,
   subject: (data: Record<string, any>) =>
-    `${data['title'] ?? 'Class announcement'} — DEKUT BBIT 2026`,
+    `${data['title'] ?? 'Class announcement'} — StudyLyn`,
   displayName: 'Announcement published',
   previewData: {
     recipientName: 'Jane',

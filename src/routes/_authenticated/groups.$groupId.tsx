@@ -32,13 +32,13 @@ import {
 export const Route = createFileRoute("/_authenticated/groups/$groupId")({
   head: () => ({
     meta: [
-      { title: "Study Group Chat — DEKUT BBIT 2026" },
+      { title: "Study Group Chat — StudyLyn" },
       {
         name: "description",
         content:
           "Chat with your study group, read announcements and manage group settings inside the DEKUT BBIT student platform.",
       },
-      { property: "og:title", content: "Study Group Chat — DEKUT BBIT 2026" },
+      { property: "og:title", content: "Study Group Chat — StudyLyn" },
       {
         property: "og:description",
         content: "Group chat, members, announcements and leader tools for your BBIT study group.",

@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/dekut-bbit-2026-logo.png.asset.json";
+import logoAsset from "@/assets/studylyn-logo.png.asset.json";
 import campusAsset from "@/assets/dekut-campus.png.asset.json";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -11,13 +11,13 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "DEKUT BBIT 2026 — Student Hub" },
+      { title: "StudyLyn — DEKUT BBIT 2026 Hub" },
       {
         name: "description",
         content:
           "One place for BBIT unit notes, assignments, past papers, timetables, announcements and approved study groups.",
       },
-       { property: "og:title", content: "DEKUT BBIT 2026 — Student Hub" },
+       { property: "og:title", content: "StudyLyn — DEKUT BBIT 2026 Hub" },
       {
         property: "og:description",
         content:
@@ -47,11 +47,11 @@ function Landing() {
           <div className="flex flex-col items-center gap-2 text-center">
             <img
               src={logoAsset.url}
-              alt="DEKUT BBIT 2026 Digital Student Platform logo"
+              alt="StudyLyn · DEKUT BBIT 2026 Hub logo"
               className="size-16 rounded-full object-cover shadow-lg sm:size-20"
             />
             <span className="font-display text-sm font-semibold leading-tight sm:text-lg">
-               DEKUT BBIT 2026 · STUDENT HUB
+               StudyLyn · DEKUT BBIT 2026 Hub
             </span>
           </div>
         </div>
@@ -140,7 +140,7 @@ function Landing() {
           About Us
         </Link>
         <span className="mx-2">·</span>
-         DEKUT BBIT 2026 · STUDENT HUB
+         StudyLyn · DEKUT BBIT 2026 Hub
       </footer>
 
     </div>
