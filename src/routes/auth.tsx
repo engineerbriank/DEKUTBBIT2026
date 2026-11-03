@@ -159,15 +159,36 @@ function AuthPage() {
             ) : null}
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder={mode === "signup" ? "yourname26@students.dkut.ac.ke" : "you@student.ac.ke"}
-                required
-              />
-              {mode === "signup" ? (
+              <div className="relative">
+                <Input
+                  id="email"
+                  type="email"
+                  className={mode === "signup" && email.trim() && isEligibleSignupEmail(email) ? "pr-10" : undefined}
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder={mode === "signup" ? "yourname26@students.dkut.ac.ke" : "you@student.ac.ke"}
+                  required
+                />
+                {mode === "signup" && email.trim() && isEligibleSignupEmail(email) ? (
+                  <CheckCircle2
+                    aria-label="School email verified"
+                    className="pointer-events-none absolute inset-y-0 right-0 my-auto mr-3 size-4 text-success"
+                  />
+                ) : null}
+              </div>
+              {mode === "signup" && email.trim() ? (
+                isEligibleSignupEmail(email) ? (
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium text-success">
+                    <CheckCircle2 className="size-3.5 shrink-0" /> School email accepted — you can
+                    create your account.
+                  </p>
+                ) : (
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium text-destructive">
+                    <Mail className="size-3.5 shrink-0" /> Use your school email ending in{" "}
+                    <strong>26@students.dkut.ac.ke</strong>.
+                  </p>
+                )
+              ) : mode === "signup" ? (
                 <p className="text-[11px] text-muted-foreground">
                   Only student emails ending in <strong>26@students.dkut.ac.ke</strong> can create
                   accounts. You must confirm the email before entering.
