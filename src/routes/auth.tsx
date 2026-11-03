@@ -167,7 +167,19 @@ function AuthPage() {
                 placeholder={mode === "signup" ? "yourname26@students.dkut.ac.ke" : "you@student.ac.ke"}
                 required
               />
-              {mode === "signup" ? (
+              {mode === "signup" && email.trim() ? (
+                isEligibleSignupEmail(email) ? (
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium text-success">
+                    <CheckCircle2 className="size-3.5 shrink-0" /> School email accepted — you can
+                    create your account.
+                  </p>
+                ) : (
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium text-destructive">
+                    <Mail className="size-3.5 shrink-0" /> Use your school email ending in{" "}
+                    <strong>26@students.dkut.ac.ke</strong>.
+                  </p>
+                )
+              ) : mode === "signup" ? (
                 <p className="text-[11px] text-muted-foreground">
                   Only student emails ending in <strong>26@students.dkut.ac.ke</strong> can create
                   accounts. You must confirm the email before entering.
