@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/studylyn-logo.png.asset.json";
+import logoAsset from "@/assets/studylyn-logo.png";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -287,7 +287,7 @@ export function HeaderBellLink() {
 export function AppLogo({ className }: { className?: string }) {
   return (
     <img
-      src={logoAsset.url}
+      src={logoAsset}
       alt="StudyLyn logo"
       className={cn("h-10 w-auto rounded-lg bg-white object-contain ring-1 ring-black/5", className)}
     />

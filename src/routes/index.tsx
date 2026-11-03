@@ -1,5 +1,5 @@
-import logoAsset from "@/assets/studylyn-logo.png.asset.json";
-import campusAsset from "@/assets/dekut-campus.png.asset.json";
+import logoAsset from "@/assets/studylyn-logo.png";
+import campusAsset from "@/assets/dekut-campus.png";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -46,7 +46,7 @@ function Landing() {
       <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-2.5 sm:px-6">
           <div className="flex items-center gap-2.5">
-            <img src={logoAsset.url} alt="StudyLyn logo" className="h-9 w-auto" />
+            <img src={logoAsset} alt="StudyLyn logo" className="h-9 w-auto" />
             <div className="leading-tight">
               <p className="font-display text-sm font-bold">StudyLyn</p>
               <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -62,7 +62,7 @@ function Landing() {
 
       <section className="navy-gradient relative overflow-hidden text-primary-foreground">
         <img
-          src={campusAsset.url}
+          src={campusAsset}
           alt=""
           aria-hidden
           className="absolute inset-0 size-full object-cover opacity-15"

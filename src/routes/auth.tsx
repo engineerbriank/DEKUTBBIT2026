@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/studylyn-logo.png.asset.json";
+import logoAsset from "@/assets/studylyn-logo.png";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -120,7 +120,7 @@ function AuthPage() {
       <div className="w-full max-w-md">
         <Link to="/" className="mb-6 flex flex-col items-center gap-1.5">
           <img
-            src={logoAsset.url}
+            src={logoAsset}
             alt="StudyLyn logo"
             className="h-12 w-auto"
           />
