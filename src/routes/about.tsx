@@ -1,8 +1,8 @@
-import logoAsset from "@/assets/studylyn-logo.png.asset.json";
-import brianAsset from "@/assets/brian-macharia.png.asset.json";
-import linusAsset from "@/assets/linus-ezra.png.asset.json";
-import calebAsset from "@/assets/caleb-ajiambo.png.asset.json";
-import samuelAsset from "@/assets/samuel-murira.png.asset.json";
+import logoAsset from "@/assets/studylyn-logo.png";
+import brianAsset from "@/assets/brian-macharia.png";
+import linusAsset from "@/assets/linus-ezra.png";
+import calebAsset from "@/assets/caleb-ajiambo.png";
+import samuelAsset from "@/assets/samuel-murira.png";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Code2,
@@ -42,7 +42,7 @@ function AboutPage() {
       <header className="hero-gradient relative overflow-hidden text-primary-foreground">
         <div className="relative mx-auto flex max-w-4xl flex-col items-center px-4 pb-14 pt-12 text-center sm:px-6">
             <img
-              src={logoAsset.url}
+              src={logoAsset}
               alt="StudyLyn logo"
               className="h-14 w-auto"
             />
@@ -79,7 +79,7 @@ function AboutPage() {
           <article className="glass-panel mt-4 overflow-hidden">
             <div className="flex flex-col gap-5 p-5 sm:flex-row sm:p-6">
               <img
-                src={brianAsset.url}
+                src={brianAsset}
                 alt="Brian Macharia Kariuki"
                 className="size-36 shrink-0 self-center rounded-2xl object-cover shadow-lg ring-2 ring-white/40 sm:self-start"
               />
@@ -114,7 +114,7 @@ function AboutPage() {
           <article className="glass-panel mt-4 overflow-hidden">
             <div className="flex flex-col gap-5 p-5 sm:flex-row sm:p-6">
               <img
-                src={linusAsset.url}
+                src={linusAsset}
                 alt="Linus Ezra"
                 className="size-36 shrink-0 self-center rounded-2xl object-cover shadow-lg ring-2 ring-white/40 sm:self-start"
               />
@@ -147,13 +147,13 @@ function AboutPage() {
             <ContributorCard
               name="Caleb Ajiambo"
               role="Reviewer · Tester · Feedback Contributor"
-              photo={calebAsset.url}
+              photo={calebAsset}
               body="Caleb helped examine how the platform worked from a student’s point of view — testing features, identifying areas that could be improved and providing honest feedback. A platform becomes better when real users challenge it, test it and give honest feedback."
             />
             <ContributorCard
               name="Samuel Murira"
               role="Reviewer · Tester"
-              photo={samuelAsset.url}
+              photo={samuelAsset}
               body="Samuel contributed through testing and reviewing. His feedback provided another student perspective during development, helping identify things that could be made clearer, simpler and more useful for BBIT students."
             />
           </div>

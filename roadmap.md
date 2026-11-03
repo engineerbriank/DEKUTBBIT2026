@@ -21,3 +21,12 @@
 - [x] Verify public and authenticated flows at desktop and mobile widths
 - [x] Replace the green system with the approved blue reference palette
 - [x] Match the dashboard cards, greeting banner, class list, announcement rows, and mobile navigation to the uploaded reference
+
+## StudyLyn rename + compact redesign + signup policy (Nov 3)
+- [x] Rename project to StudyLyn (subtitle "DEKUT BBIT 2026 Hub") across app, PWA manifest, SMS and email templates
+- [x] Compact scale (15px root) and tightened shell/dashboard/landing
+- [x] Signup restricted to emails ending 26@students.dkut.ac.ke (client + DB trigger on Cloud and on own Supabase); admin = kariuki.macharia26@students.dkut.ac.ke with auto-grant + manually granted on own Supabase
+- [x] New landing page ("Learn. Plan. Achieve.") with the uploaded StudyLyn logo
+- [x] Bundle logo + photos into src/assets so images load on Vercel (fixes logo missing on Vercel)
+- [ ] Verify signed-in dashboard desktop + mobile
+- [ ] Remind: Vercel redeploy needs latest commit; email confirmation toggle + redirect URL on own Supabase dashboard
