@@ -1,5 +1,5 @@
 /** Shared brand styling for every StudyLyn app email. */
-export const SITE_NAME = 'StudyLyn · Digital Student Platform'
+export const SITE_NAME = 'StudyLyn · DEKUT BBIT 2026 Hub'
 export const SITE_URL = 'https://dekutbbit2026.online'
 
 export const main = {

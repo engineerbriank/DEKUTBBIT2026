@@ -28,5 +28,5 @@
 - [x] Signup restricted to emails ending 26@students.dkut.ac.ke (client + DB trigger on Cloud and on own Supabase); admin = kariuki.macharia26@students.dkut.ac.ke with auto-grant + manually granted on own Supabase
 - [x] New landing page ("Learn. Plan. Achieve.") with the uploaded StudyLyn logo
 - [x] Bundle logo + photos into src/assets so images load on Vercel (fixes logo missing on Vercel)
-- [ ] Verify signed-in dashboard desktop + mobile
+- [x] Verify signed-in dashboard desktop + mobile
 - [ ] Remind: Vercel redeploy needs latest commit; email confirmation toggle + redirect URL on own Supabase dashboard
