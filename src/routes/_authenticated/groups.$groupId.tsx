@@ -326,7 +326,7 @@ function GroupChat({ groupId, canSend }: { groupId: string; canSend: boolean }) 
                 <p className="text-xs font-semibold opacity-80">{message.authorName}</p>
               ) : null}
               <p className="whitespace-pre-wrap break-words">{message.body}</p>
-              <p className="mt-1 text-[10px] opacity-70">{timeLabel(message.createdAt)}</p>
+              <p className="mt-1 text-[12px] opacity-70">{timeLabel(message.createdAt)}</p>
             </div>
             {message.canDelete ? (
               <button

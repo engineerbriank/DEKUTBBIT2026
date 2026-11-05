@@ -103,7 +103,7 @@ function CalendarPage() {
           </button>
         </div>
 
-        <div className="mt-3 grid grid-cols-7 text-center text-[11px] font-semibold text-muted-foreground">
+        <div className="mt-3 grid grid-cols-7 text-center text-[13px] font-semibold text-muted-foreground">
           {WEEKDAYS.map((day) => (
             <span key={day}>{day}</span>
           ))}

@@ -163,7 +163,7 @@ export function SmsPremiumCard() {
               </Button>
             </div>
           )}
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-[13px] text-muted-foreground">
             Renew anytime — extra time is added to your current plan.
           </p>
           <div className="grid grid-cols-3 gap-2 pt-1">

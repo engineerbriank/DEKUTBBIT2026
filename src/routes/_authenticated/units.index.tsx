@@ -95,7 +95,7 @@ function Units() {
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-display text-sm font-bold">{unit.code}</span>
                 <span className="block truncate text-xs text-muted-foreground">{unit.name}</span>
-                <span className="block truncate text-[11px] text-muted-foreground">
+                <span className="block truncate text-[13px] text-muted-foreground">
                   {unit.resourceCount} file{unit.resourceCount === 1 ? "" : "s"}
                   {unit.lecturer ? ` · ${unit.lecturer}` : ""}
                 </span>

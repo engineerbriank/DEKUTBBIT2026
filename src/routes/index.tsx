@@ -49,7 +49,7 @@ function Landing() {
             <img src={logoAsset} alt="StudyLyn logo" className="h-9 w-auto" />
             <div className="leading-tight">
               <p className="font-display text-sm font-bold">StudyLyn</p>
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
                 DEKUT BBIT 2026 Hub
               </p>
             </div>
@@ -177,7 +177,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="glass-tint rounded-xl px-3 py-3">
       <dd className="font-display text-xl font-bold">{value}</dd>
-      <dt className="mt-0.5 text-[10px] text-primary-foreground/75">{label}</dt>
+      <dt className="mt-0.5 text-[12px] text-primary-foreground/75">{label}</dt>
     </div>
   );
 }

@@ -105,7 +105,7 @@ function Dashboard() {
                 <p className="font-display text-sm font-semibold leading-tight sm:text-base">
                   StudyLyn
                 </p>
-                <p className="truncate text-[10px] text-navy-foreground/70">
+                <p className="truncate text-[12px] text-navy-foreground/70">
                   DEKUT BBIT 2026 Hub
                 </p>
               </div>
@@ -123,8 +123,8 @@ function Dashboard() {
             {greeting()}, {firstName}
             <Sparkles className="size-5 shrink-0 text-warning sm:size-6" aria-hidden />
           </h1>
-          <p className="mt-1.5 text-[13px] text-primary-foreground/80 sm:text-sm">Keep pushing. Great things take consistency.</p>
-          <div className="mt-3.5 flex flex-wrap gap-1.5 text-[10px] font-semibold">
+          <p className="mt-1.5 text-[15px] text-primary-foreground/80 sm:text-sm">Keep pushing. Great things take consistency.</p>
+          <div className="mt-3.5 flex flex-wrap gap-1.5 text-[12px] font-semibold">
             <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1">BBIT 2026</span>
             <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1">DEKUT BBIT 2026 Hub</span>
           </div>
@@ -208,7 +208,7 @@ function Dashboard() {
 
       <h2 className="mt-5 font-display text-base font-semibold">Quick Actions</h2>
       <div className="mt-2 grid grid-cols-4 gap-2">
-        {[...TILES.slice(0,5), ...(me?.isAdmin ? ADMIN_TILES.slice(0,1) : [])].slice(0,4).map((tile) => <Link key={tile.to} to={tile.to} {...("search" in tile ? { search: tile.search } : {})} className="surface-card flex min-h-24 flex-col items-center justify-center gap-2 p-2 text-center"><span className="grid size-9 place-items-center rounded-lg bg-secondary text-primary"><tile.icon className="size-4" /></span><span className="text-[10px] font-semibold leading-tight">{tile.label}</span></Link>)}
+        {[...TILES.slice(0,5), ...(me?.isAdmin ? ADMIN_TILES.slice(0,1) : [])].slice(0,4).map((tile) => <Link key={tile.to} to={tile.to} {...("search" in tile ? { search: tile.search } : {})} className="surface-card flex min-h-24 flex-col items-center justify-center gap-2 p-2 text-center"><span className="grid size-9 place-items-center rounded-lg bg-secondary text-primary"><tile.icon className="size-4" /></span><span className="text-[12px] font-semibold leading-tight">{tile.label}</span></Link>)}
       </div>
 
       <h2 className="mt-5 font-display text-base font-semibold">Recent Resources</h2>
@@ -228,7 +228,7 @@ function Dashboard() {
 }
 
 function OverviewStat({ icon: Icon, label, value, detail, to }: { icon: typeof CalendarDays; label: string; value: string; detail: string; to: string }) {
-  return <Link to={to as never} className="surface-card min-w-0 p-4"><div className="flex items-center gap-2"><span className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-accent"><Icon className="size-5" /></span><p className="truncate text-[11px] font-semibold text-muted-foreground">{label}</p></div><p className="mt-2 truncate font-display text-2xl font-bold text-foreground">{value}</p><p className="mt-1 flex items-center gap-1 truncate text-[11px] font-semibold text-accent">{detail}<ArrowRight className="size-3.5" /></p></Link>;
+  return <Link to={to as never} className="surface-card min-w-0 p-4"><div className="flex items-center gap-2"><span className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-accent"><Icon className="size-5" /></span><p className="truncate text-[13px] font-semibold text-muted-foreground">{label}</p></div><p className="mt-2 truncate font-display text-2xl font-bold text-foreground">{value}</p><p className="mt-1 flex items-center gap-1 truncate text-[13px] font-semibold text-accent">{detail}<ArrowRight className="size-3.5" /></p></Link>;
 }
 
 function greeting() {

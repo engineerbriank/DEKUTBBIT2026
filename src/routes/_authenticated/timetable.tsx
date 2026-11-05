@@ -91,7 +91,7 @@ function Timetable() {
                   type="button"
                   onClick={() => setDay(date.getDay())}
                   className={cn(
-                    "flex flex-col items-center gap-0.5 rounded-xl py-2 text-[11px] font-semibold",
+                    "flex flex-col items-center gap-0.5 rounded-xl py-2 text-[13px] font-semibold",
                     active
                       ? "bg-accent text-accent-foreground"
                       : "surface-card text-muted-foreground",
@@ -99,7 +99,7 @@ function Timetable() {
                 >
                   <span>{DAY_LABELS[date.getDay()]}</span>
                   <span className="font-display text-sm">{date.getDate()}</span>
-                  <span className="text-[10px]">
+                  <span className="text-[12px]">
                     {date.toLocaleDateString(undefined, { month: "short" })}
                   </span>
                 </button>

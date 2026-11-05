@@ -46,7 +46,7 @@ export function SmsAdminSection() {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
-        <p className="text-right text-[11px] text-muted-foreground">{message.length}/480</p>
+        <p className="text-right text-[13px] text-muted-foreground">{message.length}/480</p>
         <div className="flex gap-2">
           <Button size="sm" variant={mode === "all" ? "default" : "outline"} className="rounded-xl" onClick={() => setMode("all")}>
             All premium members

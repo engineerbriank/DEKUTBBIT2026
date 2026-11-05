@@ -182,7 +182,7 @@ function AiPage() {
                 onClick={() => setDocumentId(doc.id)}
               >
                 <p className="truncate text-sm font-semibold">{doc.file_name}</p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-[13px] text-muted-foreground">
                   {doc.char_count.toLocaleString()} characters
                 </p>
               </button>
@@ -263,7 +263,7 @@ function AiPage() {
                 />
               </PromptInputBody>
               <PromptInputFooter>
-                <span className="text-[11px] text-muted-foreground">Enter to send</span>
+                <span className="text-[13px] text-muted-foreground">Enter to send</span>
                 <PromptInputSubmit
                   status={askMutation.isPending ? "submitted" : "ready"}
                   disabled={!question.trim()}

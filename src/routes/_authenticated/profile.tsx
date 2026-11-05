@@ -235,7 +235,7 @@ function Profile() {
           </span>
           <span className="min-w-0">
             {installStatus === "installed" ? "App installed" : "App not installed"}
-            <span className="block text-[11px] font-medium text-muted-foreground">
+            <span className="block text-[13px] font-medium text-muted-foreground">
               {installStatus === "installed"
                 ? "You're running the installed app"
                 : installStatus === "ios"
