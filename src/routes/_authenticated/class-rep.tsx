@@ -62,7 +62,7 @@ function ClassRepPage() {
                     </p>
                     <p className="truncate text-xs text-muted-foreground">{member.email}</p>
                   </div>
-                  <span className="text-[10px] font-semibold uppercase text-muted-foreground">
+                  <span className="text-[12px] font-semibold uppercase text-muted-foreground">
                     {member.roles.includes("admin")
                       ? "Admin"
                       : member.roles.includes("class_rep")
@@ -95,7 +95,7 @@ function LiveStat({
     <div className="surface-card min-w-0 p-3 text-center">
       <Icon className="mx-auto size-5 text-primary" />
       <p className="mt-2 font-display text-xl font-bold">{value}</p>
-      <p className="truncate text-[10px] text-muted-foreground">{label}</p>
+      <p className="truncate text-[12px] text-muted-foreground">{label}</p>
     </div>
   );
 }

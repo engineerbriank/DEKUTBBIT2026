@@ -80,7 +80,7 @@ function Notifications() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-semibold">{item.title}</p>
-                  <span className="shrink-0 text-[10px] text-muted-foreground">
+                  <span className="shrink-0 text-[12px] text-muted-foreground">
                     {timeAgo(item.created_at)}
                   </span>
                 </div>

@@ -147,7 +147,7 @@ function DesktopSidebar({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep:
         <AppLogo className="h-9" />
         <div>
           <p className="font-display text-sm font-bold leading-tight">StudyLyn</p>
-          <p className="text-[10px] text-sidebar-foreground/65">DEKUT BBIT 2026 Hub</p>
+          <p className="text-[12px] text-sidebar-foreground/65">DEKUT BBIT 2026 Hub</p>
         </div>
       </Link>
       <nav className="mt-6 space-y-0.5">
@@ -166,7 +166,7 @@ function DesktopSidebar({ isAdmin, isClassRep }: { isAdmin: boolean; isClassRep:
         <ThemeToggle />
         <div className="rounded-lg border border-sidebar-border bg-sidebar-accent/35 p-4">
         <p className="text-sm font-semibold italic">“Discipline today,<br />success tomorrow.”</p>
-        <p className="mt-3 text-[10px] text-sidebar-foreground/65">
+        <p className="mt-3 text-[12px] text-sidebar-foreground/65">
           BBIT 2026
         </p>
         </div>
@@ -184,7 +184,7 @@ function NavLink({ item }: { item: { to: string; label: string; icon: typeof Hom
         search={{ q: "", unit: "", category: "" }}
         activeProps={{ className: "bg-sidebar-primary text-sidebar-primary-foreground" }}
         inactiveProps={{ className: "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" }}
-        className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] font-semibold transition"
+        className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[15px] font-semibold transition"
       >
         <Icon className="size-4" /> {item.label}
       </Link>
@@ -195,7 +195,7 @@ function NavLink({ item }: { item: { to: string; label: string; icon: typeof Hom
       to={item.to as never}
       activeProps={{ className: "bg-sidebar-primary text-sidebar-primary-foreground" }}
       inactiveProps={{ className: "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" }}
-      className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] font-semibold transition"
+      className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[15px] font-semibold transition"
     >
       <Icon className="size-4" /> {item.label}
     </Link>
@@ -276,7 +276,7 @@ export function HeaderBellLink() {
     >
       <Bell className="size-5" />
       {unread > 0 ? (
-        <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
+        <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-destructive px-1 text-[12px] font-bold text-destructive-foreground">
           {unread > 99 ? "99+" : unread}
         </span>
       ) : null}
@@ -306,7 +306,7 @@ function BottomNav() {
               preload="intent"
               activeProps={{ className: "text-accent" }}
               inactiveProps={{ className: "text-muted-foreground" }}
-              className="relative flex min-h-14 flex-col items-center justify-center gap-0.5 text-[10px] font-semibold"
+              className="relative flex min-h-14 flex-col items-center justify-center gap-0.5 text-[12px] font-semibold"
             >
               <item.icon className="size-4.5" />
               {item.label}

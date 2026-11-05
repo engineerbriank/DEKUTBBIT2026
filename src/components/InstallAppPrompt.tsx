@@ -60,10 +60,10 @@ function GuideCard({ guide }: { guide: Guide }) {
       <p className="flex items-center gap-2 text-xs font-bold text-foreground">
         <Share className="size-4 shrink-0 text-primary" /> {guide.title}
       </p>
-      <ol className="mt-2 space-y-1.5 text-[11px] font-medium leading-relaxed text-muted-foreground">
+      <ol className="mt-2 space-y-1.5 text-[13px] font-medium leading-relaxed text-muted-foreground">
         {guide.steps.map((step, index) => (
           <li key={step} className="flex gap-2">
-            <span className="grid size-4 shrink-0 place-items-center rounded-full bg-primary/15 text-[9px] font-bold text-primary">
+            <span className="grid size-4 shrink-0 place-items-center rounded-full bg-primary/15 text-[11px] font-bold text-primary">
               {index + 1}
             </span>
             <span>{step}</span>
@@ -200,7 +200,7 @@ export function InstallAppButton({ className }: { className?: string }) {
         </span>
         <span className="min-w-0">
           Install App
-          <span className="block text-[11px] font-medium text-muted-foreground">
+          <span className="block text-[13px] font-medium text-muted-foreground">
             Add StudyLyn to your device
           </span>
         </span>

@@ -31,7 +31,9 @@ export const Route = createFileRoute("/")({
           "Your class work in one place — real notes, the live timetable, deadlines and approved study groups for BBIT 2026.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:image", content: "https://real-class-link.lovable.app/social-image.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://real-class-link.lovable.app/social-image.png" },
     ],
   }),
   component: Landing,
@@ -49,7 +51,7 @@ function Landing() {
             <img src={logoAsset} alt="StudyLyn logo" className="h-9 w-auto" />
             <div className="leading-tight">
               <p className="font-display text-sm font-bold">StudyLyn</p>
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
                 DEKUT BBIT 2026 Hub
               </p>
             </div>
@@ -177,7 +179,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="glass-tint rounded-xl px-3 py-3">
       <dd className="font-display text-xl font-bold">{value}</dd>
-      <dt className="mt-0.5 text-[10px] text-primary-foreground/75">{label}</dt>
+      <dt className="mt-0.5 text-[12px] text-primary-foreground/75">{label}</dt>
     </div>
   );
 }
