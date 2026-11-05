@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * StudyLyn · DEKUT BBIT 2026 Hub — royal blue academic workspace.
+ * StudyLyn · DEKUT BBIT 2026 Hub — DeKUT green & gold academic workspace.
  * All colours are semantic tokens; never hardcode colours in components.
  */
 
@@ -62,73 +62,73 @@
 
 :root {
   --radius: 0.8rem;
-  --background: oklch(0.968 0.018 248);
-  --foreground: oklch(0.31 0.12 255);
+  --background: oklch(0.968 0.015 150);
+  --foreground: oklch(0.30 0.07 155);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.31 0.12 255);
+  --card-foreground: oklch(0.30 0.07 155);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.31 0.12 255);
-  --primary: oklch(0.53 0.24 258);
+  --popover-foreground: oklch(0.30 0.07 155);
+  --primary: oklch(0.47 0.14 152);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.93 0.04 248);
-  --secondary-foreground: oklch(0.5 0.22 258);
-  --muted: oklch(0.95 0.02 248);
-  --muted-foreground: oklch(0.59 0.1 254);
-  --accent: oklch(0.62 0.22 251);
-  --accent-foreground: oklch(1 0 0);
+  --secondary: oklch(0.93 0.035 150);
+  --secondary-foreground: oklch(0.44 0.13 152);
+  --muted: oklch(0.95 0.02 150);
+  --muted-foreground: oklch(0.55 0.05 152);
+  --accent: oklch(0.80 0.145 85);
+  --accent-foreground: oklch(0.28 0.07 80);
   --destructive: oklch(0.61 0.24 27);
   --destructive-foreground: oklch(1 0 0);
   --success: oklch(0.67 0.18 153);
   --success-foreground: oklch(1 0 0);
   --warning: oklch(0.78 0.17 75);
   --warning-foreground: oklch(0.3 0.08 70);
-  --navy: oklch(0.39 0.19 260);
-  --navy-foreground: oklch(0.98 0.01 248);
-  --navy-soft: oklch(0.52 0.23 257);
-  --border: oklch(0.88 0.045 248);
-  --input: oklch(0.86 0.045 248);
-  --ring: oklch(0.62 0.22 251);
-  --chart-1: oklch(0.53 0.24 258);
-  --chart-2: oklch(0.62 0.22 251);
-  --chart-3: oklch(0.67 0.18 220);
-  --chart-4: oklch(0.78 0.17 75);
-  --chart-5: oklch(0.62 0.22 305);
-  --sidebar: oklch(0.35 0.18 260);
-  --sidebar-foreground: oklch(0.98 0.01 248);
-  --sidebar-primary: oklch(0.92 0.05 248);
-  --sidebar-primary-foreground: oklch(0.43 0.21 258);
-  --sidebar-accent: oklch(0.48 0.21 258);
+  --navy: oklch(0.32 0.09 152);
+  --navy-foreground: oklch(0.98 0.01 150);
+  --navy-soft: oklch(0.45 0.12 151);
+  --border: oklch(0.88 0.03 150);
+  --input: oklch(0.86 0.035 150);
+  --ring: oklch(0.55 0.13 151);
+  --chart-1: oklch(0.47 0.14 152);
+  --chart-2: oklch(0.78 0.14 85);
+  --chart-3: oklch(0.60 0.12 148);
+  --chart-4: oklch(0.70 0.12 125);
+  --chart-5: oklch(0.55 0.10 170);
+  --sidebar: oklch(0.31 0.09 152);
+  --sidebar-foreground: oklch(0.98 0.01 150);
+  --sidebar-primary: oklch(0.82 0.13 88);
+  --sidebar-primary-foreground: oklch(0.30 0.08 80);
+  --sidebar-accent: oklch(0.40 0.10 152);
   --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-border: oklch(0.5 0.17 258);
-  --sidebar-ring: oklch(0.79 0.11 246);
-  --shadow-card: 0 1px 2px oklch(0.43 0.16 255 / 0.04), 0 9px 24px oklch(0.43 0.16 255 / 0.09);
-  --shadow-raised: 0 18px 38px oklch(0.37 0.18 258 / 0.18);
+  --sidebar-border: oklch(0.40 0.07 152);
+  --sidebar-ring: oklch(0.80 0.14 88);
+  --shadow-card: 0 1px 2px oklch(0.35 0.10 152 / 0.05), 0 9px 24px oklch(0.35 0.10 152 / 0.09);
+  --shadow-raised: 0 18px 38px oklch(0.30 0.10 152 / 0.20);
 }
 
 .dark {
-  --background: oklch(0.2 0.065 260);
-  --foreground: oklch(0.96 0.02 248);
-  --card: oklch(0.25 0.075 260);
-  --card-foreground: oklch(0.96 0.02 248);
-  --popover: oklch(0.25 0.075 260);
-  --popover-foreground: oklch(0.96 0.02 248);
-  --primary: oklch(0.7 0.18 250);
-  --primary-foreground: oklch(0.19 0.07 260);
-  --secondary: oklch(0.31 0.09 258);
-  --secondary-foreground: oklch(0.9 0.05 246);
-  --muted: oklch(0.28 0.065 260);
-  --muted-foreground: oklch(0.72 0.07 250);
-  --accent: oklch(0.72 0.18 247);
-  --accent-foreground: oklch(0.19 0.07 260);
-  --border: oklch(0.36 0.08 258);
-  --input: oklch(0.39 0.08 258);
-  --ring: oklch(0.7 0.18 250);
-  --navy: oklch(0.22 0.1 262);
-  --navy-foreground: oklch(0.97 0.015 248);
-  --navy-soft: oklch(0.52 0.23 257);
-  --sidebar: oklch(0.18 0.085 262);
-  --sidebar-foreground: oklch(0.97 0.015 248);
-  --sidebar-accent: oklch(0.36 0.15 259);
+  --background: oklch(0.20 0.045 155);
+  --foreground: oklch(0.96 0.015 150);
+  --card: oklch(0.25 0.055 155);
+  --card-foreground: oklch(0.96 0.015 150);
+  --popover: oklch(0.25 0.055 155);
+  --popover-foreground: oklch(0.96 0.015 150);
+  --primary: oklch(0.72 0.14 150);
+  --primary-foreground: oklch(0.20 0.06 155);
+  --secondary: oklch(0.31 0.07 152);
+  --secondary-foreground: oklch(0.90 0.05 148);
+  --muted: oklch(0.28 0.05 153);
+  --muted-foreground: oklch(0.72 0.05 150);
+  --accent: oklch(0.80 0.14 88);
+  --accent-foreground: oklch(0.22 0.06 155);
+  --border: oklch(0.36 0.06 152);
+  --input: oklch(0.39 0.06 152);
+  --ring: oklch(0.72 0.14 150);
+  --navy: oklch(0.22 0.07 153);
+  --navy-foreground: oklch(0.97 0.015 150);
+  --navy-soft: oklch(0.45 0.12 151);
+  --sidebar: oklch(0.18 0.06 154);
+  --sidebar-foreground: oklch(0.97 0.015 150);
+  --sidebar-accent: oklch(0.32 0.09 152);
 }
 
 @layer base {
@@ -136,9 +136,9 @@
     border-color: var(--color-border);
   }
 
-  /* Compact scale: one smaller root size tightens text and spacing app-wide. */
+  /* Comfortable scale: readable base size across text and controls app-wide. */
   html {
-    font-size: 15px;
+    font-size: 17px;
   }
 
   body {
@@ -181,20 +181,20 @@
 }
 
 @utility hero-gradient {
-  background-image: linear-gradient(135deg, oklch(0.43 0.22 261) 0%, oklch(0.53 0.25 257) 55%, oklch(0.64 0.21 247) 100%);
+  background-image: linear-gradient(135deg, oklch(0.34 0.12 152) 0%, oklch(0.45 0.14 150) 55%, oklch(0.57 0.12 148) 100%);
 }
 
 @utility navy-gradient {
-  background-image: linear-gradient(135deg, oklch(0.34 0.2 263) 0%, oklch(0.5 0.25 258) 100%);
+  background-image: linear-gradient(135deg, oklch(0.30 0.10 152) 0%, oklch(0.44 0.13 150) 100%);
 }
 
 @utility text-gradient {
-  background-image: linear-gradient(100deg, oklch(0.48 0.24 260), oklch(0.66 0.2 247));
+  background-image: linear-gradient(100deg, oklch(0.48 0.13 152), oklch(0.70 0.14 88));
   background-clip: text;
   color: transparent;
 }
 
-/* Rounded white sheet that sits over the navy header */
+/* Rounded white sheet that sits over the green header */
 @utility app-sheet {
   background-image: linear-gradient(var(--color-background), var(--color-background));
   border-top-left-radius: 1.75rem;
